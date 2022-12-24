@@ -47,6 +47,11 @@ KEY_SYMBOLS = "0123456789-abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 KEY_LEN = 40  # Длина ключа
 
 
+# Вывод сообщения об ошибке
+def print_exc(text):
+    print('{!!!} ' + text + ' {!!!}')
+
+
 # Проверка, корректировка и запись в файл настроек
 def change_settings():
     global _s_name_mode_, _s_count_from_, _s_format_, _s_ru_, _s_example_key_, _s_print_info_
@@ -64,9 +69,10 @@ def change_settings():
     if _s_print_info_ not in ['0', '1']:
         _s_print_info_ = PRINT_INFO_DEF
 
-    with open(SETTINGS_PATH, 'w') as settingsF:  # Запись исправленных настроек в файл
-        settingsF.write(_s_name_mode_ + '\n' + _s_count_from_ + '\n' + _s_format_ + '\n' + _s_marker_enc_ + '\n' + _s_marker_dec_ + '\n' + _s_ru_ + '\n' +
-                        _s_dir_enc_from_ + '\n' + _s_dir_enc_to_ + '\n' + _s_dir_dec_from_ + '\n' + _s_dir_dec_to_ + '\n' + _s_example_key_ + '\n' + _s_print_info_)
+    with open(SETTINGS_PATH, 'w') as _settings_file:  # Запись исправленных настроек в файл
+        _settings_file.write(_s_name_mode_ + '\n' + _s_count_from_ + '\n' + _s_format_ + '\n' + _s_marker_enc_ + '\n' +
+                             _s_marker_dec_ + '\n' + _s_ru_ + '\n' + _s_dir_enc_from_ + '\n' + _s_dir_enc_to_ + '\n' +
+                             _s_dir_dec_from_ + '\n' + _s_dir_dec_to_ + '\n' + _s_example_key_ + '\n' + _s_print_info_)
 
 
 # Установка значений по умолчанию для всех настроек
@@ -115,7 +121,7 @@ def key_processing():
         print('======================================================================================')
         return key_processing()
 
-    bits = [[0] * KEY_LEN for i in range(6)]  # Преобразование ключа в массив битов (каждый символ - в 6 битов)
+    bits = [[0] * KEY_LEN for _ in range(6)]  # Преобразование ключа в массив битов (каждый символ - в 6 битов)
     for i in range(KEY_LEN):
         temp = KEY_SYMBOLS.find(key[i])
         if temp == -1:  # Если ключ содержит недопустимые символы
@@ -187,17 +193,17 @@ def encode(img):
     if len(img.shape) < 3:
         img = red
     else:
-        if (order == 0):  # Перемешивание и объединение каналов
+        if order == 0:  # Перемешивание и объединение каналов
             img = dstack((red, green, blue))
-        elif (order == 1):
+        elif order == 1:
             img = dstack((red, blue, green))
-        elif (order == 2):
+        elif order == 2:
             img = dstack((green, red, blue))
-        elif (order == 3):
+        elif order == 3:
             img = dstack((green, blue, red))
-        elif (order == 4):
+        elif order == 4:
             img = dstack((blue, red, green))
-        elif (order == 5):
+        elif order == 5:
             img = dstack((blue, green, red))
 
     return img
@@ -331,22 +337,22 @@ def decode_filename(name):
 
 
 # Преобразование имени файла
-def rename_file(op_mode, name_mode, base_name, ext, outp_dir, marker, count_correct):
+def rename_file(op_mode, name_mode, _base_name, _ext, outp_dir, _marker, count_correct):
     if op_mode == '1':  # При шифровке
         count_same = 1  # Счётчик файлов с таким же именем
         counter = ''
         while True:
             if name_mode == '0':
-                new_name = encode_filename(base_name + counter)
+                new_name = encode_filename(_base_name + counter)
             elif name_mode == '1':
                 new_name = ('{:0' + _s_format_ + '}').format(count_correct) + counter
             elif name_mode == '2':
-                new_name = marker + base_name + counter
+                new_name = _marker + _base_name + counter
             elif name_mode == '3':
-                new_name = base_name + marker + counter
+                new_name = _base_name + _marker + counter
             else:
-                new_name = base_name + counter
-            new_name += ext
+                new_name = _base_name + counter
+            new_name += _ext
 
             if new_name not in os.listdir(outp_dir):  # Если нет файлов с таким же именем, то завершаем цикл
                 break
@@ -354,21 +360,21 @@ def rename_file(op_mode, name_mode, base_name, ext, outp_dir, marker, count_corr
             counter = ' [' + str(count_same) + ']'  # Если уже есть файл с таким именем, то добавляется индекс
     else:  # При дешифровке
         if name_mode == '0':
-            new_name = decode_filename(base_name)
+            new_name = decode_filename(_base_name)
         elif name_mode == '1':
             new_name = ('{:0' + _s_format_ + '}').format(count_correct)
         elif name_mode == '2':
-            new_name = marker + base_name
+            new_name = _marker + _base_name
         elif name_mode == '3':
-            new_name = base_name + marker
+            new_name = _base_name + _marker
         else:
-            new_name = base_name
+            new_name = _base_name
 
         count_same = 1  # Счётчик файлов с таким же именем
-        temp_name = new_name + ext
+        temp_name = new_name + _ext
         while temp_name in os.listdir(outp_dir):  # Если уже есть файл с таким именем, то добавляется индекс
             count_same += 1
-            temp_name = new_name + ' [' + str(count_same) + ']' + ext
+            temp_name = new_name + ' [' + str(count_same) + ']' + _ext
         new_name = temp_name
     return new_name
 
@@ -376,25 +382,25 @@ def rename_file(op_mode, name_mode, base_name, ext, outp_dir, marker, count_corr
 # Обработка папки с файлами
 def encrypt_dir(inp_dir, outp_dir, count_all):
     count_correct = int(_s_count_from_) - 1  # Счётчик количества обработанных файлов
-    for file_name in os.listdir(inp_dir):  # Проход по файлам
-        base_name, ext = os.path.splitext(file_name)
+    for _file_name in os.listdir(inp_dir):  # Проход по файлам
+        _base_name, _ext = os.path.splitext(_file_name)
         count_all += 1
 
-        pth = os.path.join(inp_dir, file_name)
+        pth = os.path.join(inp_dir, _file_name)
         isdir = os.path.isdir(pth)
-        if ext.lower() not in formats and not isdir:  # Проверка формата
-            print(f'({count_all}) <{file_name}>')
+        if _ext.lower() not in formats and not isdir:  # Проверка формата
+            print(f'({count_all}) <{_file_name}>')
             print_exc('Unsupported file extension')
             print()
             continue
         count_correct += 1
 
-        if ext in ['.png', '.jpg', '.jpeg', '.bmp']:
-            res_name = rename_file(op_cmd, _s_name_mode_, base_name, '.png', outp_dir, marker, count_correct)  # Преобразование имени файла
+        if _ext in ['.png', '.jpg', '.jpeg', '.bmp']:
+            res_name = rename_file(op_cmd, _s_name_mode_, _base_name, '.png', outp_dir, marker, count_correct)  # Преобразование имени файла
 
-            print(f'({count_all}) <{file_name}>  ->  <{res_name}>')  # Вывод информации
+            print(f'({count_all}) <{_file_name}>  ->  <{res_name}>')  # Вывод информации
 
-            img = imread(os.path.join(inp_dir, file_name))  # Считывание изображения
+            img = imread(os.path.join(inp_dir, _file_name))  # Считывание изображения
             if _s_print_info_ == '1':
                 print(img.shape)
 
@@ -406,17 +412,17 @@ def encrypt_dir(inp_dir, outp_dir, count_all):
                 img = decode(img, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b)
                 imsave(outp_path, img.astype(uint8))
             print()
-        elif ext == '.gif':
-            res_name = rename_file(op_cmd, _s_name_mode_, base_name, '', outp_dir, marker, count_correct)  # Преобразование имени файла
+        elif _ext == '.gif':
+            res_name = rename_file(op_cmd, _s_name_mode_, _base_name, '', outp_dir, marker, count_correct)  # Преобразование имени файла
 
-            print(f'({count_all}) <{file_name}>  ->  <{res_name}>')  # Вывод информации
+            print(f'({count_all}) <{_file_name}>  ->  <{res_name}>')  # Вывод информации
 
             res = os.path.join(outp_dir, res_name)
             if res_name not in os.listdir(outp_dir):
                 os.mkdir(res)
             open(os.path.join(res, '_gif'), 'w')
 
-            with Image.open(os.path.join(inp_dir, file_name)) as im:
+            with Image.open(os.path.join(inp_dir, _file_name)) as im:
                 for i in range(im.n_frames):
                     print(f'frame {i + 1}')
                     im.seek(i)
@@ -431,11 +437,11 @@ def encrypt_dir(inp_dir, outp_dir, count_all):
                 imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
                 os.remove(TMP_PATH)
         elif isdir and '_gif' in os.listdir(pth) and op_cmd == '2':
-            res_name = rename_file(op_cmd, _s_name_mode_, file_name, '.gif', outp_dir, marker, count_correct)  # Преобразование имени файла
+            res_name = rename_file(op_cmd, _s_name_mode_, _file_name, '.gif', outp_dir, marker, count_correct)  # Преобразование имени файла
 
-            print(f'({count_all}) <{file_name}>  ->  <{res_name}>')  # Вывод информации
+            print(f'({count_all}) <{_file_name}>  ->  <{res_name}>')  # Вывод информации
 
-            inp_dir_tmp = os.path.join(inp_dir, file_name)
+            inp_dir_tmp = os.path.join(inp_dir, _file_name)
             frames = sorted((fr for fr in os.listdir(inp_dir_tmp) if fr.endswith('.png')))
             res = os.path.join(outp_dir, res_name)
 
@@ -455,18 +461,18 @@ def encrypt_dir(inp_dir, outp_dir, count_all):
                 imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
                 os.remove(TMP_PATH)
             writer.close()
-        elif ext in ['.avi', '.mp4', '.webm']:
-            tmp_name = rename_file(op_cmd, '1', base_name, '', outp_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
-            res_name = rename_file(op_cmd, _s_name_mode_, base_name, '', outp_dir, marker, count_correct)
+        elif _ext in ['.avi', '.mp4', '.webm']:
+            tmp_name = rename_file(op_cmd, '1', _base_name, '', outp_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
+            res_name = rename_file(op_cmd, _s_name_mode_, _base_name, '', outp_dir, marker, count_correct)
 
-            print(f'({count_all}) <{file_name}>  ->  <{res_name}>')  # Вывод информации
+            print(f'({count_all}) <{_file_name}>  ->  <{res_name}>')  # Вывод информации
 
             res = os.path.join(outp_dir, tmp_name)
             if tmp_name not in os.listdir(outp_dir):
                 os.mkdir(res)
             open(os.path.join(res, '_vid'), 'w')
 
-            vid = VideoFileClip(os.path.join(inp_dir, file_name))
+            vid = VideoFileClip(os.path.join(inp_dir, _file_name))
             fps = min(vid.fps, 24)
             step = 1 / fps
             count = 0
@@ -486,12 +492,12 @@ def encrypt_dir(inp_dir, outp_dir, count_all):
 
             os.rename(res, os.path.join(outp_dir, res_name))
         elif isdir and '_vid' in os.listdir(pth) and op_cmd == '2':
-            tmp_name = rename_file(op_cmd, '1', file_name, '.mp4', outp_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
-            res_name = rename_file(op_cmd, _s_name_mode_, file_name, '.mp4', outp_dir, marker, count_correct)
+            tmp_name = rename_file(op_cmd, '1', _file_name, '.mp4', outp_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
+            res_name = rename_file(op_cmd, _s_name_mode_, _file_name, '.mp4', outp_dir, marker, count_correct)
 
-            print(f'({count_all}) <{file_name}>  ->  <{res_name}>')  # Вывод информации
+            print(f'({count_all}) <{_file_name}>  ->  <{res_name}>')  # Вывод информации
 
-            inp_dir_tmp = os.path.join(inp_dir, file_name)
+            inp_dir_tmp = os.path.join(inp_dir, _file_name)
             res = os.path.join(outp_dir, tmp_name)
 
             img = imread(os.path.join(inp_dir_tmp, '000000.png'))
@@ -520,11 +526,11 @@ def encrypt_dir(inp_dir, outp_dir, count_all):
 
             os.rename(res, os.path.join(outp_dir, res_name))
         elif isdir:
-            res_name = rename_file(op_cmd, _s_name_mode_, base_name, '', outp_dir, marker, count_correct)  # Преобразование имени файла
+            res_name = rename_file(op_cmd, _s_name_mode_, _base_name, '', outp_dir, marker, count_correct)  # Преобразование имени файла
 
-            print(f'({count_all}) <{file_name}>  ->  <{res_name}>')  # Вывод информации
+            print(f'({count_all}) <{_file_name}>  ->  <{res_name}>')  # Вывод информации
 
-            new_inp_dir = os.path.join(inp_dir, file_name)
+            new_inp_dir = os.path.join(inp_dir, _file_name)
             new_outp_dir = os.path.join(outp_dir, res_name)
 
             if res_name not in os.listdir(outp_dir):
@@ -536,25 +542,20 @@ def encrypt_dir(inp_dir, outp_dir, count_all):
     return count_all
 
 
-# Вывод сообщения об ошибке
-def print_exc(s):
-    print('{!!!} ' + s + ' {!!!}')
-
-
 if TMP_FILE in os.listdir(RESOURCES_DIR):  # Затирание временного файла при запуске программы, если он остался с прошлого сеанса
     open(TMP_PATH, 'w')
     os.remove(TMP_PATH)
 
 print('======================================================================================\n')  # Вывод информации о программе
 print('                            Anenokil development  presents')
-print('                                Media encrypter v5.5.0')
-print('                                   26.11.2022 14:49\n')
+print('                                Media encrypter v5.5.1')
+print('                                   24.12.2022 12:57\n')
 
 try:
-    with open(SETTINGS_PATH, 'r') as settingsF:  # Загрузка настроек из файла
+    with open(SETTINGS_PATH, 'r') as settings_file:  # Загрузка настроек из файла
         _s_name_mode_, _s_count_from_, _s_format_, _s_marker_enc_, _s_marker_dec_, _s_ru_, _s_dir_enc_from_,\
             _s_dir_enc_to_, _s_dir_dec_from_, _s_dir_dec_to_, _s_example_key_, _s_print_info_ =\
-            [settingsF.readline().strip() for i in range(SETTINGS_NUM)]
+            [settings_file.readline().strip() for _ in range(SETTINGS_NUM)]
 except FileNotFoundError:  # Если файл с настройками отсутствует, то устанавливаются настройки по умолчанию
     set_default_settings()
 change_settings()  # Проверка корректности настроек
@@ -674,10 +675,10 @@ while True:  # Обработка пользовательских команд
                     continue
                 custom_settings_file = os.path.join(CUSTOM_SETTINGS_DIR, custom_settings_file)
 
-                with open(custom_settings_file, 'r') as settingsF:   # Загрузка настроек
+                with open(custom_settings_file, 'r') as settings_file:   # Загрузка настроек
                     _s_name_mode_, _s_count_from_, _s_format_, _s_marker_enc_, _s_marker_dec_, _s_ru_, _s_dir_enc_from_,\
                         _s_dir_enc_to_, _s_dir_dec_from_, _s_dir_dec_to_, _s_example_key_, _s_print_info_ = \
-                        [settingsF.readline().strip() for i in range(SETTINGS_NUM)]
+                        [settings_file.readline().strip() for i in range(SETTINGS_NUM)]
             elif cmd.upper() == 'RM':
                 csf_count = 0
                 csf_list = []
