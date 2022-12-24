@@ -39,7 +39,7 @@ PRINT_INFO_DEF = '0'
 
 # Варианты настроек с перечислимым типом
 NAMING_MODES = ['encryption', 'numeration', 'add prefix', 'add postfix', 'don`t change']  # Варианты настройки именования выходных файлов
-RU_LANG_MODES = ['transliterate to latin', 'allowed']  # Варианты настройки обработки кириллических букв
+RU_LANG_MODES = ['transliterate to latin', 'don`t change']  # Варианты настройки обработки кириллических букв
 PRINT_INFO_MODES = ['don`t print', 'print']  # Варианты настройки печати информации
 
 """ Ключ """
@@ -97,51 +97,51 @@ def set_default_settings():
 # Вывод текущих настроек
 def print_settings():
     print('====================================== SETTINGS ======================================')
-    print('   File names conversation mode: ' + NAMING_MODES[int(_s_name_mode_)])
-    print('            Account starts with: ' + _s_count_from_ + ' [only for numerating file names conversation mode]')
-    print('    Number of digits in numbers: ' + _s_format_ + ' [only for numerating file names conversation mode]')
-    print('       Marker for encoded files: ' + _s_marker_enc_ + ' [only for prefix/postfix file names conversation mode]')
-    print('       Marker for decoded files: ' + _s_marker_dec_ + ' [only for prefix/postfix file names conversation mode]')
-    print(' Russian letter processing mode: ' + RU_LANG_MODES[int(_s_ru_)])
-    print('     Source folder for encoding: ' + _s_dir_enc_from_)
-    print('Destination folder for encoding: ' + _s_dir_enc_to_)
-    print('     Source folder for decoding: ' + _s_dir_dec_from_)
-    print('Destination folder for decoding: ' + _s_dir_dec_to_)
-    print('             Example of the key: ' + _s_example_key_)
-    print('          Whether to print info: ' + PRINT_INFO_MODES[int(_s_print_info_)])
+    print(f'      File names conversion mode: {NAMING_MODES[int(_s_name_mode_)]}')
+    print(f'       Start counting files from: {_s_count_from_} [only for numerating file names conversion mode]')
+    print(f'     Number of digits in numbers: {_s_format_} [only for numerating file names conversion mode]')
+    print(f'        Marker for encoded files: {_s_marker_enc_} [only for prefix/postfix file names conversion mode]')
+    print(f'        Marker for decoded files: {_s_marker_dec_} [only for prefix/postfix file names conversion mode]')
+    print(f' Russian letters processing mode: {RU_LANG_MODES[int(_s_ru_)]}')
+    print(f'     Source folder when encoding: {_s_dir_enc_from_}')
+    print(f'Destination folder when encoding: {_s_dir_enc_to_}')
+    print(f'     Source folder when decoding: {_s_dir_dec_from_}')
+    print(f'Destination folder when decoding: {_s_dir_dec_to_}')
+    print(f'                Example of a key: {_s_example_key_}')
+    print(f'           Whether to print info: {PRINT_INFO_MODES[int(_s_print_info_)]}')
 
 
 # Ввод ключа и преобразование его в массив битов
 def key_processing():
-    print(' ' * 28 + _s_example_key_)  # Тестовый ключ
-    print(' ' * 28 + 'v' * KEY_LEN)
-    key = input('Enter the key (' + str(KEY_LEN) + ' symbols): ').lower()  # Ввод ключа
+    print(' ' * 63 + _s_example_key_)  # Тестовый ключ
+    print(' ' * 63 + 'v' * KEY_LEN)
+    key = input(f'Enter a key ({KEY_LEN} symbols; only latin letters, digits, - and _): ').lower()  # Ввод ключа
     if len(key) != KEY_LEN:  # Если неверная длина ключа
-        print_exc('Wrong length of the password')
+        print_exc('Wrong length of the key')
         print('======================================================================================')
         return key_processing()
 
     bits = [[0] * KEY_LEN for _ in range(6)]  # Преобразование ключа в массив битов (каждый символ - в 6 битов)
-    for i in range(KEY_LEN):
-        temp = KEY_SYMBOLS.find(key[i])
+    for _i in range(KEY_LEN):
+        temp = KEY_SYMBOLS.find(key[_i])
         if temp == -1:  # Если ключ содержит недопустимые символы
-            print_exc(f'Incorrect symbol "{key[i]}" (only latin letters, digits, - and _)')
+            print_exc(f'Incorrect symbol "{key[_i]}" (only latin letters, digits, - and _)')
             print('======================================================================================')
             return key_processing()
         for j in range(6):
-            bits[j][i] = temp // (2 ** j) % 2
+            bits[j][_i] = temp // (2 ** j) % 2
     return bits
 
 
 # Нахождение числа по его битам
 def bites_sum(*bites):
     s = 0
-    for i in bites:
-        if type(i) == list:  # Можно передавать массивы
-            for j in i:
+    for _i in bites:
+        if type(_i) == list:  # Можно передавать массивы
+            for j in _i:
                 s = 2 * s + j
         else:  # А можно числа
-            s = 2 * s + i
+            s = 2 * s + _i
     return s
 
 
@@ -150,21 +150,23 @@ def mix_blocks(img, mult_h, mult_w, shift_h, shift_w):
     h = img.shape[0]  # Высота изображения
     w = img.shape[1]  # Ширина изображения
 
-    while gcd(mult_h, h) != 1 or mult_h % h == 1:  # Нахождение наименьшего числа, взаимно-простого с h, большего чем mult_h, дающего при делении на h в остатке 1
+    while gcd(mult_h, h) != 1 or mult_h % h == 1:  # Нахождение наименьшего числа, взаимно-простого с h,
+                                                   # большего чем mult_h, дающего при делении на h в остатке 1
         mult_h += 1
-    while gcd(mult_w, w) != 1 or mult_w % w == 1:  # Нахождение наименьшего числа, взаимно-простого с w, большего чем mult_w, дающего при делении на w в остатке 1
+    while gcd(mult_w, w) != 1 or mult_w % w == 1:  # Нахождение наименьшего числа, взаимно-простого с w,
+                                                   # большего чем mult_w, дающего при делении на w в остатке 1
         mult_w += 1
     if _s_print_info_ == '1':
-        print(str(h) + 'x' + str(w) + ':', mult_h, mult_w)
+        print(f'{h}x{w}: {mult_h} {mult_w}')
 
     img_tmp = img.copy()
-    for i in range(h):
+    for _i in range(h):
         for j in range(w):
-            jj = (j + shift_w * i) % w
-            ii = (i + shift_h * jj) % h
+            jj = (j + shift_w * _i) % w
+            ii = (_i + shift_h * jj) % h
             iii = (ii * mult_h) % h
             jjj = (jj * mult_w) % w
-            img[iii][jjj] = img_tmp[i][j]
+            img[iii][jjj] = img_tmp[_i][j]
 
 
 # Шифровка файла
@@ -172,7 +174,7 @@ def encode(img):
     if len(img.shape) < 3:
         red, green, blue = img.copy(), img.copy(), img.copy()
     else:
-        red, green, blue = [img[:, :, i].copy() for i in range(3)]  # Разделение изображения на RGB-каналы
+        red, green, blue = [img[:, :, _i].copy() for _i in range(3)]  # Разделение изображения на RGB-каналы
 
     mix_blocks(red,   mult_blocks_h_r, mult_blocks_w_r, shift_h_r, shift_w_r)  # Перемешивание блоков для каждого канала
     mix_blocks(green, mult_blocks_h_g, mult_blocks_w_g, shift_h_g, shift_w_g)
@@ -211,19 +213,21 @@ def encode(img):
 
 # Вычисление параметров для recover_blocks
 def recover_blocks_calc(h, w, mult_h, mult_w):
-    while gcd(mult_h, h) != 1 or mult_h % h == 1:  # Нахождение наименьшего числа, взаимно-простого с h, большего чем mult_h, дающего при делении на h в остатке 1
+    while gcd(mult_h, h) != 1 or mult_h % h == 1:  # Нахождение наименьшего числа, взаимно-простого с h,
+                                                   # большего чем mult_h, дающего при делении на h в остатке 1
         mult_h += 1
-    while gcd(mult_w, w) != 1 or mult_w % w == 1:  # Нахождение наименьшего числа, взаимно-простого с w, большего чем mult_w, дающего при делении на w в остатке 1
+    while gcd(mult_w, w) != 1 or mult_w % w == 1:  # Нахождение наименьшего числа, взаимно-простого с w,
+                                                   # большего чем mult_w, дающего при делении на w в остатке 1
         mult_w += 1
     if _s_print_info_ == '1':
-        print(str(h) + 'x' + str(w) + ':', mult_h, mult_w)
+        print(f'{h}x{w}: {mult_h} {mult_w}')
 
     dec_h = [0] * h  # Составление массива обратных сдвигов по вертикали
-    for i in range(h):
-        dec_h[(i * mult_h) % h] = i
+    for _i in range(h):
+        dec_h[(_i * mult_h) % h] = _i
     dec_w = [0] * w  # Составление массива обратных сдвигов по горизонтали
-    for i in range(w):
-        dec_w[(i * mult_w) % w] = i
+    for _i in range(w):
+        dec_w[(_i * mult_w) % w] = _i
 
     return dec_h, dec_w
 
@@ -231,13 +235,13 @@ def recover_blocks_calc(h, w, mult_h, mult_w):
 # Разделение полотна на блоки и восстановление из них исходного изображения
 def recover_blocks(img, h, w, shift_h, shift_w, dec_h, dec_w):
     img_tmp = img.copy()
-    for i in range(h):
+    for _i in range(h):
         for j in range(w):
-            ii = dec_h[i]
+            ii = dec_h[_i]
             jj = dec_w[j]
             iii = (ii + (h - shift_h) * jj) % h
             jjj = (jj + (w - shift_w) * iii) % w
-            img[iii][jjj] = img_tmp[i][j]
+            img[iii][jjj] = img_tmp[_i][j]
 
 
 # Вычисление параметров для decode
@@ -257,28 +261,28 @@ def decode(img, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b):
     if len(img.shape) < 3:
         red, green, blue = img.copy(), img.copy(), img.copy()
     else:
-        if (order == 0):  # Разделение изображения на RGB-каналы и отмена их перемешивания
-            red, green, blue = [img[:, :, i].copy() for i in range(3)]
-        elif (order == 1):
-            red, blue, green = [img[:, :, i].copy() for i in range(3)]
-        elif (order == 2):
-            green, red, blue = [img[:, :, i].copy() for i in range(3)]
-        elif (order == 3):
-            green, blue, red = [img[:, :, i].copy() for i in range(3)]
-        elif (order == 4):
-            blue, red, green = [img[:, :, i].copy() for i in range(3)]
-        elif (order == 5):
-            blue, green, red = [img[:, :, i].copy() for i in range(3)]
+        if order == 0:  # Разделение изображения на RGB-каналы и отмена их перемешивания
+            red, green, blue = [img[:, :, _i].copy() for _i in range(3)]
+        elif order == 1:
+            red, blue, green = [img[:, :, _i].copy() for _i in range(3)]
+        elif order == 2:
+            green, red, blue = [img[:, :, _i].copy() for _i in range(3)]
+        elif order == 3:
+            green, blue, red = [img[:, :, _i].copy() for _i in range(3)]
+        elif order == 4:
+            blue, red, green = [img[:, :, _i].copy() for _i in range(3)]
+        elif order == 5:
+            blue, green, red = [img[:, :, _i].copy() for _i in range(3)]
 
     red = (red - shift2_r) % 256  # Отмена конечного смещения цвета для каждого канала
     green = (green - shift2_g) % 256
     blue = (blue - shift2_b) % 256
 
-    for i in range(h):  # Отмена мультипликативного смещения цвета для каждого канала
+    for _i in range(h):  # Отмена мультипликативного смещения цвета для каждого канала
         for j in range(w):
-            red[i][j] = DEC_R[red[i][j]]
-            green[i][j] = DEC_G[green[i][j]]
-            blue[i][j] = DEC_B[blue[i][j]]
+            red[_i][j] = DEC_R[red[_i][j]]
+            green[_i][j] = DEC_G[green[_i][j]]
+            blue[_i][j] = DEC_B[blue[_i][j]]
 
     red = (red - shift_r) % 256  # Отмена начального смещения цвета для каждого канала
     green = (green - shift_g) % 256
@@ -309,7 +313,7 @@ def encode_filename(name):
     for letter in name:  # Шифровка
         letter = FN_SYMBOLS[(FN_SYMBOLS.find(letter) + 3) * mn % FN_SYMB_NUM]
         new_name = letter + new_name
-    new_name = '_' + new_name + '_'  # Защита от потери крайних пробелов
+    new_name = f'_{new_name}_'  # Защита от потери крайних пробелов
     return new_name
 
 
@@ -322,8 +326,8 @@ def decode_filename(name):
         mn += 1
 
     arr = [0] * FN_SYMB_NUM  # Дешифровочный массив
-    for i in range(FN_SYMB_NUM):
-        arr[(i + 3) * mn % FN_SYMB_NUM] = i
+    for _i in range(FN_SYMB_NUM):
+        arr[(_i + 3) * mn % FN_SYMB_NUM] = _i
 
     new_name = ''
     for letter in name:  # Дешифровка
@@ -374,7 +378,7 @@ def rename_file(op_mode, name_mode, _base_name, _ext, outp_dir, _marker, count_c
         temp_name = new_name + _ext
         while temp_name in os.listdir(outp_dir):  # Если уже есть файл с таким именем, то добавляется индекс
             count_same += 1
-            temp_name = new_name + ' [' + str(count_same) + ']' + _ext
+            temp_name = f'{new_name} [{count_same}]{_ext}'
         new_name = temp_name
     return new_name
 
@@ -423,15 +427,15 @@ def encrypt_dir(inp_dir, outp_dir, count_all):
             open(os.path.join(res, '_gif'), 'w')
 
             with Image.open(os.path.join(inp_dir, _file_name)) as im:
-                for i in range(im.n_frames):
-                    print(f'frame {i + 1}')
-                    im.seek(i)
+                for _i in range(im.n_frames):
+                    print(f'frame {_i + 1}')
+                    im.seek(_i)
                     im.save(TMP_PATH)
 
                     fr = imread(TMP_PATH)
                     if _s_print_info_ == '1':  # Вывод информации о считывании
                         print(fr.shape)
-                    outp_path = os.path.join(res, '{:05}.png'.format(i))
+                    outp_path = os.path.join(res, '{:05}.png'.format(_i))
                     imsave(outp_path, encode(fr).astype(uint8))
                     print()
                 imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
@@ -449,9 +453,9 @@ def encrypt_dir(inp_dir, outp_dir, count_all):
             h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b = decode_calc(img)
 
             with io.get_writer(res, mode='I', duration=1/24) as writer:
-                for i in range(len(frames)):
-                    print(f'frame {i + 1}')
-                    fr = imread(os.path.join(inp_dir_tmp, frames[i]))
+                for _i in range(len(frames)):
+                    print(f'frame {_i + 1}')
+                    fr = imread(os.path.join(inp_dir_tmp, frames[_i]))
                     if _s_print_info_ == '1':  # Вывод информации о считывании
                         print(fr.shape)
                     img = decode(fr, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b)
@@ -548,8 +552,8 @@ if TMP_FILE in os.listdir(RESOURCES_DIR):  # Затирание временно
 
 print('======================================================================================\n')  # Вывод информации о программе
 print('                            Anenokil development  presents')
-print('                                Media encrypter v5.5.1')
-print('                                   24.12.2022 12:57\n')
+print('                                Media encrypter v5.5.2')
+print('                                   24.12.2022 13:50\n')
 
 try:
     with open(SETTINGS_PATH, 'r') as settings_file:  # Загрузка настроек из файла
@@ -564,71 +568,71 @@ print_settings()  # Вывод текущих настроек
 while True:  # Обработка пользовательских команд
     while True:  # Ввод команды
         print('======================================================================================')
-        print('Choose one of the options:')
-        print('[1] Start encode')
-        print('[2] Start decode')
-        print('[S] Edit settings')
+        print('Choose one of the actions:')
+        print('[E] start Encode')
+        print('[D] start Decode')
+        print('[S] open Settings')
         print('[T] Terminate program')
-        print('[MCM] Enter manual control mode')
-        op_cmd = input()
-        if op_cmd.upper() in ['1', '2', 'S', 'T', 'MCM']:
+        print('[MCM] enter Manual Control Mode')
+        op_cmd = input().upper()
+        if op_cmd in ['E', 'D', 'S', 'T', 'MCM']:
             break
-        print_exc('Incorrect option')
+        print_exc('Incorrect command')
 
-    if op_cmd.upper() == 'S':  # Изменение настроек
+    if op_cmd == 'S':  # Изменение настроек
         while True:
             print('=================================== EDIT  SETTINGS ===================================')
-            print('[0] File names conversation mode')
-            print('[1] What number does the account start with (only for numerating file names conversation mode)')
-            print('[2] Number of digits in numbers (only for numerating file names conversation mode)')
-            print('[3] Marker for encoded files (only for prefix/postfix file names conversation mode)')
-            print('[4] Marker for decoded files (only for prefix/postfix file names conversation mode)')
-            print('[5] Russian letter processing mode')
-            print('[6] Source folder for encoding')
-            print('[7] Destination folder for encoding')
-            print('[8] Source folder for decoding')
-            print('[9] Destination folder for decoding')
-            print('[10] An example of the key')
-            print('[11] Whether to print info')
-            print('[SV] Save your custom settings')
-            print('[LD] Load your custom settings')
-            print('[RM] Remove your custom settings')
-            print('[DEF] Set default settings')
-            print('[BACK] Return back')
+            print('[F] File names conversion mode')
+            print('[C] start Counting files from (only for numerating file names conversion mode)')
+            print('[D] number of Digits in numbers (only for numerating file names conversion mode)')
+            print('[ME] Marker for Encoded files (only for prefix/postfix file names conversion mode)')
+            print('[MD] Marker for Decoded files (only for prefix/postfix file names conversion mode)')
+            print('[R] Russian letters processing mode')
+            print('[SE] Source folder when Encoding')
+            print('[DE] Destination folder when Encoding')
+            print('[SD] Source folder when Decoding')
+            print('[DD] Destination folder when Decoding')
+            print('[K] example of a Key')
+            print('[I] whether to print Info')
+            print('[SV] SaVe your custom settings')
+            print('[LD] LoaD your custom settings')
+            print('[RM] ReMove your custom settings')
+            print('[DEF] set DEFault settings')
+            print('[BACK] return BACK')
 
-            cmd = input()  # Выбор действия
-            if cmd == '0':
+            cmd = input().upper()  # Выбор действия
+            if cmd == 'F':
                 for i in range(len(NAMING_MODES)):
                     print(f'[{i}] {NAMING_MODES[i]}')
                 _s_name_mode_ = input('Choose one of the suggested: ')
-            elif cmd == '1':
+            elif cmd == 'C':
                 _s_count_from_ = input('Enter what number does the account start with: ')
-            elif cmd == '2':
-                _s_format_ = input('Enter number of digits in numbers: ')
-            elif cmd == '3':
-                _s_marker_enc_ = input('Enter marker for encoded files: ')
-            elif cmd == '4':
-                _s_marker_dec_ = input('Enter marker for decoded files: ')
-            elif cmd == '5':
+            elif cmd == 'D':
+                _s_format_ = input('Enter a number of digits in numbers: ')
+            elif cmd == 'ME':
+                _s_marker_enc_ = input('Enter a marker for encoded files: ')
+            elif cmd == 'MD':
+                _s_marker_dec_ = input('Enter a marker for decoded files: ')
+            elif cmd == 'R':
                 for i in range(len(RU_LANG_MODES)):
                     print(f'[{i}] {RU_LANG_MODES[i]}')
                 _s_ru_ = input('Choose one of the suggested: ')
-            elif cmd == '6':
-                _s_dir_enc_from_ = input('Enter source folder for encoding: ')
-            elif cmd == '7':
-                _s_dir_enc_to_ = input('Enter destination folder for encoding: ')
-            elif cmd == '8':
-                _s_dir_dec_from_ = input('Enter source folder for decoding: ')
-            elif cmd == '9':
-                _s_dir_dec_to_ = input('Enter destination folder for decoding: ')
-            elif cmd == '10':
+            elif cmd == 'SE':
+                _s_dir_enc_from_ = input('Enter a source folder when encoding: ')
+            elif cmd == 'DE':
+                _s_dir_enc_to_ = input('Enter a destination folder when encoding: ')
+            elif cmd == 'SD':
+                _s_dir_dec_from_ = input('Enter a source folder when decoding: ')
+            elif cmd == 'DD':
+                _s_dir_dec_to_ = input('Enter a destination folder when decoding: ')
+            elif cmd == 'K':
                 print(' ' * 63 + 'v' * KEY_LEN)
-                _s_example_key_ = input('Enter an example of the key (!!don`t enter your real key!!): ')
-            elif cmd == '11':
+                _s_example_key_ = input('Enter an example of a key (!!don`t enter your real key!!): ')
+            elif cmd == 'I':
                 for i in range(len(PRINT_INFO_MODES)):
                     print(f'[{i}] {PRINT_INFO_MODES[i]}')
                 _s_print_info_ = input('Choose one of the suggested: ')
-            elif cmd.upper() == 'SV':
+            elif cmd == 'SV':
                 custom_settings_file = input('Enter a name for save your custom settings: ') + '.txt'
                 if '..\\' in custom_settings_file:
                     print_exc('You can`t use ..\\')
@@ -640,17 +644,17 @@ while True:  # Обработка пользовательских команд
                     print_exc('Incorrect name for save')
                     continue
 
-                hasIncSymb = False
+                has_inc_symb = False
                 for c in custom_settings_file:
                     if c not in FN_SYMBOLS:
-                        print_exc(f'Incorrect symbol "{c}" in save name')
-                        hasIncSymb = True
+                        print_exc(f'Incorrect symbol "{c}" in the save name')
+                        has_inc_symb = True
                         break
-                if hasIncSymb:
+                if has_inc_symb:
                     continue
 
                 copyfile(SETTINGS_PATH, os.path.join(CUSTOM_SETTINGS_DIR, custom_settings_file))
-            elif cmd.upper() == 'LD':
+            elif cmd == 'LD':
                 csf_count = 0
                 csf_list = []
                 for file_name in os.listdir(CUSTOM_SETTINGS_DIR):
@@ -671,15 +675,15 @@ while True:  # Обработка пользовательских команд
                     csf_index = int(csf_index)
                     custom_settings_file = csf_list[csf_index] + '.txt'
                 except (ValueError, IndexError):
-                    print_exc(f'There is no such option as "{csf_index}"')
+                    print_exc(f'There is no such command as "{csf_index}"')
                     continue
                 custom_settings_file = os.path.join(CUSTOM_SETTINGS_DIR, custom_settings_file)
 
                 with open(custom_settings_file, 'r') as settings_file:   # Загрузка настроек
-                    _s_name_mode_, _s_count_from_, _s_format_, _s_marker_enc_, _s_marker_dec_, _s_ru_, _s_dir_enc_from_,\
-                        _s_dir_enc_to_, _s_dir_dec_from_, _s_dir_dec_to_, _s_example_key_, _s_print_info_ = \
-                        [settings_file.readline().strip() for i in range(SETTINGS_NUM)]
-            elif cmd.upper() == 'RM':
+                    _s_name_mode_, _s_count_from_, _s_format_, _s_marker_enc_, _s_marker_dec_, _s_ru_,\
+                        _s_dir_enc_from_, _s_dir_enc_to_, _s_dir_dec_from_, _s_dir_dec_to_, _s_example_key_,\
+                        _s_print_info_ = [settings_file.readline().strip() for i in range(SETTINGS_NUM)]
+            elif cmd == 'RM':
                 csf_count = 0
                 csf_list = []
                 for file_name in os.listdir(CUSTOM_SETTINGS_DIR):
@@ -700,25 +704,25 @@ while True:  # Обработка пользовательских команд
                     csf_index = int(csf_index)
                     custom_settings_file = csf_list[csf_index] + '.txt'
                 except (ValueError, IndexError):
-                    print_exc(f'There is no such option as "{csf_index}"')
+                    print_exc(f'There is no such command as "{csf_index}"')
                     continue
                 custom_settings_file = os.path.join(CUSTOM_SETTINGS_DIR, custom_settings_file)
 
                 os.remove(custom_settings_file)
-            elif cmd.upper() == 'DEF':
+            elif cmd == 'DEF':
                 set_default_settings()
-            elif cmd.upper() == 'BACK':
+            elif cmd == 'BACK':
                 break
             else:
                 print_exc('Incorrect input')
 
             change_settings()  # Внесение изменений в настройки
             print_settings()  # Вывод текущих настроек
-    elif op_cmd.upper() == 'T':  # Завершение работы
+    elif op_cmd == 'T':  # Завершение работы
         print('======================================================================================')
         print('The program is terminated')
         exit(7)
-    elif op_cmd.upper() == 'MCM':  # Режим ручного управления (отладка)
+    elif op_cmd == 'MCM':  # Режим ручного управления (отладка)
         print('======================================================================================')
         mult_blocks_h_r = int(input('Enter the H multiplier for R: '))  # Множитель блоков по горизонтали для красного канала
         mult_blocks_h_g = int(input('Enter the H multiplier for G: '))  # Множитель блоков по горизонтали для зелёного канала
@@ -746,13 +750,13 @@ while True:  # Обработка пользовательских команд
 
         while True:  # Ввод команды
             print('======================================================================================')
-            print('Choose one of the options:')
-            print('[1] Start encode')
-            print('[2] Start decode')
-            op_cmd = input()
-            if op_cmd in ['1', '2']:
+            print('Choose one of the actions:')
+            print('[E] start Encode')
+            print('[D] start Decode')
+            op_cmd = input().upper
+            if op_cmd in ['E', 'D']:
                 break
-            print_exc('Incorrect option')
+            print_exc('Incorrect command')
         break
     else:
         print('======================================================================================')
@@ -792,7 +796,7 @@ for i in range(256):
     DEC_G[i * mult_g % 256] = i
     DEC_B[i * mult_b % 256] = i
 
-if op_cmd == '1':  # Определение некоторых параметров обработки файлов в зависимости от режима работы
+if op_cmd == 'E':  # Определение некоторых параметров обработки файлов в зависимости от режима работы
     input_dir = _s_dir_enc_from_
     output_dir = _s_dir_enc_to_
     marker = _s_marker_enc_
