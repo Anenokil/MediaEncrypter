@@ -1,3 +1,4 @@
+import os
 from skimage.io import imread, imsave
 from numpy import dstack, uint8, arange
 from math import gcd  # НОД
@@ -7,12 +8,11 @@ from PIL import Image  # Разбиение gif-изображений на ка
 import imageio.v2 as io  # Составление gif-изображений из кадров
 from moviepy.editor import VideoFileClip  # Разбиение видео на кадры
 import cv2  # Составление видео из кадров
-import os
 import tkinter as tk
 import tkinter.ttk as ttk
 
-PROGRAM_NAME = 'Media encrypter v6.0.0_PRE-3'
-PROGRAM_DATE = '26.12.2022  8:59'
+PROGRAM_NAME = 'Media encrypter v6.0.0_PRE-4'
+PROGRAM_DATE = '26.12.2022  9:24'
 
 NORMAL_COLOR = '#FFFFFF'
 ERROR_COLOR = '#DD4444'
@@ -58,6 +58,9 @@ PRINT_INFO_MODES = ['don`t print', 'print']  # Варианты настройк
 """ Ключ """
 KEY_SYMBOLS = '0123456789-abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ'  # Допустимые в ключе символы
 KEY_LEN = 40  # Длина ключа
+
+
+""" Общие функции """
 
 
 # Вывод предупреждения в консоль
@@ -116,7 +119,6 @@ def correct_settings():
         settings['format'] = FORMAT_DEF
     if settings['ru_letters'] not in ['0', '1']:
         settings['ru_letters'] = RU_LETTERS_DEF
-    _len = len(settings['example_key'])
     if check_key(settings['example_key']) != '+':
         settings['example_key'] = EXAMPLE_KEY_DEF
     if settings['print_info'] not in ['0', '1']:
@@ -196,6 +198,9 @@ def extract_key_values(b):
         print(f'  ML  C: {mult_r}, {mult_g}, {mult_b}')
         print(f'  SH2 C: {shift2_r}, {shift2_g}, {shift2_b}')
         print(f'  ML  N: {mult_name}')
+
+
+""" Алгоритм шифровки/дешифровки """
 
 
 # Разделение полотна на блоки и их перемешивание
@@ -394,22 +399,22 @@ def decode_filename(name):
 
 
 # Преобразование имени файла
-def filename_processing(op_mode, naming_mode, _base_name, _ext, outp_dir, _marker, count_correct):
+def filename_processing(op_mode, naming_mode, base_name, ext, outp_dir, marker, count_correct):
     if op_mode == 'E':  # При шифровке
         count_same = 1  # Счётчик файлов с таким же именем
         counter = ''
         while True:
             if naming_mode == '0':
-                new_name = encode_filename(_base_name + counter)
+                new_name = encode_filename(base_name + counter)
             elif naming_mode == '1':
                 new_name = ('{:0' + settings['format'] + '}').format(count_correct) + counter
             elif naming_mode == '2':
-                new_name = _marker + _base_name + counter
+                new_name = marker + base_name + counter
             elif naming_mode == '3':
-                new_name = _base_name + _marker + counter
+                new_name = base_name + marker + counter
             else:
-                new_name = _base_name + counter
-            new_name += _ext
+                new_name = base_name + counter
+            new_name += ext
 
             if new_name not in os.listdir(outp_dir):  # Если нет файлов с таким же именем, то завершаем цикл
                 break
@@ -417,21 +422,21 @@ def filename_processing(op_mode, naming_mode, _base_name, _ext, outp_dir, _marke
             counter = ' [' + str(count_same) + ']'  # Если уже есть файл с таким именем, то добавляется индекс
     else:  # При дешифровке
         if naming_mode == '0':
-            new_name = decode_filename(_base_name)
+            new_name = decode_filename(base_name)
         elif naming_mode == '1':
             new_name = ('{:0' + settings['format'] + '}').format(count_correct)
         elif naming_mode == '2':
-            new_name = _marker + _base_name
+            new_name = marker + base_name
         elif naming_mode == '3':
-            new_name = _base_name + _marker
+            new_name = base_name + marker
         else:
-            new_name = _base_name
+            new_name = base_name
 
         count_same = 1  # Счётчик файлов с таким же именем
-        temp_name = new_name + _ext
+        temp_name = new_name + ext
         while temp_name in os.listdir(outp_dir):  # Если уже есть файл с таким именем, то добавляется индекс
             count_same += 1
-            temp_name = f'{new_name} [{count_same}]{_ext}'
+            temp_name = f'{new_name} [{count_same}]{ext}'
         new_name = temp_name
     return new_name
 
@@ -439,25 +444,25 @@ def filename_processing(op_mode, naming_mode, _base_name, _ext, outp_dir, _marke
 # Обработка папки с файлами
 def encrypt_dir(op_mode, marker, formats, inp_dir, outp_dir, count_all):
     count_correct = int(settings['count_from']) - 1  # Счётчик количества обработанных файлов
-    for _file_name in os.listdir(inp_dir):  # Проход по файлам
-        _base_name, _ext = os.path.splitext(_file_name)
+    for filename in os.listdir(inp_dir):  # Проход по файлам
+        base_name, ext = os.path.splitext(filename)
         count_all += 1
 
-        pth = os.path.join(inp_dir, _file_name)
+        pth = os.path.join(inp_dir, filename)
         isdir = os.path.isdir(pth)
-        if _ext.lower() not in formats and not isdir:  # Проверка формата
-            print(f'({count_all}) <{_file_name}>')
+        if ext.lower() not in formats and not isdir:  # Проверка формата
+            print(f'({count_all}) <{filename}>')
             print_warn('Unsupported file extension')
             print()
             continue
         count_correct += 1
 
-        if _ext in ['.png', '.jpg', '.jpeg', '.bmp']:
-            res_name = filename_processing(op_mode, settings['naming_mode'], _base_name, '.png', outp_dir, marker, count_correct)  # Преобразование имени файла
+        if ext in ['.png', '.jpg', '.jpeg', '.bmp']:
+            res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '.png', outp_dir, marker, count_correct)  # Преобразование имени файла
 
-            print(f'({count_all}) <{_file_name}>  ->  <{res_name}>')  # Вывод информации
+            print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
 
-            img = imread(os.path.join(inp_dir, _file_name))  # Считывание изображения
+            img = imread(os.path.join(inp_dir, filename))  # Считывание изображения
             if settings['print_info'] == '1':
                 print(img.shape)
 
@@ -469,17 +474,17 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, outp_dir, count_all):
                 img = decode_file(img, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b)
                 imsave(outp_path, img.astype(uint8))
             print()
-        elif _ext == '.gif':
-            res_name = filename_processing(op_mode, settings['naming_mode'], _base_name, '', outp_dir, marker, count_correct)  # Преобразование имени файла
+        elif ext == '.gif':
+            res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', outp_dir, marker, count_correct)  # Преобразование имени файла
 
-            print(f'({count_all}) <{_file_name}>  ->  <{res_name}>')  # Вывод информации
+            print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
 
             res = os.path.join(outp_dir, res_name)
             if res_name not in os.listdir(outp_dir):
                 os.mkdir(res)
             open(os.path.join(res, '_gif'), 'w')
 
-            with Image.open(os.path.join(inp_dir, _file_name)) as im:
+            with Image.open(os.path.join(inp_dir, filename)) as im:
                 for i in range(im.n_frames):
                     print(f'frame {i + 1}')
                     im.seek(i)
@@ -494,11 +499,11 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, outp_dir, count_all):
                 imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
                 os.remove(TMP_PATH)
         elif isdir and '_gif' in os.listdir(pth) and op_mode == 'D':
-            res_name = filename_processing(op_mode, settings['naming_mode'], _file_name, '.gif', outp_dir, marker, count_correct)  # Преобразование имени файла
+            res_name = filename_processing(op_mode, settings['naming_mode'], filename, '.gif', outp_dir, marker, count_correct)  # Преобразование имени файла
 
-            print(f'({count_all}) <{_file_name}>  ->  <{res_name}>')  # Вывод информации
+            print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
 
-            inp_dir_tmp = os.path.join(inp_dir, _file_name)
+            inp_dir_tmp = os.path.join(inp_dir, filename)
             frames = sorted((fr for fr in os.listdir(inp_dir_tmp) if fr.endswith('.png')))
             res = os.path.join(outp_dir, res_name)
 
@@ -518,18 +523,18 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, outp_dir, count_all):
                 imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
                 os.remove(TMP_PATH)
             writer.close()
-        elif _ext in ['.avi', '.mp4', '.webm']:
-            tmp_name = filename_processing(op_mode, '1', _base_name, '', outp_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
-            res_name = filename_processing(op_mode, settings['naming_mode'], _base_name, '', outp_dir, marker, count_correct)
+        elif ext in ['.avi', '.mp4', '.webm']:
+            tmp_name = filename_processing(op_mode, '1', base_name, '', outp_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
+            res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', outp_dir, marker, count_correct)
 
-            print(f'({count_all}) <{_file_name}>  ->  <{res_name}>')  # Вывод информации
+            print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
 
             res = os.path.join(outp_dir, tmp_name)
             if tmp_name not in os.listdir(outp_dir):
                 os.mkdir(res)
             open(os.path.join(res, '_vid'), 'w')
 
-            vid = VideoFileClip(os.path.join(inp_dir, _file_name))
+            vid = VideoFileClip(os.path.join(inp_dir, filename))
             fps = min(vid.fps, 24)
             step = 1 / fps
             count = 0
@@ -549,12 +554,12 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, outp_dir, count_all):
 
             os.rename(res, os.path.join(outp_dir, res_name))
         elif isdir and '_vid' in os.listdir(pth) and op_mode == 'D':
-            tmp_name = filename_processing(op_mode, '1', _file_name, '.mp4', outp_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
-            res_name = filename_processing(op_mode, settings['naming_mode'], _file_name, '.mp4', outp_dir, marker, count_correct)
+            tmp_name = filename_processing(op_mode, '1', filename, '.mp4', outp_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
+            res_name = filename_processing(op_mode, settings['naming_mode'], filename, '.mp4', outp_dir, marker, count_correct)
 
-            print(f'({count_all}) <{_file_name}>  ->  <{res_name}>')  # Вывод информации
+            print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
 
-            inp_dir_tmp = os.path.join(inp_dir, _file_name)
+            inp_dir_tmp = os.path.join(inp_dir, filename)
             res = os.path.join(outp_dir, tmp_name)
 
             img = imread(os.path.join(inp_dir_tmp, '000000.png'))
@@ -583,11 +588,11 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, outp_dir, count_all):
 
             os.rename(res, os.path.join(outp_dir, res_name))
         elif isdir:
-            res_name = filename_processing(op_mode, settings['naming_mode'], _base_name, '', outp_dir, marker, count_correct)  # Преобразование имени файла
+            res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', outp_dir, marker, count_correct)  # Преобразование имени файла
 
-            print(f'({count_all}) <{_file_name}>  ->  <{res_name}>')  # Вывод информации
+            print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
 
-            new_inp_dir = os.path.join(inp_dir, _file_name)
+            new_inp_dir = os.path.join(inp_dir, filename)
             new_outp_dir = os.path.join(outp_dir, res_name)
 
             if res_name not in os.listdir(outp_dir):
@@ -636,51 +641,52 @@ def decode():
     print('=============================== PROCESSING IS FINISHED ===============================')
 
 
-########################################################################################################################
+""" Графический интерфейс """
 
 
 # Ввод только заданных символов
-def validate_symbols(_value, allowed_symbols):
-    for _c in _value:
-        if _c not in allowed_symbols:
+def validate_symbols(value, allowed_symbols):
+    for c in value:
+        if c not in allowed_symbols:
             return False
     return True
 
 
 # Ввод только натуральных чисел
-def validate_natural(_value):
-    return _value == '' or _value.isnumeric()
+def validate_natural(value):
+    return value == '' or value.isnumeric()
 
 
 # Ввод только целых чисел
-def validate_num(_value):
-    return _value == '' or _value == '-' or _value.isnumeric() or (_value[0] == '-' and _value[1:].isnumeric())
+def validate_num(value):
+    return value in ['', '-'] or value.isnumeric() or (value[0] == '-' and value[1:].isnumeric())
 
 
 # Ввод только до заданной длины
-def validate_len(_value, _max_len):
-    return len(_value) <= _max_len
+def validate_len(value, max_len):
+    return len(value) <= max_len
 
 
 # Ввод только натуральных чисел до заданной длины
-def validate_natural_and_len(_value, _max_len):
-    return validate_natural(_value) and validate_len(_value, _max_len)
+def validate_natural_and_len(value, max_len):
+    return validate_natural(value) and validate_len(value, max_len)
 
 
 # Ввод только целых чисел до заданной длины
-def validate_num_and_len(_value, _max_len):
-    return validate_num(_value) and validate_len(_value, _max_len)
+def validate_num_and_len(value, max_len):
+    return validate_num(value) and validate_len(value, max_len)
 
 
 # Ввод только символов подходящих для ключа и до длины ключа
-def validate_key(_value):
-    return validate_symbols(_value, KEY_SYMBOLS) and validate_len(_value, KEY_LEN)
+def validate_key(value):
+    return validate_symbols(value, KEY_SYMBOLS) and validate_len(value, KEY_LEN)
 
 
 # Всплывающее окно с сообщением
 class PopupMsgW(tk.Toplevel):
-    def __init__(self, parent, msg, btn_text='OK'):
+    def __init__(self, parent, msg, btn_text='OK', title='Media encrypter'):
         super().__init__(parent)
+        self.title(title)
 
         tk.Label(self, text=msg).grid(row=0, column=0)
         tk.Button(self, text=btn_text, command=self.destroy).grid(row=1, column=0)
@@ -688,8 +694,9 @@ class PopupMsgW(tk.Toplevel):
 
 # Всплывающее окно с сообщением и двумя кнопками
 class PopupDialogueW(tk.Toplevel):
-    def __init__(self, parent, msg='Are you sure?', btn_yes='Yes', btn_no='Cancel'):
+    def __init__(self, parent, msg='Are you sure?', btn_yes='Yes', btn_no='Cancel', title='Media encrypter'):
         super().__init__(parent)
+        self.title(title)
         self.answer = False
 
         tk.Label(self, text=msg).grid(row=0, columnspan=2)
@@ -712,15 +719,16 @@ class PopupDialogueW(tk.Toplevel):
 
 # Всплывающее окно с полем tk.Entry
 class PopupInputW(tk.Toplevel):
-    def __init__(self, parent, msg='Enter a value', btn_text='Confirm', allowed_symbols=None):
+    def __init__(self, parent, msg='Enter a value', btn_text='Confirm', allowed_symbols=None, title='Media encrypter'):
         super().__init__(parent)
+        self.title(title)
 
         tk.Label(self, text=msg).grid(row=0)
         self.answer = tk.StringVar()
         if allowed_symbols is None:
             tk.Entry(self, textvariable=self.answer).grid(row=1)
         else:
-            self.vcmd = (self.register(lambda _value: validate_symbols(_value, allowed_symbols)), '%P')
+            self.vcmd = (self.register(lambda value: validate_symbols(value, allowed_symbols)), '%P')
             tk.Entry(self, textvariable=self.answer, validate='key', validatecommand=self.vcmd).grid(row=1)
         tk.Button(self, text=btn_text, command=self.destroy).grid(row=2)
 
@@ -731,8 +739,9 @@ class PopupInputW(tk.Toplevel):
 
 # Всплывающее окно с полем ttk.Combobox
 class PopupChooseW(tk.Toplevel):
-    def __init__(self, parent, values, msg='Choose the one of these', btn_text='Confirm'):
+    def __init__(self, parent, values, msg='Choose the one of these', btn_text='Confirm', title='Media encrypter'):
         super().__init__(parent)
+        self.title(title)
 
         tk.Label(self, text=msg).grid(row=0)
         self.answer = tk.StringVar()
@@ -748,6 +757,7 @@ class PopupChooseW(tk.Toplevel):
 class EnterKeyW(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
+        self.title('Media encrypter - Key')
         self.key = tk.StringVar()
 
         def focus_text(event):
@@ -774,11 +784,10 @@ class EnterKeyW(tk.Toplevel):
 
     # Проверить корректность ключа и, если корректен, сохранить
     def check_key_and_return(self):
-        _key = self.key.get()
-        _len = len(_key)
-        _code, _cause = check_key(_key)
-        if _code == 'L':  # Если неверная длина ключа
-            PopupMsgW(self, f'Wrong length of the key: {_cause}!\nShould be {KEY_LEN}')
+        key = self.key.get()
+        code, cause = check_key(key)
+        if code == 'L':  # Если неверная длина ключа
+            PopupMsgW(self, f'Wrong length of the key: {cause}!\nShould be {KEY_LEN}', title='Error')
             return
 
         self.destroy()
@@ -786,14 +795,15 @@ class EnterKeyW(tk.Toplevel):
     def open(self):
         self.grab_set()
         self.wait_window()
-        _key = self.key.get()
-        return key_to_bites(_key)
+        key = self.key.get()
+        return key_to_bites(key)
 
 
 # Окно настроек
 class SettingsW(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
+        self.title('Media encrypter - Settings')
         self.key = tk.StringVar()
 
         tk.Label(self, text='File names conversion mode').grid(row=0, column=0, columnspan=2, sticky='E')
@@ -822,9 +832,9 @@ class SettingsW(tk.Toplevel):
         self.inp_example_key  = tk.StringVar(value=settings['example_key'])
         self.inp_print_info   = tk.StringVar()
 
-        self.vcmd_natural = (self.register(lambda _value: validate_natural_and_len(_value, 3)), '%P')
+        self.vcmd_natural = (self.register(lambda value: validate_natural_and_len(value, 3)), '%P')
         self.vcmd_num     = (self.register(validate_num), '%P')
-        self.vcmd_key     = (self.register(lambda _value: validate_len(_value, KEY_LEN)), '%P')
+        self.vcmd_key     = (self.register(lambda value: validate_len(value, KEY_LEN)), '%P')
 
         self.combo_naming_mode  = ttk.Combobox(self, textvariable=self.inp_naming_mode, values=NAMING_MODES, state='readonly')
         self.entry_count_from   = tk.Entry(    self, textvariable=self.inp_count_from, width=10, validate='key', validatecommand=self.vcmd_num)
@@ -872,30 +882,30 @@ class SettingsW(tk.Toplevel):
 
     # Сохранить изменения
     def save(self):
-        _has_errors = False
+        has_errors = False
 
         if self.inp_count_from.get() in ['', '-']:
-            PopupMsgW(self, 'Incorrect "start counting files from" value!')
+            PopupMsgW(self, 'Incorrect "start counting files from" value!', title='Error')
             self.entry_count_from['background'] = ERROR_COLOR
-            _has_errors = True
+            has_errors = True
         else:
             self.entry_count_from['background'] = NORMAL_COLOR
 
         if self.inp_format.get() == '':
-            PopupMsgW(self, 'Incorrect "number of digits in numbers" value!')
+            PopupMsgW(self, 'Incorrect "number of digits in numbers" value!', title='Error')
             self.entry_format['background'] = ERROR_COLOR
-            _has_errors = True
+            has_errors = True
         else:
             self.entry_format['background'] = NORMAL_COLOR
 
         if len(self.inp_example_key.get()) != KEY_LEN:
-            PopupMsgW(self, f'Incorrect "example of a key" value!\nShould has {KEY_LEN} symbols')
+            PopupMsgW(self, f'Incorrect "example of a key" value!\nShould has {KEY_LEN} symbols', title='Error')
             self.entry_example_key['background'] = ERROR_COLOR
-            _has_errors = True
+            has_errors = True
         else:
             self.entry_example_key['background'] = NORMAL_COLOR
 
-        if _has_errors:
+        if has_errors:
             return
 
         settings['naming_mode']  = str(NAMING_MODES.index(self.inp_naming_mode.get()))
@@ -917,20 +927,20 @@ class SettingsW(tk.Toplevel):
     def close(self):
         # Если были изменения, то предлагается сохранить их
         if settings['naming_mode'] == str(NAMING_MODES.index(self.inp_naming_mode.get())) and\
-        settings['count_from'] == self.inp_count_from.get() and\
-        settings['format'] == self.inp_format.get() and\
-        settings['marker_enc'] == self.inp_marker_enc.get() and\
-        settings['marker_dec'] == self.inp_marker_dec.get() and\
-        settings['ru_letters'] == str(RU_LETTERS_MODES.index(self.inp_ru_letters.get())) and\
-        settings['dir_enc_from'] == self.inp_dir_enc_from.get() and\
-        settings['dir_enc_to'] == self.inp_dir_enc_to.get() and\
-        settings['dir_dec_from'] == self.inp_dir_dec_from.get() and\
-        settings['dir_dec_to'] == self.inp_dir_dec_to.get() and\
-        settings['example_key'] == self.inp_example_key.get() and\
-        settings['print_info'] == str(PRINT_INFO_MODES.index(self.inp_print_info.get())):
+            settings['count_from'] == self.inp_count_from.get() and\
+            settings['format'] == self.inp_format.get() and\
+            settings['marker_enc'] == self.inp_marker_enc.get() and\
+            settings['marker_dec'] == self.inp_marker_dec.get() and\
+            settings['ru_letters'] == str(RU_LETTERS_MODES.index(self.inp_ru_letters.get())) and\
+            settings['dir_enc_from'] == self.inp_dir_enc_from.get() and\
+            settings['dir_enc_to'] == self.inp_dir_enc_to.get() and\
+            settings['dir_dec_from'] == self.inp_dir_dec_from.get() and\
+            settings['dir_dec_to'] == self.inp_dir_dec_to.get() and\
+            settings['example_key'] == self.inp_example_key.get() and\
+                settings['print_info'] == str(PRINT_INFO_MODES.index(self.inp_print_info.get())):
             self.destroy()
         else:
-            window = PopupDialogueW(self, f'If you close the window, the changes will not be saved! Close settings?')
+            window = PopupDialogueW(self, f'If you close the window, the changes will not be saved! Close settings?', title='Warning')
             answer = window.open()
             if answer:
                 self.destroy()
@@ -962,11 +972,11 @@ class SettingsW(tk.Toplevel):
         self.wait_window(window)
         custom_settings_file = window.open() + '.txt'
         if custom_settings_file == '.txt':
-            PopupMsgW(self, 'Incorrect name for save')
+            PopupMsgW(self, 'Incorrect name for save', title='Error')
             return
-        for _c in custom_settings_file:
-            if _c not in FN_SYMBOLS:
-                PopupMsgW(self, f'Incorrect symbol "{_c}" in the save name')
+        for c in custom_settings_file:
+            if c not in FN_SYMBOLS:
+                PopupMsgW(self, f'Incorrect symbol "{c}" in the save name', title='Error')
                 return
 
         copyfile(SETTINGS_PATH, os.path.join(CUSTOM_SETTINGS_DIR, custom_settings_file))
@@ -981,7 +991,7 @@ class SettingsW(tk.Toplevel):
                 csf_list += [base_name]
                 csf_count += 1
         if csf_count == 0:  # Если нет сохранённых настроек
-            PopupMsgW(self, 'There are no saves!')
+            PopupMsgW(self, 'There are no saves!', title='Error')
             return False, ''
         else:
             window = PopupChooseW(self, csf_list, 'Choose a save you want to ' + cmd_name)
@@ -1018,6 +1028,7 @@ class SettingsW(tk.Toplevel):
 class ManualW(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
+        self.title('Media encrypter - MCM')
         self.mode = ''
 
         tk.Label(self, text='H multiplier for R: ').grid(         row=1,  column=0, sticky='E')  # Множитель блоков по горизонтали для красного канала
@@ -1153,7 +1164,7 @@ class ManualW(tk.Toplevel):
             self.inp_shift2_g.get() == '' or\
             self.inp_shift2_b.get() == '' or\
             self.inp_mult_name.get() == '':
-            PopupMsgW(self, 'All fields should be filled')
+            PopupMsgW(self, 'All fields should be filled', title='Error')
             return False
 
         mult_blocks_h_r = int(self.inp_mult_blocks_h_r.get())
