@@ -10,6 +10,7 @@ from moviepy.editor import VideoFileClip  # Разбиение видео на �
 import cv2  # Составление видео из кадров
 import tkinter as tk
 import tkinter.ttk as ttk
+from tkinter.filedialog import askdirectory
 import time
 
 PROGRAM_NAME = 'Media encrypter v6.0.0_PRE-6'
@@ -871,18 +872,28 @@ class SettingsW(tk.Toplevel):
         self.combo_ru_letters.current( int(settings['ru_letters']))
         self.combo_print_info.current( int(settings['print_info']))
 
+        self.btn_source_enc = tk.Button(self, text='Search', command=self.choose_source_enc)
+        self.btn_dest_enc   = tk.Button(self, text='Search', command=self.choose_dest_enc)
+        self.btn_source_dec = tk.Button(self, text='Search', command=self.choose_source_dec)
+        self.btn_dest_dec   = tk.Button(self, text='Search', command=self.choose_dest_dec)
+
         self.combo_naming_mode.grid( row=0,  column=2, columnspan=2, sticky='W')
         self.entry_count_from.grid(  row=1,  column=2, columnspan=2, sticky='W')
         self.entry_format.grid(      row=2,  column=2, columnspan=2, sticky='W')
         self.entry_marker_enc.grid(  row=3,  column=2, columnspan=2, sticky='W')
         self.entry_marker_dec.grid(  row=4,  column=2, columnspan=2, sticky='W')
         self.combo_ru_letters.grid(  row=5,  column=2, columnspan=2, sticky='W')
-        self.entry_dir_enc_from.grid(row=6,  column=2, columnspan=2, sticky='W')
-        self.entry_dir_enc_to.grid(  row=7,  column=2, columnspan=2, sticky='W')
-        self.entry_dir_dec_from.grid(row=8,  column=2, columnspan=2, sticky='W')
-        self.entry_dir_dec_to.grid(  row=9,  column=2, columnspan=2, sticky='W')
+        self.entry_dir_enc_from.grid(row=6,  column=2, columnspan=1, sticky='W')
+        self.entry_dir_enc_to.grid(  row=7,  column=2, columnspan=1, sticky='W')
+        self.entry_dir_dec_from.grid(row=8,  column=2, columnspan=1, sticky='W')
+        self.entry_dir_dec_to.grid(  row=9,  column=2, columnspan=1, sticky='W')
         self.entry_example_key.grid( row=10, column=2, columnspan=2, sticky='W')
         self.combo_print_info.grid(  row=11, column=2, columnspan=2, sticky='W')
+
+        self.btn_source_enc.grid(row=6, column=3, columnspan=1, sticky='W')
+        self.btn_dest_enc.grid(  row=7, column=3, columnspan=1, sticky='W')
+        self.btn_source_dec.grid(row=8, column=3, columnspan=1, sticky='W')
+        self.btn_dest_dec.grid(  row=9, column=3, columnspan=1, sticky='W')
 
         self.btn_def           = tk.Button(self, text='Set default settings',        command=self.set_default_settings)
         self.btn_save_custom   = tk.Button(self, text='Save your custom settings',   command=self.save_custom_settings)
@@ -897,6 +908,26 @@ class SettingsW(tk.Toplevel):
         self.btn_remove_custom.grid(row=12, column=3)
         self.btn_save.grid(         row=13, column=1)
         self.btn_close.grid(        row=13, column=2)
+
+    def choose_source_enc(self):
+        directory = askdirectory()
+        settings['dir_enc_from'] = directory
+        self.inp_dir_enc_from.set(directory)
+
+    def choose_dest_enc(self):
+        directory = askdirectory()
+        settings['dir_enc_to'] = directory
+        self.inp_dir_enc_to = directory
+
+    def choose_source_dec(self):
+        directory = askdirectory()
+        settings['dir_dec_from'] = directory
+        self.inp_dir_dec_from = directory
+
+    def choose_dest_dec(self):
+        directory = askdirectory()
+        settings['dir_dec_to'] = directory
+        self.inp_dir_dec_to = directory
 
     # Сохранить изменения
     def save(self):
