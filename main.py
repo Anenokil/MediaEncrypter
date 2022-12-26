@@ -11,8 +11,8 @@ import cv2  # Составление видео из кадров
 import tkinter as tk
 import tkinter.ttk as ttk
 
-PROGRAM_NAME = 'Media encrypter v6.0.0_PRE-4'
-PROGRAM_DATE = '26.12.2022  9:24'
+PROGRAM_NAME = 'Media encrypter v6.0.0_PRE-5'
+PROGRAM_DATE = '27.12.2022  0:43'
 
 NORMAL_COLOR = '#FFFFFF'
 ERROR_COLOR = '#DD4444'
@@ -81,9 +81,8 @@ def check_key(key):
     for i in range(length):
         pos = KEY_SYMBOLS.find(key[i])
         if pos == -1:  # Если ключ содержит недопустимые символы
-            key = EXAMPLE_KEY_DEF
             return 'S', key[i]
-    return '+', ''
+    return '+', None
 
 
 # Установка значений по умолчанию для всех настроек
@@ -126,8 +125,8 @@ def correct_settings():
 
 
 # Сохранить настройки в файл
-def save_settings_to_file():
-    with open(SETTINGS_PATH, 'w') as file:  # Запись исправленных настроек в файл
+def save_settings_to_file(filename=SETTINGS_PATH):
+    with open(filename, 'w') as file:  # Запись исправленных настроек в файл
         file.write(
             settings['naming_mode'] + '\n' + settings['count_from'] + '\n' + settings['format'] + '\n' +
             settings['marker_enc'] + '\n' + settings['marker_dec'] + '\n' + settings['ru_letters'] + '\n' +
@@ -135,9 +134,9 @@ def save_settings_to_file():
             settings['dir_dec_to'] + '\n' + settings['example_key'] + '\n' + settings['print_info'])
 
 
-# Ввод ключа и преобразование его в массив битов
+# Преобразование ключа в массив битов (каждый символ - в 6 битов)
 def key_to_bites(key):
-    bits = [[0] * KEY_LEN for _ in range(6)]  # Преобразование ключа в массив битов (каждый символ - в 6 битов)
+    bits = [[0] * KEY_LEN for _ in range(6)]
     for i in range(KEY_LEN):
         symbol = KEY_SYMBOLS.find(key[i])
         for j in range(6):
@@ -208,12 +207,13 @@ def mix_blocks(img, mult_h, mult_w, shift_h, shift_w):
     h = img.shape[0]  # Высота изображения
     w = img.shape[1]  # Ширина изображения
 
-    while gcd(mult_h, h) != 1 or mult_h % h == 1:  # Нахождение наименьшего числа, взаимно-простого с h,
-                                                   # большего чем mult_h, дающего при делении на h в остатке 1
+    # Нахождение наименьшего числа, взаимно-простого с h, большего чем mult_h, дающего при делении на h в остатке 1
+    while gcd(mult_h, h) != 1 or mult_h % h == 1:
         mult_h += 1
-    while gcd(mult_w, w) != 1 or mult_w % w == 1:  # Нахождение наименьшего числа, взаимно-простого с w,
-                                                   # большего чем mult_w, дающего при делении на w в остатке 1
+    # Нахождение наименьшего числа, взаимно-простого с w, большего чем mult_w, дающего при делении на w в остатке 1
+    while gcd(mult_w, w) != 1 or mult_w % w == 1:
         mult_w += 1
+
     if settings['print_info'] == '1':
         print(f'{h}x{w}: {mult_h} {mult_w}')
 
@@ -229,31 +229,37 @@ def mix_blocks(img, mult_h, mult_w, shift_h, shift_w):
 
 # Шифровка файла
 def encode_file(img):
-    if len(img.shape) < 3:
+    # Разделение изображения на RGB-каналы
+    if len(img.shape) < 3:  # Если в изображении меньше трёх каналов
         red, green, blue = img.copy(), img.copy(), img.copy()
     else:
-        red, green, blue = [img[:, :, i].copy() for i in range(3)]  # Разделение изображения на RGB-каналы
+        red, green, blue = [img[:, :, i].copy() for i in range(3)]
 
-    mix_blocks(red,   mult_blocks_h_r, mult_blocks_w_r, shift_h_r, shift_w_r)  # Перемешивание блоков для каждого канала
+    # Перемешивание блоков для каждого канала
+    mix_blocks(red,   mult_blocks_h_r, mult_blocks_w_r, shift_h_r, shift_w_r)
     mix_blocks(green, mult_blocks_h_g, mult_blocks_w_g, shift_h_g, shift_w_g)
     mix_blocks(blue,  mult_blocks_h_b, mult_blocks_w_b, shift_h_b, shift_w_b)
 
-    red = (red + shift_r) % 256  # Начальное смещение цвета для каждого канала
+    # Начальное смещение цвета для каждого канала
+    red = (red + shift_r) % 256
     green = (green + shift_g) % 256
     blue = (blue + shift_b) % 256
 
-    red = (red * mult_r) % 256  # Мультипликативное смещение цвета для каждого канала
+    # Мультипликативное смещение цвета для каждого канала
+    red = (red * mult_r) % 256
     green = (green * mult_g) % 256
     blue = (blue * mult_b) % 256
 
-    red = (red + shift2_r) % 256  # Конечное смещение цвета для каждого канала
+    # Конечное смещение цвета для каждого канала
+    red = (red + shift2_r) % 256
     green = (green + shift2_g) % 256
     blue = (blue + shift2_b) % 256
 
-    if len(img.shape) < 3:
+    # Перемешивание и объединение каналов
+    if len(img.shape) < 3:  # Если в изображении меньше трёх каналов
         img = red
     else:
-        if order == 0:  # Перемешивание и объединение каналов
+        if order == 0:
             img = dstack((red, green, blue))
         elif order == 1:
             img = dstack((red, blue, green))
@@ -263,7 +269,7 @@ def encode_file(img):
             img = dstack((green, blue, red))
         elif order == 4:
             img = dstack((blue, red, green))
-        elif order == 5:
+        else:
             img = dstack((blue, green, red))
 
     return img
@@ -271,12 +277,13 @@ def encode_file(img):
 
 # Вычисление параметров для recover_blocks
 def recover_blocks_calc(h, w, mult_h, mult_w):
-    while gcd(mult_h, h) != 1 or mult_h % h == 1:  # Нахождение наименьшего числа, взаимно-простого с h,
-                                                   # большего чем mult_h, дающего при делении на h в остатке 1
+    # Нахождение наименьшего числа, взаимно-простого с h, большего чем mult_h, дающего при делении на h в остатке 1
+    while gcd(mult_h, h) != 1 or mult_h % h == 1:
         mult_h += 1
-    while gcd(mult_w, w) != 1 or mult_w % w == 1:  # Нахождение наименьшего числа, взаимно-простого с w,
-                                                   # большего чем mult_w, дающего при делении на w в остатке 1
+    # Нахождение наименьшего числа, взаимно-простого с w, большего чем mult_w, дающего при делении на w в остатке 1
+    while gcd(mult_w, w) != 1 or mult_w % w == 1:
         mult_w += 1
+
     if settings['print_info'] == '1':
         print(f'{h}x{w}: {mult_h} {mult_w}')
 
@@ -316,10 +323,11 @@ def decode_file_calc(img):
 
 # Дешифровка файла
 def decode_file(img, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b):
-    if len(img.shape) < 3:
+    # Разделение изображения на RGB-каналы и отмена их перемешивания
+    if len(img.shape) < 3:  # Если в изображении меньше трёх каналов
         red, green, blue = img.copy(), img.copy(), img.copy()
     else:
-        if order == 0:  # Разделение изображения на RGB-каналы и отмена их перемешивания
+        if order == 0:
             red, green, blue = [img[:, :, i].copy() for i in range(3)]
         elif order == 1:
             red, blue, green = [img[:, :, i].copy() for i in range(3)]
@@ -329,31 +337,36 @@ def decode_file(img, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b)
             green, blue, red = [img[:, :, i].copy() for i in range(3)]
         elif order == 4:
             blue, red, green = [img[:, :, i].copy() for i in range(3)]
-        elif order == 5:
+        else:
             blue, green, red = [img[:, :, i].copy() for i in range(3)]
 
-    red = (red - shift2_r) % 256  # Отмена конечного смещения цвета для каждого канала
+    # Отмена конечного смещения цвета для каждого канала
+    red = (red - shift2_r) % 256
     green = (green - shift2_g) % 256
     blue = (blue - shift2_b) % 256
 
-    for i in range(h):  # Отмена мультипликативного смещения цвета для каждого канала
+    # Отмена мультипликативного смещения цвета для каждого канала
+    for i in range(h):
         for j in range(w):
             red[i][j] = DEC_R[red[i][j]]
             green[i][j] = DEC_G[green[i][j]]
             blue[i][j] = DEC_B[blue[i][j]]
 
-    red = (red - shift_r) % 256  # Отмена начального смещения цвета для каждого канала
+    # Отмена начального смещения цвета для каждого канала
+    red = (red - shift_r) % 256
     green = (green - shift_g) % 256
     blue = (blue - shift_b) % 256
 
+    # Отмена перемешивания блоков для каждого канала
     recover_blocks(red,   h, w, shift_h_r, shift_w_r, dec_h_r, dec_w_r)
     recover_blocks(green, h, w, shift_h_g, shift_w_g, dec_h_g, dec_w_g)
     recover_blocks(blue,  h, w, shift_h_b, shift_w_b, dec_h_b, dec_w_b)
 
-    if len(img.shape) < 3:
+    # Объединение каналов
+    if len(img.shape) < 3:  # Если в изображении меньше трёх каналов
         img = red
     else:
-        img = dstack((red, green, blue))  # Объединение каналов
+        img = dstack((red, green, blue))
 
     return img
 
@@ -363,7 +376,8 @@ def encode_filename(name):
     if settings['ru_letters'] == '0':  # Транслитерация кириллицы
         name = translit(name, language_code='ru', reversed=True)
 
-    mn = mult_name + len(name)  # Нахождение наименьшего числа, взаимно-простого с SYMB_NUM, большего чем mult_name + len(name)
+    # Нахождение наименьшего числа, взаимно-простого с FN_SYMB_NUM, большего чем mult_name + len(name)
+    mn = mult_name + len(name)
     while gcd(mn, FN_SYMB_NUM) != 1:
         mn += 1
 
@@ -379,7 +393,8 @@ def encode_filename(name):
 def decode_filename(name):
     name = name[1:-1]  # Защита от потери крайних пробелов
 
-    mn = mult_name + len(name)  # Нахождение наименьшего числа, взаимно-простого с SYMB_NUM, большего чем mult_name + len(name)
+    # Нахождение наименьшего числа, взаимно-простого с FN_SYMB_NUM, большего чем mult_name + len(name)
+    mn = mult_name + len(name)
     while gcd(mn, FN_SYMB_NUM) != 1:
         mn += 1
 
