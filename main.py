@@ -13,8 +13,8 @@ import tkinter.ttk as ttk
 from tkinter.filedialog import askdirectory
 import time
 
-PROGRAM_NAME = 'Media encrypter v6.0.0_PRE-7'
-PROGRAM_DATE = '27.12.2022  0:54'
+PROGRAM_NAME = 'Media encrypter v6.0.0_PRE-8'
+PROGRAM_DATE = '27.12.2022  1:05'
 
 NORMAL_COLOR = '#FFFFFF'
 ERROR_COLOR = '#DD4444'
@@ -778,6 +778,7 @@ class EnterKeyW(tk.Toplevel):
         super().__init__(parent)
         self.title('Media encrypter - Key')
         self.key = tk.StringVar()
+        self.has_key = False
 
         def focus_text(event):
             self.txt_example_key.config(state='normal')
@@ -808,14 +809,14 @@ class EnterKeyW(tk.Toplevel):
         if code == 'L':  # Если неверная длина ключа
             PopupMsgW(self, f'Wrong length of the key: {cause}!\nShould be {KEY_LEN}', title='Error')
             return
-
+        self.has_key = True
         self.destroy()
 
     def open(self):
         self.grab_set()
         self.wait_window()
         key = self.key.get()
-        return key_to_bites(key)
+        return self.has_key, key
 
 
 # Окно настроек
@@ -1311,17 +1312,19 @@ class MainW(tk.Tk):
     # Отправить на шифровку
     def encode(self):
         window = EnterKeyW(self)
-        key_bits = window.open()
-        extract_key_values(key_bits)
-
+        has_key, key = window.open()
+        if not has_key:
+            return
+        extract_key_values(key_to_bites(key))
         encode()
 
     # Отправить на дешифровку
     def decode(self):
         window = EnterKeyW(self)
-        key_bits = window.open()
-        extract_key_values(key_bits)
-
+        has_key, key = window.open()
+        if not has_key:
+            return
+        extract_key_values(key_to_bites(key))
         decode()
 
     # Перейти в режим ручного управления
