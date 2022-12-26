@@ -1064,18 +1064,43 @@ class SettingsW(tk.Toplevel):
         filepath = os.path.join(CUSTOM_SETTINGS_DIR, filename)
 
         with open(filepath, 'r') as file:  # Загрузка настроек из файла
-            self.combo_naming_mode.current(int(file.readline().strip()))
-            self.inp_count_from.set(           file.readline().strip())
-            self.inp_format.set(               file.readline().strip())
-            self.inp_marker_enc.set(           file.readline().strip())
-            self.inp_marker_dec.set(           file.readline().strip())
-            self.combo_ru_letters.current( int(file.readline().strip()))
-            self.inp_dir_enc_from.set(         file.readline().strip())
-            self.inp_dir_enc_to.set(           file.readline().strip())
-            self.inp_dir_dec_from.set(         file.readline().strip())
-            self.inp_dir_dec_to.set(           file.readline().strip())
-            self.inp_example_key.set(          file.readline().strip())
-            self.combo_print_info.current( int(file.readline().strip()))
+            tmp = file.readline().strip()
+            if tmp not in ['0', '1', '2', '3', '4']:
+                tmp = NAMING_MODE_DEF
+            self.combo_naming_mode.current(int(tmp))
+
+            tmp = file.readline().strip()
+            if not is_num(tmp):
+                tmp = COUNT_FROM_DEF
+            self.inp_count_from.set(tmp)
+
+            tmp = file.readline().strip()
+            if not tmp.isnumeric():
+                tmp = FORMAT_DEF
+            self.inp_format.set(tmp)
+
+            self.inp_marker_enc.set(file.readline().strip())
+            self.inp_marker_dec.set(file.readline().strip())
+
+            tmp = file.readline().strip()
+            if tmp not in ['0', '1']:
+                tmp = RU_LETTERS_DEF
+            self.combo_ru_letters.current(int(tmp))
+
+            self.inp_dir_enc_from.set(file.readline().strip())
+            self.inp_dir_enc_to.set(  file.readline().strip())
+            self.inp_dir_dec_from.set(file.readline().strip())
+            self.inp_dir_dec_to.set(  file.readline().strip())
+
+            tmp = file.readline().strip()
+            if check_key(tmp) != '+':
+                tmp = EXAMPLE_KEY_DEF
+            self.inp_example_key.set(tmp)
+
+            tmp = file.readline().strip()
+            if tmp not in ['0', '1']:
+                tmp = PRINT_INFO_DEF
+            self.combo_print_info.current(int(tmp))
 
     # Удалить пользовательские настройки
     def remove_custom_settings(self):
