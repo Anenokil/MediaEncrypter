@@ -13,8 +13,8 @@ import tkinter.ttk as ttk
 from tkinter.filedialog import askdirectory
 import time
 
-PROGRAM_NAME = 'Media encrypter v6.0.0_PRE-6'
-PROGRAM_DATE = '27.12.2022  0:19'
+PROGRAM_NAME = 'Media encrypter v6.0.0_PRE-7'
+PROGRAM_DATE = '27.12.2022  0:54'
 
 NORMAL_COLOR = '#FFFFFF'
 ERROR_COLOR = '#DD4444'
@@ -825,18 +825,18 @@ class SettingsW(tk.Toplevel):
         self.title('Media encrypter - Settings')
         self.key = tk.StringVar()
 
-        tk.Label(self, text='File names conversion mode').grid(row=0, column=0, columnspan=2, sticky='E')
-        tk.Label(self, text='Start counting files from (only for numerating file names conversion mode)').grid(row=1, column=0, columnspan=2, sticky='E')
-        tk.Label(self, text='Number of digits in numbers (only for numerating file names conversion mode)').grid(row=2, column=0, columnspan=2, sticky='E')
-        tk.Label(self, text='Marker for encoded files (only for prefix/postfix file names conversion mode)').grid(row=3, column=0, columnspan=2, sticky='E')
-        tk.Label(self, text='Marker for decoded files (only for prefix/postfix file names conversion mode)').grid(row=4, column=0, columnspan=2, sticky='E')
-        tk.Label(self, text='Russian letters processing mode').grid(row=5, column=0, columnspan=2, sticky='E')
-        tk.Label(self, text='Source folder when encoding').grid(row=6, column=0, columnspan=2, sticky='E')
-        tk.Label(self, text='Destination folder when encoding').grid(row=7, column=0, columnspan=2, sticky='E')
-        tk.Label(self, text='Source folder when decoding').grid(row=8, column=0, columnspan=2, sticky='E')
-        tk.Label(self, text='Destination folder when decoding').grid(row=9, column=0, columnspan=2, sticky='E')
-        tk.Label(self, text='Example of a key').grid(row=10, column=0, columnspan=2, sticky='E')
-        tk.Label(self, text='Whether to print info').grid(row=11, column=0, columnspan=2, sticky='E')
+        tk.Label(self, text='File names conversion mode').grid(      row=0,  column=0, columnspan=2, sticky='E')
+        tk.Label(self, text='Start counting files from').grid(       row=1,  column=0, columnspan=2, sticky='E')
+        tk.Label(self, text='Number of digits in numbers').grid(     row=2,  column=0, columnspan=2, sticky='E')
+        tk.Label(self, text='Marker for encoded files').grid(        row=3,  column=0, columnspan=2, sticky='E')
+        tk.Label(self, text='Marker for decoded files').grid(        row=4,  column=0, columnspan=2, sticky='E')
+        tk.Label(self, text='Russian letters processing mode').grid( row=5,  column=0, columnspan=2, sticky='E')
+        tk.Label(self, text='Source folder when encoding').grid(     row=6,  column=0, columnspan=2, sticky='E')
+        tk.Label(self, text='Destination folder when encoding').grid(row=7,  column=0, columnspan=2, sticky='E')
+        tk.Label(self, text='Source folder when decoding').grid(     row=8,  column=0, columnspan=2, sticky='E')
+        tk.Label(self, text='Destination folder when decoding').grid(row=9,  column=0, columnspan=2, sticky='E')
+        tk.Label(self, text='Example of a key').grid(                row=10, column=0, columnspan=2, sticky='E')
+        tk.Label(self, text='Whether to print info').grid(           row=11, column=0, columnspan=2, sticky='E')
 
         self.inp_naming_mode  = tk.StringVar()
         self.inp_count_from   = tk.StringVar(value=settings['count_from'])
@@ -857,43 +857,48 @@ class SettingsW(tk.Toplevel):
 
         self.combo_naming_mode  = ttk.Combobox(self, textvariable=self.inp_naming_mode, values=NAMING_MODES, state='readonly')
         self.entry_count_from   = tk.Entry(    self, textvariable=self.inp_count_from, width=10, validate='key', validatecommand=self.vcmd_num)
-        self.entry_format       = tk.Entry(    self, textvariable=self.inp_format, width=10, validate='key', validatecommand=self.vcmd_natural)
+        self.entry_format       = tk.Entry(    self, textvariable=self.inp_format,     width=10, validate='key', validatecommand=self.vcmd_natural)
         self.entry_marker_enc   = tk.Entry(    self, textvariable=self.inp_marker_enc)
         self.entry_marker_dec   = tk.Entry(    self, textvariable=self.inp_marker_dec)
         self.combo_ru_letters   = ttk.Combobox(self, textvariable=self.inp_ru_letters, values=RU_LETTERS_MODES, state='readonly')
         self.entry_dir_enc_from = tk.Entry(    self, textvariable=self.inp_dir_enc_from, width=35)
-        self.entry_dir_enc_to   = tk.Entry(    self, textvariable=self.inp_dir_enc_to, width=35)
+        self.entry_dir_enc_to   = tk.Entry(    self, textvariable=self.inp_dir_enc_to,   width=35)
         self.entry_dir_dec_from = tk.Entry(    self, textvariable=self.inp_dir_dec_from, width=35)
-        self.entry_dir_dec_to   = tk.Entry(    self, textvariable=self.inp_dir_dec_to, width=35)
-        self.entry_example_key  = tk.Entry(    self, textvariable=self.inp_example_key, width=KEY_LEN, font='TkFixedFont', validate='key', validatecommand=self.vcmd_key)
+        self.entry_dir_dec_to   = tk.Entry(    self, textvariable=self.inp_dir_dec_to,   width=35)
+        self.entry_example_key  = tk.Entry(    self, textvariable=self.inp_example_key,  width=KEY_LEN, font='TkFixedFont', validate='key', validatecommand=self.vcmd_key)
         self.combo_print_info   = ttk.Combobox(self, textvariable=self.inp_print_info, values=PRINT_INFO_MODES, state='readonly')
 
         self.combo_naming_mode.current(int(settings['naming_mode']))
         self.combo_ru_letters.current( int(settings['ru_letters']))
         self.combo_print_info.current( int(settings['print_info']))
 
+        self.combo_naming_mode.grid( row=0,  column=2, columnspan=3, sticky='W')
+        self.entry_count_from.grid(  row=1,  column=2, columnspan=2, sticky='W')
+        self.entry_format.grid(      row=2,  column=2, columnspan=3, sticky='W')
+        self.entry_marker_enc.grid(  row=3,  column=2, columnspan=3, sticky='W')
+        self.entry_marker_dec.grid(  row=4,  column=2, columnspan=3, sticky='W')
+        self.combo_ru_letters.grid(  row=5,  column=2, columnspan=3, sticky='W')
+        self.entry_dir_enc_from.grid(row=6,  column=2, columnspan=2, sticky='W')
+        self.entry_dir_enc_to.grid(  row=7,  column=2, columnspan=2, sticky='W')
+        self.entry_dir_dec_from.grid(row=8,  column=2, columnspan=2, sticky='W')
+        self.entry_dir_dec_to.grid(  row=9,  column=2, columnspan=2, sticky='W')
+        self.entry_example_key.grid( row=10, column=2, columnspan=3, sticky='W')
+        self.combo_print_info.grid(  row=11, column=2, columnspan=3, sticky='W')
+
+        tk.Label(self, text='(only for numerating file names conversion mode)').grid(    row=1, column=3, columnspan=2, sticky='W')
+        tk.Label(self, text='(only for numerating file names conversion mode)').grid(    row=2, column=3, columnspan=2, sticky='W')
+        tk.Label(self, text='(only for prefix/postfix file names conversion mode)').grid(row=3, column=3, columnspan=2, sticky='W')
+        tk.Label(self, text='(only for prefix/postfix file names conversion mode)').grid(row=4, column=3, columnspan=2, sticky='W')
+
         self.btn_source_enc = tk.Button(self, text='Search', command=self.choose_source_enc)
         self.btn_dest_enc   = tk.Button(self, text='Search', command=self.choose_dest_enc)
         self.btn_source_dec = tk.Button(self, text='Search', command=self.choose_source_dec)
         self.btn_dest_dec   = tk.Button(self, text='Search', command=self.choose_dest_dec)
 
-        self.combo_naming_mode.grid( row=0,  column=2, columnspan=2, sticky='W')
-        self.entry_count_from.grid(  row=1,  column=2, columnspan=2, sticky='W')
-        self.entry_format.grid(      row=2,  column=2, columnspan=2, sticky='W')
-        self.entry_marker_enc.grid(  row=3,  column=2, columnspan=2, sticky='W')
-        self.entry_marker_dec.grid(  row=4,  column=2, columnspan=2, sticky='W')
-        self.combo_ru_letters.grid(  row=5,  column=2, columnspan=2, sticky='W')
-        self.entry_dir_enc_from.grid(row=6,  column=2, columnspan=1, sticky='W')
-        self.entry_dir_enc_to.grid(  row=7,  column=2, columnspan=1, sticky='W')
-        self.entry_dir_dec_from.grid(row=8,  column=2, columnspan=1, sticky='W')
-        self.entry_dir_dec_to.grid(  row=9,  column=2, columnspan=1, sticky='W')
-        self.entry_example_key.grid( row=10, column=2, columnspan=2, sticky='W')
-        self.combo_print_info.grid(  row=11, column=2, columnspan=2, sticky='W')
-
-        self.btn_source_enc.grid(row=6, column=3, columnspan=1, sticky='W')
-        self.btn_dest_enc.grid(  row=7, column=3, columnspan=1, sticky='W')
-        self.btn_source_dec.grid(row=8, column=3, columnspan=1, sticky='W')
-        self.btn_dest_dec.grid(  row=9, column=3, columnspan=1, sticky='W')
+        self.btn_source_enc.grid(row=6, column=4, sticky='W')
+        self.btn_dest_enc.grid(  row=7, column=4, sticky='W')
+        self.btn_source_dec.grid(row=8, column=4, sticky='W')
+        self.btn_dest_dec.grid(  row=9, column=4, sticky='W')
 
         self.btn_def           = tk.Button(self, text='Set default settings',        command=self.set_default_settings)
         self.btn_save_custom   = tk.Button(self, text='Save your custom settings',   command=self.save_custom_settings)
@@ -904,10 +909,10 @@ class SettingsW(tk.Toplevel):
 
         self.btn_def.grid(          row=12, column=0)
         self.btn_save_custom.grid(  row=12, column=1)
-        self.btn_load_custom.grid(  row=12, column=2)
-        self.btn_remove_custom.grid(row=12, column=3)
+        self.btn_load_custom.grid(  row=12, column=2, columnspan=2)
+        self.btn_remove_custom.grid(row=12, column=4)
         self.btn_save.grid(         row=13, column=1)
-        self.btn_close.grid(        row=13, column=2)
+        self.btn_close.grid(        row=13, column=2, columnspan=2)
 
     def choose_source_enc(self):
         directory = askdirectory()
@@ -1078,6 +1083,7 @@ class ManualW(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.title('Media encrypter - MCM')
+        self.geometry('300x510')
         self.mode = ''
 
         tk.Label(self, text='H multiplier for R: ').grid(         row=1,  column=0, sticky='E')  # Множитель блоков по горизонтали для красного канала
@@ -1268,7 +1274,7 @@ class MainW(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title('Media encrypter')
-        self.geometry('250x200')
+        self.geometry('280x200')
 
         try:
             load_settings(SETTINGS_PATH)
