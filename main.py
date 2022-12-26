@@ -13,11 +13,14 @@ import tkinter.ttk as ttk
 from tkinter.filedialog import askdirectory
 import time
 
-PROGRAM_NAME = 'Media encrypter v6.0.0_PRE-10'
-PROGRAM_DATE = '27.12.2022  2:24'
+PROGRAM_NAME = 'Media encrypter v6.0.0_PRE-11'
+PROGRAM_DATE = '27.12.2022  2:58'
 
-NORMAL_COLOR = '#FFFFFF'
-ERROR_COLOR = '#DD4444'
+COLOR_STD = '#FFFFFF'
+COLOR_ERROR = '#EE3333'
+COLOR_ACCEPT = '#55DD55'
+COLOR_CLOSE = '#FF6666'
+COLOR_MCM = '#DCDCDC'
 
 """ Пути """
 RESOURCES_DIR = 'resources'  # Главная папка с ресурсами
@@ -914,8 +917,8 @@ class SettingsW(tk.Toplevel):
         self.btn_save_custom   = tk.Button(self, text='Add current settings to your custom settings', command=self.save_custom_settings)
         self.btn_load_custom   = tk.Button(self, text='Load your custom settings',                    command=self.load_custom_settings)
         self.btn_remove_custom = tk.Button(self, text='Remove your custom settings',                  command=self.remove_custom_settings)
-        self.btn_save  = tk.Button(self, text='Accept',  command=self.save)
-        self.btn_close = tk.Button(self, text='Close', command=self.close)
+        self.btn_save  = tk.Button(self, text='Accept', command=self.save,  bg=COLOR_ACCEPT)
+        self.btn_close = tk.Button(self, text='Close',  command=self.close, bg=COLOR_CLOSE)
 
         self.btn_def.grid(          row=12, column=0)
         self.btn_save_custom.grid(  row=12, column=1)
@@ -965,24 +968,24 @@ class SettingsW(tk.Toplevel):
 
         if self.inp_count_from.get() in ['', '-']:
             PopupMsgW(self, 'Incorrect "start counting files from" value!', title='Error')
-            self.entry_count_from['background'] = ERROR_COLOR
+            self.entry_count_from['background'] = COLOR_ERROR
             has_errors = True
         else:
-            self.entry_count_from['background'] = NORMAL_COLOR
+            self.entry_count_from['background'] = COLOR_STD
 
         if self.inp_format.get() == '':
             PopupMsgW(self, 'Incorrect "number of digits in numbers" value!', title='Error')
-            self.entry_format['background'] = ERROR_COLOR
+            self.entry_format['background'] = COLOR_ERROR
             has_errors = True
         else:
-            self.entry_format['background'] = NORMAL_COLOR
+            self.entry_format['background'] = COLOR_STD
 
         if len(self.inp_example_key.get()) != KEY_LEN:
             PopupMsgW(self, f'Incorrect "example of a key" value!\nShould has {KEY_LEN} symbols', title='Error')
-            self.entry_example_key['background'] = ERROR_COLOR
+            self.entry_example_key['background'] = COLOR_ERROR
             has_errors = True
         else:
-            self.entry_example_key['background'] = NORMAL_COLOR
+            self.entry_example_key['background'] = COLOR_STD
 
         if has_errors:
             return
@@ -1335,10 +1338,10 @@ class MainW(tk.Tk):
         self.btn_decode = tk.Button(self, text='Decode', command=self.decode)
         self.btn_decode.pack()
 
-        self.btn_mcm = tk.Button(self, text='Debug (MCM)', command=self.mcm)
+        self.btn_mcm = tk.Button(self, text='Debug (MCM)', command=self.mcm, bg=COLOR_MCM)
         self.btn_mcm.pack()
 
-        self.btn_close = tk.Button(self, text='Close', command=self.quit)
+        self.btn_close = tk.Button(self, text='Close', command=self.quit, bg=COLOR_CLOSE)
         self.btn_close.pack()
 
     # Перейти в настройки
