@@ -736,26 +736,6 @@ class PopupDialogueW(tk.Toplevel):
         return self.answer
 
 
-# Всплывающее окно с полем tk.Entry
-class PopupInputW(tk.Toplevel):
-    def __init__(self, parent, msg='Enter a value', btn_text='Confirm', allowed_symbols=None, title='Media encrypter'):
-        super().__init__(parent)
-        self.title(title)
-
-        tk.Label(self, text=msg).grid(row=0)
-        self.answer = tk.StringVar()
-        if allowed_symbols is None:
-            tk.Entry(self, textvariable=self.answer).grid(row=1)
-        else:
-            self.vcmd = (self.register(lambda value: validate_symbols(value, allowed_symbols)), '%P')
-            tk.Entry(self, textvariable=self.answer, validate='key', validatecommand=self.vcmd).grid(row=1)
-        tk.Button(self, text=btn_text, command=self.destroy).grid(row=2)
-
-    def open(self):
-        answer = self.answer.get()
-        return answer
-
-
 # Всплывающее окно с полем ttk.Combobox
 class PopupChooseW(tk.Toplevel):
     def __init__(self, parent, values, msg='Choose the one of these', btn_text='Confirm', title='Media encrypter'):
@@ -770,6 +750,29 @@ class PopupChooseW(tk.Toplevel):
     def open(self):
         answer = self.answer.get()
         return answer
+
+
+# Всплывающее окно ввода названия сохранения
+class EnterSaveNameW(tk.Toplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title('Media encrypter')
+
+        tk.Label(self, text='Enter a name for save your custom settings').grid(row=0)
+        self.answer = tk.StringVar()
+        self.vcmd = (self.register(lambda value: validate_symbols(value, FN_SYMBOLS)), '%P')
+        tk.Entry(self, textvariable=self.answer, validate='key', validatecommand=self.vcmd).grid(row=1)
+        tk.Button(self, text='Confirm', command=self.check_and_return).grid(row=2)
+
+    def check_and_return(self):
+        answer = self.answer.get()
+        if answer == '':
+            PopupMsgW(self, 'Incorrect name for save', title='Error')
+            return
+        self.destroy()
+
+    def open(self):
+        return self.answer.get()
 
 
 # Всплывающее окно ввода пароля
@@ -1023,17 +1026,9 @@ class SettingsW(tk.Toplevel):
 
     # Сохранить пользовательские настройки
     def save_custom_settings(self):
-        window = PopupInputW(self, 'Enter a name for save your custom settings', allowed_symbols=FN_SYMBOLS)
+        window = EnterSaveNameW(self)
         self.wait_window(window)
         custom_settings_file = window.open() + '.txt'
-        if custom_settings_file == '.txt':
-            PopupMsgW(self, 'Incorrect name for save', title='Error')
-            return
-        for c in custom_settings_file:
-            if c not in FN_SYMBOLS:
-                PopupMsgW(self, f'Incorrect symbol "{c}" in the save name', title='Error')
-                return
-
         copyfile(SETTINGS_PATH, os.path.join(CUSTOM_SETTINGS_DIR, custom_settings_file))
 
     # Выбрать файл с сохранением
