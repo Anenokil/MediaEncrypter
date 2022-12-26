@@ -11,8 +11,8 @@ import os
 import tkinter as tk
 import tkinter.ttk as ttk
 
-PROGRAM_NAME = 'Media encrypter v6.0.0_PRE-2'
-PROGRAM_DATE = '26.12.2022  8:29'
+PROGRAM_NAME = 'Media encrypter v6.0.0_PRE-3'
+PROGRAM_DATE = '26.12.2022  8:59'
 
 NORMAL_COLOR = '#FFFFFF'
 ERROR_COLOR = '#DD4444'
@@ -65,6 +65,24 @@ def print_warn(text):
     print(f'[!!!] {text} [!!!]')
 
 
+# Является ли строка целым числом
+def is_num(line):
+    return line.isnumeric() or (len(line) > 1 and line[0] == '-' and line[1:].isnumeric())
+
+
+# Проверка ключа на корректность
+def check_key(key):
+    length = len(key)
+    if length != KEY_LEN:  # Если ключ имеет неверную длину
+        return 'L', length
+    for i in range(length):
+        pos = KEY_SYMBOLS.find(key[i])
+        if pos == -1:  # Если ключ содержит недопустимые символы
+            key = EXAMPLE_KEY_DEF
+            return 'S', key[i]
+    return '+', ''
+
+
 # Установка значений по умолчанию для всех настроек
 def set_default_settings():
     settings['naming_mode'] = NAMING_MODE_DEF
@@ -88,24 +106,6 @@ def load_settings(filename):
             settings[name] = file.readline().strip()
 
 
-# Является ли строка целым числом
-def is_num(line):
-    return line.isnumeric() or (len(line) > 1 and line[0] == '-' and line[1:].isnumeric())
-
-
-# Проверка ключа на корректность
-def check_key(key):
-    length = len(key)
-    if length != KEY_LEN:  # Если ключ имеет неверную длину
-        return 'L', length
-    for i in range(length):
-        pos = KEY_SYMBOLS.find(key[i])
-        if pos == -1:  # Если ключ содержит недопустимые символы
-            key = EXAMPLE_KEY_DEF
-            return 'S', key[i]
-    return '+', ''
-
-
 # Проверка и исправление настроек
 def correct_settings():
     if settings['naming_mode'] not in ['0', '1', '2', '3', '4']:
@@ -121,6 +121,16 @@ def correct_settings():
         settings['example_key'] = EXAMPLE_KEY_DEF
     if settings['print_info'] not in ['0', '1']:
         settings['print_info'] = PRINT_INFO_DEF
+
+
+# Сохранить настройки в файл
+def save_settings_to_file():
+    with open(SETTINGS_PATH, 'w') as file:  # Запись исправленных настроек в файл
+        file.write(
+            settings['naming_mode'] + '\n' + settings['count_from'] + '\n' + settings['format'] + '\n' +
+            settings['marker_enc'] + '\n' + settings['marker_dec'] + '\n' + settings['ru_letters'] + '\n' +
+            settings['dir_enc_from'] + '\n' + settings['dir_enc_to'] + '\n' + settings['dir_dec_from'] + '\n' +
+            settings['dir_dec_to'] + '\n' + settings['example_key'] + '\n' + settings['print_info'])
 
 
 # Ввод ключа и преобразование его в массив битов
@@ -176,7 +186,7 @@ def extract_key_values(b):
     mult_name = bites_sum(b[0][39], b[1][38:40], b[2][36], b[3][0:2], b[4][4:6], b[5][3]) % (FN_SYMB_NUM - 1) + 1  # Сдвиг букв в имени файла
 
     if settings['print_info'] == '1':  # Вывод ключевых значений
-        print('=================================== KEY  CONSTANTS ===================================')
+        print('                                    KEY  CONSTANTS')
         print(f'  ML BH: {mult_blocks_h_r}, {mult_blocks_h_g}, {mult_blocks_h_b}')
         print(f'  ML BW: {mult_blocks_w_r}, {mult_blocks_w_g}, {mult_blocks_w_b}')
         print(f'  SH  H: {shift_h_r}, {shift_h_g}, {shift_h_b}')
@@ -186,7 +196,6 @@ def extract_key_values(b):
         print(f'  ML  C: {mult_r}, {mult_g}, {mult_b}')
         print(f'  SH2 C: {shift2_r}, {shift2_g}, {shift2_b}')
         print(f'  ML  N: {mult_name}')
-        print('======================================================================================')
 
 
 # Разделение полотна на блоки и их перемешивание
@@ -630,6 +639,7 @@ def decode():
 ########################################################################################################################
 
 
+# Ввод только заданных символов
 def validate_symbols(_value, allowed_symbols):
     for _c in _value:
         if _c not in allowed_symbols:
@@ -637,30 +647,37 @@ def validate_symbols(_value, allowed_symbols):
     return True
 
 
+# Ввод только натуральных чисел
 def validate_natural(_value):
     return _value == '' or _value.isnumeric()
 
 
+# Ввод только целых чисел
 def validate_num(_value):
     return _value == '' or _value == '-' or _value.isnumeric() or (_value[0] == '-' and _value[1:].isnumeric())
 
 
+# Ввод только до заданной длины
 def validate_len(_value, _max_len):
     return len(_value) <= _max_len
 
 
+# Ввод только натуральных чисел до заданной длины
 def validate_natural_and_len(_value, _max_len):
     return validate_natural(_value) and validate_len(_value, _max_len)
 
 
+# Ввод только целых чисел до заданной длины
 def validate_num_and_len(_value, _max_len):
     return validate_num(_value) and validate_len(_value, _max_len)
 
 
+# Ввод только символов подходящих для ключа и до длины ключа
 def validate_key(_value):
     return validate_symbols(_value, KEY_SYMBOLS) and validate_len(_value, KEY_LEN)
 
 
+# Всплывающее окно с сообщением
 class PopupMsgW(tk.Toplevel):
     def __init__(self, parent, msg, btn_text='OK'):
         super().__init__(parent)
@@ -669,6 +686,7 @@ class PopupMsgW(tk.Toplevel):
         tk.Button(self, text=btn_text, command=self.destroy).grid(row=1, column=0)
 
 
+# Всплывающее окно с сообщением и двумя кнопками
 class PopupDialogueW(tk.Toplevel):
     def __init__(self, parent, msg='Are you sure?', btn_yes='Yes', btn_no='Cancel'):
         super().__init__(parent)
@@ -692,6 +710,7 @@ class PopupDialogueW(tk.Toplevel):
         return self.answer
 
 
+# Всплывающее окно с полем tk.Entry
 class PopupInputW(tk.Toplevel):
     def __init__(self, parent, msg='Enter a value', btn_text='Confirm', allowed_symbols=None):
         super().__init__(parent)
@@ -710,6 +729,7 @@ class PopupInputW(tk.Toplevel):
         return answer
 
 
+# Всплывающее окно с полем ttk.Combobox
 class PopupChooseW(tk.Toplevel):
     def __init__(self, parent, values, msg='Choose the one of these', btn_text='Confirm'):
         super().__init__(parent)
@@ -724,6 +744,7 @@ class PopupChooseW(tk.Toplevel):
         return answer
 
 
+# Всплывающее окно ввода пароля
 class EnterKeyW(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
@@ -751,6 +772,7 @@ class EnterKeyW(tk.Toplevel):
         self.entry_key.grid(row=2, column=1, sticky='W')
         self.btn_submit.grid(row=3, columnspan=2)
 
+    # Проверить корректность ключа и, если корректен, сохранить
     def check_key_and_return(self):
         _key = self.key.get()
         _len = len(_key)
@@ -768,6 +790,7 @@ class EnterKeyW(tk.Toplevel):
         return key_to_bites(_key)
 
 
+# Окно настроек
 class SettingsW(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
@@ -800,7 +823,7 @@ class SettingsW(tk.Toplevel):
         self.inp_print_info   = tk.StringVar()
 
         self.vcmd_natural = (self.register(lambda _value: validate_natural_and_len(_value, 3)), '%P')
-        self.vcmd_num     = (self.register(validate_num_and_len), '%P')
+        self.vcmd_num     = (self.register(validate_num), '%P')
         self.vcmd_key     = (self.register(lambda _value: validate_len(_value, KEY_LEN)), '%P')
 
         self.combo_naming_mode  = ttk.Combobox(self, textvariable=self.inp_naming_mode, values=NAMING_MODES, state='readonly')
@@ -847,6 +870,7 @@ class SettingsW(tk.Toplevel):
         self.btn_save.grid(         row=13, column=1)
         self.btn_close.grid(        row=13, column=2)
 
+    # Сохранить изменения
     def save(self):
         _has_errors = False
 
@@ -887,8 +911,9 @@ class SettingsW(tk.Toplevel):
         settings['example_key']  = self.inp_example_key.get()
         settings['print_info']   = str(PRINT_INFO_MODES.index(self.inp_print_info.get()))
 
-        self.save_settings_to_file()
+        save_settings_to_file()
 
+    # Закрыть окно без сохранения
     def close(self):
         # Если были изменения, то предлагается сохранить их
         if settings['naming_mode'] == str(NAMING_MODES.index(self.inp_naming_mode.get())) and\
@@ -910,10 +935,12 @@ class SettingsW(tk.Toplevel):
             if answer:
                 self.destroy()
 
+    # Установить настройки по умолчанию
     def set_default_settings(self):
         set_default_settings()
         self.refresh()
 
+    # Обновить отображаемые настройки
     def refresh(self):
         self.inp_count_from.set(  settings['count_from'])
         self.inp_format.set(      settings['format'])
@@ -929,6 +956,7 @@ class SettingsW(tk.Toplevel):
         self.combo_ru_letters.current( int(settings['ru_letters']))
         self.combo_print_info.current( int(settings['print_info']))
 
+    # Сохранить пользовательские настройки
     def save_custom_settings(self):
         window = PopupInputW(self, 'Enter a name for save your custom settings', allowed_symbols=FN_SYMBOLS)
         self.wait_window(window)
@@ -943,6 +971,7 @@ class SettingsW(tk.Toplevel):
 
         copyfile(SETTINGS_PATH, os.path.join(CUSTOM_SETTINGS_DIR, custom_settings_file))
 
+    # Выбрать файл с сохранением
     def choose_save(self, cmd_name):
         csf_count = 0
         csf_list = []
@@ -960,6 +989,7 @@ class SettingsW(tk.Toplevel):
             filename = window.open() + '.txt'
             return True, filename
 
+    # Загрузить пользовательские настройки
     def load_custom_settings(self):
         has_saves, filename = self.choose_save('load')
         if not has_saves:
@@ -970,6 +1000,7 @@ class SettingsW(tk.Toplevel):
         correct_settings()
         self.refresh()
 
+    # Удалить пользовательские настройки
     def remove_custom_settings(self):
         has_saves, filename = self.choose_save('remove')
         if not has_saves:
@@ -978,19 +1009,12 @@ class SettingsW(tk.Toplevel):
 
         os.remove(custom_settings_file)
 
-    def save_settings_to_file(self):
-        with open(SETTINGS_PATH, 'w') as _settings_file:  # Запись исправленных настроек в файл
-            _settings_file.write(
-                settings['naming_mode'] + '\n' + settings['count_from'] + '\n' + settings['format'] + '\n' +
-                settings['marker_enc'] + '\n' + settings['marker_dec'] + '\n' + settings['ru_letters'] + '\n' +
-                settings['dir_enc_from'] + '\n' + settings['dir_enc_to'] + '\n' + settings['dir_dec_from'] + '\n' +
-                settings['dir_dec_to'] + '\n' + settings['example_key'] + '\n' + settings['print_info'])
-
     def open(self):
         self.grab_set()
         self.wait_window()
 
 
+# Окно режима ручного управления
 class ManualW(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
@@ -1100,6 +1124,7 @@ class ManualW(tk.Toplevel):
         self.btn_encode.grid(row=24, column=0)
         self.btn_decode.grid(row=24, column=1)
 
+    # Заполнить ключевые значения
     def set_key_vales(self):
         global mult_blocks_h_r, mult_blocks_h_g, mult_blocks_h_b, mult_blocks_w_r, mult_blocks_w_g, mult_blocks_w_b,\
             shift_h_r, shift_h_g, shift_h_b, shift_w_r, shift_w_g, shift_w_b, shift_r, shift_g, shift_b, mult_r,\
@@ -1128,7 +1153,7 @@ class ManualW(tk.Toplevel):
             self.inp_shift2_g.get() == '' or\
             self.inp_shift2_b.get() == '' or\
             self.inp_mult_name.get() == '':
-            PopupMsgW(self, 'All fields should be fill')
+            PopupMsgW(self, 'All fields should be filled')
             return False
 
         mult_blocks_h_r = int(self.inp_mult_blocks_h_r.get())
@@ -1156,6 +1181,7 @@ class ManualW(tk.Toplevel):
         mult_name = int(self.inp_mult_name.get())
         return True
 
+    # Отправить на шифровку
     def pre_encode(self):
         res = self.set_key_vales()
         if not res:
@@ -1163,6 +1189,7 @@ class ManualW(tk.Toplevel):
         self.mode = 'E'
         self.destroy()
 
+    # Отправить на дешифровку
     def pre_decode(self):
         res = self.set_key_vales()
         if not res:
@@ -1176,6 +1203,7 @@ class ManualW(tk.Toplevel):
         return self.mode
 
 
+# Главное окно
 class MainW(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -1209,10 +1237,12 @@ class MainW(tk.Tk):
         self.btn_close = tk.Button(self, text='Close', command=self.quit)
         self.btn_close.pack()
 
+    # Перейти в настройки
     def open_settings(self):
         SettingsW(self)
         return
 
+    # Отправить на шифровку
     def encode(self):
         window = EnterKeyW(self)
         key_bits = window.open()
@@ -1220,6 +1250,7 @@ class MainW(tk.Tk):
 
         encode()
 
+    # Отправить на дешифровку
     def decode(self):
         window = EnterKeyW(self)
         key_bits = window.open()
@@ -1227,6 +1258,7 @@ class MainW(tk.Tk):
 
         decode()
 
+    # Перейти в режим ручного управления
     def mcm(self):
         window = ManualW(self)
         action = window.open()
