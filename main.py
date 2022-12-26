@@ -13,8 +13,8 @@ import tkinter.ttk as ttk
 from tkinter.filedialog import askdirectory
 import time
 
-PROGRAM_NAME = 'Media encrypter v6.0.0_PRE-8'
-PROGRAM_DATE = '27.12.2022  1:05'
+PROGRAM_NAME = 'Media encrypter v6.0.0_PRE-9'
+PROGRAM_DATE = '27.12.2022  2:18'
 
 NORMAL_COLOR = '#FFFFFF'
 ERROR_COLOR = '#DD4444'
@@ -748,8 +748,9 @@ class PopupChooseW(tk.Toplevel):
         tk.Button(self, text=btn_text, command=self.destroy).grid(row=2)
 
     def open(self):
-        answer = self.answer.get()
-        return answer
+        self.grab_set()
+        self.wait_window()
+        return self.answer.get()
 
 
 # Всплывающее окно ввода названия сохранения
@@ -759,20 +760,25 @@ class EnterSaveNameW(tk.Toplevel):
         self.title('Media encrypter')
 
         tk.Label(self, text='Enter a name for save your custom settings').grid(row=0)
-        self.answer = tk.StringVar()
+        self.name = tk.StringVar()
         self.vcmd = (self.register(lambda value: validate_symbols(value, FN_SYMBOLS)), '%P')
-        tk.Entry(self, textvariable=self.answer, validate='key', validatecommand=self.vcmd).grid(row=1)
+        tk.Entry(self, textvariable=self.name, validate='key', validatecommand=self.vcmd).grid(row=1)
         tk.Button(self, text='Confirm', command=self.check_and_return).grid(row=2)
 
     def check_and_return(self):
-        answer = self.answer.get()
-        if answer == '':
+        filename = self.name.get()
+        if filename == '':
             PopupMsgW(self, 'Incorrect name for save', title='Error')
             return
+        if filename + '.txt' in os.listdir(CUSTOM_SETTINGS_DIR):  # Если уже есть сохранение с таким названием
+            window = PopupDialogueW(self, 'There is a save with same name already!\nAre you want to rewrite it?')
+            answer = window.open()
+            if not answer:
+                return
         self.destroy()
 
     def open(self):
-        return self.answer.get()
+        return self.name.get()
 
 
 # Всплывающее окно ввода пароля
@@ -918,21 +924,40 @@ class SettingsW(tk.Toplevel):
         self.btn_save.grid(         row=13, column=1)
         self.btn_close.grid(        row=13, column=2, columnspan=2)
 
+    # Были ли изменены настройки
+    def has_changes(self):
+        return settings['naming_mode'] != str(NAMING_MODES.index(self.inp_naming_mode.get())) or\
+            settings['count_from'] != self.inp_count_from.get() or\
+            settings['format'] != self.inp_format.get() or\
+            settings['marker_enc'] != self.inp_marker_enc.get() or\
+            settings['marker_dec'] != self.inp_marker_dec.get() or\
+            settings['ru_letters'] != str(RU_LETTERS_MODES.index(self.inp_ru_letters.get())) or\
+            settings['dir_enc_from'] != self.inp_dir_enc_from.get() or\
+            settings['dir_enc_to'] != self.inp_dir_enc_to.get() or\
+            settings['dir_dec_from'] != self.inp_dir_dec_from.get() or\
+            settings['dir_dec_to'] != self.inp_dir_dec_to.get() or\
+            settings['example_key'] != self.inp_example_key.get() or\
+            settings['print_info'] != str(PRINT_INFO_MODES.index(self.inp_print_info.get()))
+
+    # Выбор папки источника при шифровке
     def choose_source_enc(self):
         directory = askdirectory()
         settings['dir_enc_from'] = directory
         self.inp_dir_enc_from.set(directory)
 
+    # Выбор папки назначения при шифровке
     def choose_dest_enc(self):
         directory = askdirectory()
         settings['dir_enc_to'] = directory
         self.inp_dir_enc_to = directory
 
+    # Выбор папки источника при дешифровке
     def choose_source_dec(self):
         directory = askdirectory()
         settings['dir_dec_from'] = directory
         self.inp_dir_dec_from = directory
 
+    # Выбор папки назначения при дешифровке
     def choose_dest_dec(self):
         directory = askdirectory()
         settings['dir_dec_to'] = directory
@@ -983,25 +1008,13 @@ class SettingsW(tk.Toplevel):
 
     # Закрыть окно без сохранения
     def close(self):
-        # Если были изменения, то предлагается сохранить их
-        if settings['naming_mode'] == str(NAMING_MODES.index(self.inp_naming_mode.get())) and\
-            settings['count_from'] == self.inp_count_from.get() and\
-            settings['format'] == self.inp_format.get() and\
-            settings['marker_enc'] == self.inp_marker_enc.get() and\
-            settings['marker_dec'] == self.inp_marker_dec.get() and\
-            settings['ru_letters'] == str(RU_LETTERS_MODES.index(self.inp_ru_letters.get())) and\
-            settings['dir_enc_from'] == self.inp_dir_enc_from.get() and\
-            settings['dir_enc_to'] == self.inp_dir_enc_to.get() and\
-            settings['dir_dec_from'] == self.inp_dir_dec_from.get() and\
-            settings['dir_dec_to'] == self.inp_dir_dec_to.get() and\
-            settings['example_key'] == self.inp_example_key.get() and\
-                settings['print_info'] == str(PRINT_INFO_MODES.index(self.inp_print_info.get())):
-            self.destroy()
-        else:
-            window = PopupDialogueW(self, f'If you close the window, the changes will not be saved! Close settings?', title='Warning')
+        if self.has_changes():  # Если были изменения, то предлагается сохранить их
+            window = PopupDialogueW(self, f'If you close the window, the changes will not be saved!\n Close settings?', title='Warning')
             answer = window.open()
             if answer:
                 self.destroy()
+        else:
+            self.destroy()
 
     # Установить настройки по умолчанию
     def set_default_settings(self):
@@ -1026,13 +1039,18 @@ class SettingsW(tk.Toplevel):
 
     # Сохранить пользовательские настройки
     def save_custom_settings(self):
+        if self.has_changes():  # Если были изменения, то предлагается сохранить их
+            window = PopupDialogueW(self, f'There are unsaved changes!\n Are you want to continue?', title='Warning')
+            answer = window.open()
+            if not answer:
+                return
         window = EnterSaveNameW(self)
         self.wait_window(window)
-        custom_settings_file = window.open() + '.txt'
-        copyfile(SETTINGS_PATH, os.path.join(CUSTOM_SETTINGS_DIR, custom_settings_file))
+        filename = window.open() + '.txt'
+        copyfile(SETTINGS_PATH, os.path.join(CUSTOM_SETTINGS_DIR, filename))
 
     # Выбрать файл с сохранением
-    def choose_save(self, cmd_name):
+    def choose_custom_save(self, cmd_name):
         csf_count = 0
         csf_list = []
         for file_name in os.listdir(CUSTOM_SETTINGS_DIR):
@@ -1045,13 +1063,12 @@ class SettingsW(tk.Toplevel):
             return False, ''
         else:
             window = PopupChooseW(self, csf_list, 'Choose a save you want to ' + cmd_name)
-            self.wait_window(window)
             filename = window.open() + '.txt'
             return True, filename
 
     # Загрузить пользовательские настройки
     def load_custom_settings(self):
-        has_saves, filename = self.choose_save('load')
+        has_saves, filename = self.choose_custom_save('load')
         if not has_saves:
             return
         custom_settings_file = os.path.join(CUSTOM_SETTINGS_DIR, filename)
@@ -1062,7 +1079,7 @@ class SettingsW(tk.Toplevel):
 
     # Удалить пользовательские настройки
     def remove_custom_settings(self):
-        has_saves, filename = self.choose_save('remove')
+        has_saves, filename = self.choose_custom_save('remove')
         if not has_saves:
             return
         custom_settings_file = os.path.join(CUSTOM_SETTINGS_DIR, filename)
