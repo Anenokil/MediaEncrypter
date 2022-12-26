@@ -10,9 +10,10 @@ from moviepy.editor import VideoFileClip  # Разбиение видео на �
 import cv2  # Составление видео из кадров
 import tkinter as tk
 import tkinter.ttk as ttk
+import time
 
-PROGRAM_NAME = 'Media encrypter v6.0.0_PRE-5'
-PROGRAM_DATE = '27.12.2022  0:43'
+PROGRAM_NAME = 'Media encrypter v6.0.0_PRE-6'
+PROGRAM_DATE = '27.12.2022  0:19'
 
 NORMAL_COLOR = '#FFFFFF'
 ERROR_COLOR = '#DD4444'
@@ -472,6 +473,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, outp_dir, count_all):
             continue
         count_correct += 1
 
+        start = time.perf_counter()
         if ext in ['.png', '.jpg', '.jpeg', '.bmp']:
             res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '.png', outp_dir, marker, count_correct)  # Преобразование имени файла
 
@@ -616,6 +618,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, outp_dir, count_all):
             print()
 
             count_all = encrypt_dir(op_mode, marker, formats, new_inp_dir, new_outp_dir, count_all)
+        print(f'Time: {time.perf_counter() - start}\n')
     return count_all
 
 
