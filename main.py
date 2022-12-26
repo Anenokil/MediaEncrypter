@@ -13,8 +13,8 @@ import tkinter.ttk as ttk
 from tkinter.filedialog import askdirectory
 import time
 
-PROGRAM_NAME = 'Media encrypter v6.0.0_PRE-9'
-PROGRAM_DATE = '27.12.2022  2:18'
+PROGRAM_NAME = 'Media encrypter v6.0.0_PRE-10'
+PROGRAM_DATE = '27.12.2022  2:24'
 
 NORMAL_COLOR = '#FFFFFF'
 ERROR_COLOR = '#DD4444'
@@ -910,11 +910,11 @@ class SettingsW(tk.Toplevel):
         self.btn_source_dec.grid(row=8, column=4, sticky='W')
         self.btn_dest_dec.grid(  row=9, column=4, sticky='W')
 
-        self.btn_def           = tk.Button(self, text='Set default settings',        command=self.set_default_settings)
-        self.btn_save_custom   = tk.Button(self, text='Save your custom settings',   command=self.save_custom_settings)
-        self.btn_load_custom   = tk.Button(self, text='Load your custom settings',   command=self.load_custom_settings)
-        self.btn_remove_custom = tk.Button(self, text='Remove your custom settings', command=self.remove_custom_settings)
-        self.btn_save  = tk.Button(self, text='Save',  command=self.save)
+        self.btn_def           = tk.Button(self, text='Set default settings',                         command=self.set_default_settings)
+        self.btn_save_custom   = tk.Button(self, text='Add current settings to your custom settings', command=self.save_custom_settings)
+        self.btn_load_custom   = tk.Button(self, text='Load your custom settings',                    command=self.load_custom_settings)
+        self.btn_remove_custom = tk.Button(self, text='Remove your custom settings',                  command=self.remove_custom_settings)
+        self.btn_save  = tk.Button(self, text='Accept',  command=self.save)
         self.btn_close = tk.Button(self, text='Close', command=self.close)
 
         self.btn_def.grid(          row=12, column=0)
@@ -942,25 +942,21 @@ class SettingsW(tk.Toplevel):
     # Выбор папки источника при шифровке
     def choose_source_enc(self):
         directory = askdirectory()
-        settings['dir_enc_from'] = directory
         self.inp_dir_enc_from.set(directory)
 
     # Выбор папки назначения при шифровке
     def choose_dest_enc(self):
         directory = askdirectory()
-        settings['dir_enc_to'] = directory
         self.inp_dir_enc_to = directory
 
     # Выбор папки источника при дешифровке
     def choose_source_dec(self):
         directory = askdirectory()
-        settings['dir_dec_from'] = directory
         self.inp_dir_dec_from = directory
 
     # Выбор папки назначения при дешифровке
     def choose_dest_dec(self):
         directory = askdirectory()
-        settings['dir_dec_to'] = directory
         self.inp_dir_dec_to = directory
 
     # Сохранить изменения
@@ -1018,24 +1014,18 @@ class SettingsW(tk.Toplevel):
 
     # Установить настройки по умолчанию
     def set_default_settings(self):
-        set_default_settings()
-        self.refresh()
-
-    # Обновить отображаемые настройки
-    def refresh(self):
-        self.inp_count_from.set(  settings['count_from'])
-        self.inp_format.set(      settings['format'])
-        self.inp_marker_enc.set(  settings['marker_enc'])
-        self.inp_marker_dec.set(  settings['marker_dec'])
-        self.inp_dir_enc_from.set(settings['dir_enc_from'])
-        self.inp_dir_enc_to.set(  settings['dir_enc_to'])
-        self.inp_dir_dec_from.set(settings['dir_dec_from'])
-        self.inp_dir_dec_to.set(  settings['dir_dec_to'])
-        self.inp_example_key.set( settings['example_key'])
-
-        self.combo_naming_mode.current(int(settings['naming_mode']))
-        self.combo_ru_letters.current( int(settings['ru_letters']))
-        self.combo_print_info.current( int(settings['print_info']))
+        self.combo_naming_mode.current(int(NAMING_MODE_DEF))
+        self.inp_count_from.set(COUNT_FROM_DEF)
+        self.inp_format.set(FORMAT_DEF)
+        self.inp_marker_enc.set(MARKER_ENC_DEF)
+        self.inp_marker_dec.set(MARKER_DEC_DEF)
+        self.combo_ru_letters.current(int(RU_LETTERS_DEF))
+        self.inp_dir_enc_from.set(DIR_ENC_FROM_DEF)
+        self.inp_dir_enc_to.set(DIR_ENC_TO_DEF)
+        self.inp_dir_dec_from.set(DIR_DEC_FROM_DEF)
+        self.inp_dir_dec_to.set(DIR_DEC_TO_DEF)
+        self.inp_example_key.set(EXAMPLE_KEY_DEF)
+        self.combo_print_info.current(int(PRINT_INFO_DEF))
 
     # Сохранить пользовательские настройки
     def save_custom_settings(self):
@@ -1071,11 +1061,21 @@ class SettingsW(tk.Toplevel):
         has_saves, filename = self.choose_custom_save('load')
         if not has_saves:
             return
-        custom_settings_file = os.path.join(CUSTOM_SETTINGS_DIR, filename)
+        filepath = os.path.join(CUSTOM_SETTINGS_DIR, filename)
 
-        load_settings(custom_settings_file)
-        correct_settings()
-        self.refresh()
+        with open(filepath, 'r') as file:  # Загрузка настроек из файла
+            self.combo_naming_mode.current(int(file.readline().strip()))
+            self.inp_count_from.set(           file.readline().strip())
+            self.inp_format.set(               file.readline().strip())
+            self.inp_marker_enc.set(           file.readline().strip())
+            self.inp_marker_dec.set(           file.readline().strip())
+            self.combo_ru_letters.current( int(file.readline().strip()))
+            self.inp_dir_enc_from.set(         file.readline().strip())
+            self.inp_dir_enc_to.set(           file.readline().strip())
+            self.inp_dir_dec_from.set(         file.readline().strip())
+            self.inp_dir_dec_to.set(           file.readline().strip())
+            self.inp_example_key.set(          file.readline().strip())
+            self.combo_print_info.current( int(file.readline().strip()))
 
     # Удалить пользовательские настройки
     def remove_custom_settings(self):
