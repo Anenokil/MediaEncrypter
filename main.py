@@ -20,8 +20,8 @@ kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-45'
-PROGRAM_DATE = '27.12.2022 12:55'
+PROGRAM_VERSION = 'v6.0.0_PRE-47'
+PROGRAM_DATE = '27.12.2022 13:08'
 
 """ Цвета """
 
@@ -38,21 +38,23 @@ COLOR_EXAMPLE_KEY = '#44AABB'
 """ Пути и файлы """
 
 RESOURCES_DIR = 'resources'  # Главная папка с ресурсами
-TMP_FILE = 'tmp.png'  # Временный файл для обработки gif-изображений и видео
-TMP_PATH = os.path.join(RESOURCES_DIR, TMP_FILE)
-SETTINGS_PATH = os.path.join(RESOURCES_DIR, 'settings.txt')  # Файл с настройками
-CUSTOM_SETTINGS_DIR = os.path.join(RESOURCES_DIR, 'custom_settings')  # Папка с сохранёнными пользовательскими настройками
+CUSTOM_SETTINGS_DIR = 'custom_settings'  # Папка с сохранёнными пользовательскими настройками
+CUSTOM_SETTINGS_PATH = os.path.join(RESOURCES_DIR, CUSTOM_SETTINGS_DIR)
+SETTINGS_FILENAME = 'settings.txt'  # Файл с настройками
+SETTINGS_PATH = os.path.join(RESOURCES_DIR, SETTINGS_FILENAME)
+TMP_FILENAME = 'tmp.png'  # Временный файл для обработки gif-изображений и видео
+TMP_PATH = os.path.join(RESOURCES_DIR, TMP_FILENAME)
 
 if RESOURCES_DIR not in os.listdir(os.curdir):
     os.mkdir(RESOURCES_DIR)
 
 # Затирание временного файла при запуске программы, если он остался с прошлого сеанса
-if TMP_FILE in os.listdir(RESOURCES_DIR):
+if TMP_FILENAME in os.listdir(RESOURCES_DIR):
     open(TMP_PATH, 'w')
     os.remove(TMP_PATH)
 
 if CUSTOM_SETTINGS_DIR not in os.listdir(RESOURCES_DIR):
-    os.mkdir(CUSTOM_SETTINGS_DIR)
+    os.mkdir(CUSTOM_SETTINGS_PATH)
 
 # Допустимые в названии файлов символы (Windows)
 FN_SYMBOLS_WITHOUT_RU = '#\' 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@$%^&()[]{}-=_+`~;,.'
@@ -801,7 +803,7 @@ class EnterSaveNameW(tk.Toplevel):
             PopupMsgW(self, 'Incorrect name for save', title='Error')
             return
         self.name_is_correct = True
-        if f'{filename}.txt' in os.listdir(CUSTOM_SETTINGS_DIR):  # Если уже есть сохранение с таким названием
+        if f'{filename}.txt' in os.listdir(CUSTOM_SETTINGS_PATH):  # Если уже есть сохранение с таким названием
             window = PopupDialogueW(self, 'There is a save with same name already!\nAre you want to rewrite it?')
             answer = window.open()
             if not answer:
@@ -1098,13 +1100,13 @@ class SettingsW(tk.Toplevel):
         filename_is_correct, filename = window.open()
         if not filename_is_correct:
             return
-        copyfile(SETTINGS_PATH, os.path.join(CUSTOM_SETTINGS_DIR, f'{filename}.txt'))
+        copyfile(SETTINGS_PATH, os.path.join(CUSTOM_SETTINGS_PATH, f'{filename}.txt'))
 
     # Выбрать файл с сохранением
     def choose_custom_save(self, cmd_name):
         csf_count = 0
         csf_list = []
-        for file_name in os.listdir(CUSTOM_SETTINGS_DIR):
+        for file_name in os.listdir(CUSTOM_SETTINGS_PATH):
             base_name, ext = os.path.splitext(file_name)
             if ext == '.txt':
                 csf_list += [base_name]
@@ -1124,7 +1126,7 @@ class SettingsW(tk.Toplevel):
         has_saves, filename = self.choose_custom_save('load')
         if not has_saves:
             return
-        filepath = os.path.join(CUSTOM_SETTINGS_DIR, filename)
+        filepath = os.path.join(CUSTOM_SETTINGS_PATH, filename)
 
         with open(filepath, 'r') as file:  # Загрузка настроек из файла
             tmp = file.readline().strip()
@@ -1182,7 +1184,7 @@ class SettingsW(tk.Toplevel):
         has_saves, filename = self.choose_custom_save('remove')
         if not has_saves:
             return
-        custom_settings_file = os.path.join(CUSTOM_SETTINGS_DIR, filename)
+        custom_settings_file = os.path.join(CUSTOM_SETTINGS_PATH, filename)
 
         os.remove(custom_settings_file)
 
