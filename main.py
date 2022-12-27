@@ -14,8 +14,8 @@ from tkinter.filedialog import askdirectory
 import time
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-28'
-PROGRAM_DATE = '27.12.2022  8:00'
+PROGRAM_VERSION = 'v6.0.0_PRE-29'
+PROGRAM_DATE = '27.12.2022  8:09'
 
 """ Цвета """
 
@@ -1372,6 +1372,7 @@ class MainW(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title('Media encrypter')
+        self.eval('tk::PlaceWindow . center')
         self.resizable(width=False, height=False)
 
         try:
