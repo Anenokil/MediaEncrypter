@@ -14,14 +14,15 @@ from tkinter.filedialog import askdirectory
 import time
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-13'
-PROGRAM_DATE = '27.12.2022  4:52'
+PROGRAM_VERSION = 'v6.0.0_PRE-14'
+PROGRAM_DATE = '27.12.2022  4:58'
 
 COLOR_STD = '#FFFFFF'
 COLOR_ERROR = '#EE3333'
 COLOR_ACCEPT = '#55DD55'
 COLOR_CLOSE = '#FF6666'
 COLOR_MCM = '#DCDCDC'
+COLOR_FOOTER = '#666666'
 
 """ Пути """
 RESOURCES_DIR = 'resources'  # Главная папка с ресурсами
@@ -1324,8 +1325,8 @@ class MainW(tk.Tk):
 
         self.lbl_header1 = tk.Label(self, font='StdFont 15', text='Anenokil development presents')
         self.lbl_header2 = tk.Label(self, font='Times 21', fg='RED', text=PROGRAM_NAME)
-        self.lbl_header1.grid(row=0)
-        self.lbl_header2.grid(row=1)
+        self.lbl_header1.grid(row=0, padx=7, pady=(7, 0))
+        self.lbl_header2.grid(row=1, padx=7)
 
         self.btn_settings = tk.Button(self, text='Settings',    command=self.open_settings)
         self.btn_encode = tk.Button(  self, text='Encode',      command=self.encode)
@@ -1338,8 +1339,8 @@ class MainW(tk.Tk):
         self.btn_mcm.grid(     row=5, pady=5)
         self.btn_close.grid(   row=6, pady=5)
 
-        self.lbl_footer = tk.Label(self, font='StdFont 8', text=f'{PROGRAM_VERSION} {PROGRAM_DATE}')
-        self.lbl_footer.grid(row=7, sticky='S')
+        self.lbl_footer = tk.Label(self, font='StdFont 8', fg=COLOR_FOOTER, text=f'{PROGRAM_VERSION} {PROGRAM_DATE}')
+        self.lbl_footer.grid(row=7, padx=7, pady=(0, 3), sticky='S')
 
     # Перейти в настройки
     def open_settings(self):
