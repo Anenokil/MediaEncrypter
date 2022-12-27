@@ -19,8 +19,8 @@ kernel32 = ctypes.windll.kernel32
 kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-50'
-PROGRAM_DATE = '27.12.2022 13:37'
+PROGRAM_VERSION = 'v6.0.0_PRE-51'
+PROGRAM_DATE = '27.12.2022 13:54'
 
 """ Цвета """
 
@@ -833,7 +833,7 @@ class EnterKeyW(tk.Toplevel):
             self.txt_example_key.focus()
             self.txt_example_key.config(state='disabled')
 
-        self.txt_example_key = tk.Text(self, height=1, width=KEY_LEN, borderwidth=0, font='TkFixedFont', fg=COLOR_EXAMPLE_KEY)
+        self.txt_example_key = tk.Text(self, height=1, width=KEY_LEN, borderwidth=1, font='TkFixedFont', fg=COLOR_EXAMPLE_KEY)
         self.txt_example_key.insert(1.0, settings['example_key'])
         self.txt_example_key.grid(row=1, column=1, padx=(0, 4), pady=1)
         self.txt_example_key.configure(state='disabled')
@@ -921,18 +921,18 @@ class SettingsW(tk.Toplevel):
         self.vcmd_key     = (self.register(validate_key), '%P')
 
         self.combo_naming_mode   = Combobox(   self.frameFields, textvariable=self.inp_naming_mode, values=NAMING_MODES, state='readonly')
-        self.entry_count_from    = tk.Entry(   self.frameFields, textvariable=self.inp_count_from, width=10, validate='key', validatecommand=self.vcmd_num)
-        self.entry_format        = tk.Entry(   self.frameFields, textvariable=self.inp_format,     width=10, validate='key', validatecommand=self.vcmd_natural)
-        self.entry_marker_enc    = tk.Entry(   self.frameFields, textvariable=self.inp_marker_enc)
-        self.entry_marker_dec    = tk.Entry(   self.frameFields, textvariable=self.inp_marker_dec)
+        self.entry_count_from    = tk.Entry(   self.frameFields, textvariable=self.inp_count_from, relief='solid', width=10, validate='key', validatecommand=self.vcmd_num)
+        self.entry_format        = tk.Entry(   self.frameFields, textvariable=self.inp_format,     relief='solid', width=10, validate='key', validatecommand=self.vcmd_natural)
+        self.entry_marker_enc    = tk.Entry(   self.frameFields, textvariable=self.inp_marker_enc, relief='solid')
+        self.entry_marker_dec    = tk.Entry(   self.frameFields, textvariable=self.inp_marker_dec, relief='solid')
         self.check_support_ru    = Checkbutton(self.frameFields,     variable=self.inp_support_ru, command=self.processing_ru_state)
         self.combo_processing_ru = Combobox(   self.frameFields, textvariable=self.inp_processing_ru, values=PROCESSING_RU_MODES, state='readonly')
-        self.entry_dir_enc_from  = tk.Entry(   self.frameFields, textvariable=self.inp_dir_enc_from, width=45)
-        self.entry_dir_enc_to    = tk.Entry(   self.frameFields, textvariable=self.inp_dir_enc_to,   width=45)
-        self.entry_dir_dec_from  = tk.Entry(   self.frameFields, textvariable=self.inp_dir_dec_from, width=45)
-        self.entry_dir_dec_to    = tk.Entry(   self.frameFields, textvariable=self.inp_dir_dec_to,   width=45)
-        self.entry_example_key   = tk.Entry(   self.frameFields, textvariable=self.inp_example_key,  width=KEY_LEN, font='TkFixedFont', validate='key', validatecommand=self.vcmd_key)
-        self.combo_print_info    = Combobox(   self.frameFields, textvariable=self.inp_print_info, values=PRINT_INFO_MODES, state='readonly')
+        self.entry_dir_enc_from  = tk.Entry(   self.frameFields, textvariable=self.inp_dir_enc_from, relief='solid', width=45)
+        self.entry_dir_enc_to    = tk.Entry(   self.frameFields, textvariable=self.inp_dir_enc_to,   relief='solid', width=45)
+        self.entry_dir_dec_from  = tk.Entry(   self.frameFields, textvariable=self.inp_dir_dec_from, relief='solid', width=45)
+        self.entry_dir_dec_to    = tk.Entry(   self.frameFields, textvariable=self.inp_dir_dec_to,   relief='solid', width=45)
+        self.entry_example_key   = tk.Entry(   self.frameFields, textvariable=self.inp_example_key,  relief='solid', width=KEY_LEN, font='TkFixedFont', validate='key', validatecommand=self.vcmd_key)
+        self.combo_print_info    = Combobox(   self.frameFields, textvariable=self.inp_print_info,   values=PRINT_INFO_MODES, state='readonly')
 
         if not self.inp_support_ru.get():
             self.combo_processing_ru['state'] = 'disabled'
