@@ -14,8 +14,8 @@ from tkinter.filedialog import askdirectory
 import time
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-25'
-PROGRAM_DATE = '27.12.2022  7:41'
+PROGRAM_VERSION = 'v6.0.0_PRE-26'
+PROGRAM_DATE = '27.12.2022  7:50'
 
 """ Цвета """
 
@@ -499,150 +499,154 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, outp_dir, count_all):
         count_correct += 1
 
         start = time.perf_counter()
-        if ext in ['.png', '.jpg', '.jpeg', '.bmp']:
-            res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '.png', outp_dir, marker, count_correct)  # Преобразование имени файла
+        try:
+            if ext in ['.png', '.jpg', '.jpeg', '.bmp']:
+                res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '.png', outp_dir, marker, count_correct)  # Преобразование имени файла
 
-            print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
+                print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
 
-            img = imread(os.path.join(inp_dir, filename))  # Считывание изображения
-            if settings['print_info'] == '1':
-                print(img.shape)
+                img = imread(os.path.join(inp_dir, filename))  # Считывание изображения
+                if settings['print_info'] == '1':
+                    print(img.shape)
 
-            outp_path = os.path.join(outp_dir, res_name)
-            if op_mode == 'E':  # Запись результата
-                imsave(outp_path, encode_file(img).astype(uint8))
-            else:
+                outp_path = os.path.join(outp_dir, res_name)
+                if op_mode == 'E':  # Запись результата
+                    imsave(outp_path, encode_file(img).astype(uint8))
+                else:
+                    h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b = decode_file_calc(img)
+                    img = decode_file(img, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b)
+                    imsave(outp_path, img.astype(uint8))
+                print()
+            elif ext == '.gif':
+                res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', outp_dir, marker, count_correct)  # Преобразование имени файла
+
+                print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
+
+                res = os.path.join(outp_dir, res_name)
+                if res_name not in os.listdir(outp_dir):
+                    os.mkdir(res)
+                open(os.path.join(res, '_gif'), 'w')
+
+                with Image.open(os.path.join(inp_dir, filename)) as im:
+                    for i in range(im.n_frames):
+                        print(f'frame {i + 1}')
+                        im.seek(i)
+                        im.save(TMP_PATH)
+
+                        fr = imread(TMP_PATH)
+                        if settings['print_info'] == '1':  # Вывод информации о считывании
+                            print(fr.shape)
+                        outp_path = os.path.join(res, '{:05}.png'.format(i))
+                        imsave(outp_path, encode_file(fr).astype(uint8))
+                        print()
+                    imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
+                    os.remove(TMP_PATH)
+            elif isdir and '_gif' in os.listdir(pth) and op_mode == 'D':
+                res_name = filename_processing(op_mode, settings['naming_mode'], filename, '.gif', outp_dir, marker, count_correct)  # Преобразование имени файла
+
+                print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
+
+                inp_dir_tmp = os.path.join(inp_dir, filename)
+                frames = sorted((fr for fr in os.listdir(inp_dir_tmp) if fr.endswith('.png')))
+                res = os.path.join(outp_dir, res_name)
+
+                img = imread(os.path.join(inp_dir_tmp, frames[0]))
                 h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b = decode_file_calc(img)
-                img = decode_file(img, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b)
-                imsave(outp_path, img.astype(uint8))
-            print()
-        elif ext == '.gif':
-            res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', outp_dir, marker, count_correct)  # Преобразование имени файла
 
-            print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
+                with io.get_writer(res, mode='I', duration=1/24) as writer:
+                    for i in range(len(frames)):
+                        print(f'frame {i + 1}')
+                        fr = imread(os.path.join(inp_dir_tmp, frames[i]))
+                        if settings['print_info'] == '1':  # Вывод информации о считывании
+                            print(fr.shape)
+                        img = decode_file(fr, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b)
+                        imsave(TMP_PATH, img.astype(uint8))
+                        writer.append_data(io.imread(TMP_PATH))
+                        print()
+                    imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
+                    os.remove(TMP_PATH)
+                writer.close()
+            elif ext in ['.avi', '.mp4', '.webm']:
+                tmp_name = filename_processing(op_mode, '1', base_name, '', outp_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
+                res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', outp_dir, marker, count_correct)
 
-            res = os.path.join(outp_dir, res_name)
-            if res_name not in os.listdir(outp_dir):
-                os.mkdir(res)
-            open(os.path.join(res, '_gif'), 'w')
+                print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
 
-            with Image.open(os.path.join(inp_dir, filename)) as im:
-                for i in range(im.n_frames):
-                    print(f'frame {i + 1}')
-                    im.seek(i)
-                    im.save(TMP_PATH)
+                res = os.path.join(outp_dir, tmp_name)
+                if tmp_name not in os.listdir(outp_dir):
+                    os.mkdir(res)
+                open(os.path.join(res, '_vid'), 'w')
+
+                vid = VideoFileClip(os.path.join(inp_dir, filename))
+                fps = min(vid.fps, 24)
+                step = 1 / fps
+                count = 0
+                for current_duration in arange(0, vid.duration, step):
+                    frame_filename = os.path.join(res, '{:06}.png'.format(count))
+                    vid.save_frame(TMP_PATH, current_duration)
+                    print(f'frame {count + 1}')
 
                     fr = imread(TMP_PATH)
                     if settings['print_info'] == '1':  # Вывод информации о считывании
                         print(fr.shape)
-                    outp_path = os.path.join(res, '{:05}.png'.format(i))
-                    imsave(outp_path, encode_file(fr).astype(uint8))
-                    print()
-                imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
-                os.remove(TMP_PATH)
-        elif isdir and '_gif' in os.listdir(pth) and op_mode == 'D':
-            res_name = filename_processing(op_mode, settings['naming_mode'], filename, '.gif', outp_dir, marker, count_correct)  # Преобразование имени файла
-
-            print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-
-            inp_dir_tmp = os.path.join(inp_dir, filename)
-            frames = sorted((fr for fr in os.listdir(inp_dir_tmp) if fr.endswith('.png')))
-            res = os.path.join(outp_dir, res_name)
-
-            img = imread(os.path.join(inp_dir_tmp, frames[0]))
-            h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b = decode_file_calc(img)
-
-            with io.get_writer(res, mode='I', duration=1/24) as writer:
-                for i in range(len(frames)):
-                    print(f'frame {i + 1}')
-                    fr = imread(os.path.join(inp_dir_tmp, frames[i]))
-                    if settings['print_info'] == '1':  # Вывод информации о считывании
-                        print(fr.shape)
-                    img = decode_file(fr, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b)
-                    imsave(TMP_PATH, img.astype(uint8))
-                    writer.append_data(io.imread(TMP_PATH))
-                    print()
-                imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
-                os.remove(TMP_PATH)
-            writer.close()
-        elif ext in ['.avi', '.mp4', '.webm']:
-            tmp_name = filename_processing(op_mode, '1', base_name, '', outp_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
-            res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', outp_dir, marker, count_correct)
-
-            print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-
-            res = os.path.join(outp_dir, tmp_name)
-            if tmp_name not in os.listdir(outp_dir):
-                os.mkdir(res)
-            open(os.path.join(res, '_vid'), 'w')
-
-            vid = VideoFileClip(os.path.join(inp_dir, filename))
-            fps = min(vid.fps, 24)
-            step = 1 / fps
-            count = 0
-            for current_duration in arange(0, vid.duration, step):
-                frame_filename = os.path.join(res, '{:06}.png'.format(count))
-                vid.save_frame(TMP_PATH, current_duration)
-                print(f'frame {count + 1}')
-
-                fr = imread(TMP_PATH)
-                if settings['print_info'] == '1':  # Вывод информации о считывании
-                    print(fr.shape)
-                imsave(frame_filename, encode_file(fr).astype(uint8))
-                count += 1
-                print()
-            imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
-            os.remove(TMP_PATH)
-
-            os.rename(res, os.path.join(outp_dir, res_name))
-        elif isdir and '_vid' in os.listdir(pth) and op_mode == 'D':
-            tmp_name = filename_processing(op_mode, '1', filename, '.mp4', outp_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
-            res_name = filename_processing(op_mode, settings['naming_mode'], filename, '.mp4', outp_dir, marker, count_correct)
-
-            print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-
-            inp_dir_tmp = os.path.join(inp_dir, filename)
-            res = os.path.join(outp_dir, tmp_name)
-
-            img = imread(os.path.join(inp_dir_tmp, '000000.png'))
-            height = img.shape[0]
-            width = img.shape[1]
-            fps = 24
-            video = cv2.VideoWriter(res, 0, fps, (width, height))
-
-            h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b = decode_file_calc(img)
-
-            count = 0
-            for f in os.listdir(inp_dir_tmp):
-                if f.endswith('.png'):
-                    print(f'frame {count + 1}')
-                    img = imread(os.path.join(inp_dir_tmp, f))
-                    if settings['print_info'] == '1':  # Вывод информации о считывании
-                        print(img.shape)
-                    fr = decode_file(img, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b)
-                    imsave(TMP_PATH, fr.astype(uint8))
-                    video.write(cv2.imread(TMP_PATH))
+                    imsave(frame_filename, encode_file(fr).astype(uint8))
                     count += 1
                     print()
-            imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
-            os.remove(TMP_PATH)
-            video.release()
+                imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
+                os.remove(TMP_PATH)
 
-            os.rename(res, os.path.join(outp_dir, res_name))
-        elif isdir:
-            res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', outp_dir, marker, count_correct)  # Преобразование имени файла
+                os.rename(res, os.path.join(outp_dir, res_name))
+            elif isdir and '_vid' in os.listdir(pth) and op_mode == 'D':
+                tmp_name = filename_processing(op_mode, '1', filename, '.mp4', outp_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
+                res_name = filename_processing(op_mode, settings['naming_mode'], filename, '.mp4', outp_dir, marker, count_correct)
 
-            print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
+                print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
 
-            new_inp_dir = os.path.join(inp_dir, filename)
-            new_outp_dir = os.path.join(outp_dir, res_name)
+                inp_dir_tmp = os.path.join(inp_dir, filename)
+                res = os.path.join(outp_dir, tmp_name)
 
-            if res_name not in os.listdir(outp_dir):
-                os.mkdir(new_outp_dir)
+                img = imread(os.path.join(inp_dir_tmp, '000000.png'))
+                height = img.shape[0]
+                width = img.shape[1]
+                fps = 24
+                video = cv2.VideoWriter(res, 0, fps, (width, height))
 
-            print()
+                h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b = decode_file_calc(img)
 
-            count_all = encrypt_dir(op_mode, marker, formats, new_inp_dir, new_outp_dir, count_all)
+                count = 0
+                for f in os.listdir(inp_dir_tmp):
+                    if f.endswith('.png'):
+                        print(f'frame {count + 1}')
+                        img = imread(os.path.join(inp_dir_tmp, f))
+                        if settings['print_info'] == '1':  # Вывод информации о считывании
+                            print(img.shape)
+                        fr = decode_file(img, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b)
+                        imsave(TMP_PATH, fr.astype(uint8))
+                        video.write(cv2.imread(TMP_PATH))
+                        count += 1
+                        print()
+                imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
+                os.remove(TMP_PATH)
+                video.release()
+
+                os.rename(res, os.path.join(outp_dir, res_name))
+            elif isdir:
+                res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', outp_dir, marker, count_correct)  # Преобразование имени файла
+
+                print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
+
+                new_inp_dir = os.path.join(inp_dir, filename)
+                new_outp_dir = os.path.join(outp_dir, res_name)
+
+                if res_name not in os.listdir(outp_dir):
+                    os.mkdir(new_outp_dir)
+
+                print()
+
+                count_all = encrypt_dir(op_mode, marker, formats, new_inp_dir, new_outp_dir, count_all)
+        except Exception as err:
+            print_warn('Couldn`t process the file')
+            print(err)
         print(f'Time: {time.perf_counter() - start}\n')
     return count_all
 
