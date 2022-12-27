@@ -14,8 +14,8 @@ from tkinter.filedialog import askdirectory
 from time import perf_counter
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-36'
-PROGRAM_DATE = '27.12.2022  9:54'
+PROGRAM_VERSION = 'v6.0.0_PRE-37'
+PROGRAM_DATE = '27.12.2022  9:58'
 
 """ Цвета """
 
@@ -1165,7 +1165,7 @@ class SettingsW(tk.Toplevel):
             self.inp_dir_dec_to.set(  file.readline().strip())
 
             tmp = file.readline().strip()
-            if check_key(tmp) != '+':
+            if check_key(tmp)[0] != '+':
                 tmp = EXAMPLE_KEY_DEF
             self.inp_example_key.set(tmp)
 
