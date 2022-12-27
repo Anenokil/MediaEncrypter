@@ -19,8 +19,8 @@ kernel32 = ctypes.windll.kernel32
 kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-53'
-PROGRAM_DATE = '27.12.2022 14:10'
+PROGRAM_VERSION = 'v6.0.0_PRE-54'
+PROGRAM_DATE = '27.12.2022 14:17'
 
 """ Цвета """
 
@@ -802,7 +802,8 @@ class EnterSaveNameW(tk.Toplevel):
     def check_and_return(self):
         filename = self.name.get()
         if filename == '':
-            PopupMsgW(self, 'Incorrect name for save', title='Error')
+            w = PopupMsgW(self, 'Incorrect name for save', title='Error')
+            self.wait_window(w)
             return
         self.name_is_correct = True
         if f'{filename}.txt' in os.listdir(CUSTOM_SETTINGS_PATH):  # Если уже есть сохранение с таким названием
@@ -815,6 +816,8 @@ class EnterSaveNameW(tk.Toplevel):
         self.destroy()
 
     def open(self):
+        self.grab_set()
+        self.wait_window()
         return self.name_is_correct, self.name.get()
 
 
@@ -1106,7 +1109,6 @@ class SettingsW(tk.Toplevel):
             if not answer:
                 return
         window = EnterSaveNameW(self)
-        self.wait_window(window)
         filename_is_correct, filename = window.open()
         if not filename_is_correct:
             return
@@ -1481,7 +1483,7 @@ class MainW(tk.Tk):
 # Вывод информации о программе
 print('======================================================================================\n')
 print(f'                            {Fore.RED}Anenokil development{Style.RESET_ALL}  presents')
-print('                            ' + (30 - len(PROGRAM_NAME) - len(PROGRAM_VERSION) - 1) // 2 * ' ' + f'{Fore.BLUE}{PROGRAM_NAME}{Style.RESET_ALL}  {PROGRAM_VERSION}')
+print('                            ' + (30 - len(PROGRAM_NAME) - len(PROGRAM_VERSION) - 1) // 2 * ' ' + f'{Fore.MAGENTA}{PROGRAM_NAME}{Style.RESET_ALL}  {PROGRAM_VERSION}')
 print('                            ' + (30 - len(PROGRAM_DATE)) // 2 * ' ' + PROGRAM_DATE + '\n')
 print('======================================================================================')
 
