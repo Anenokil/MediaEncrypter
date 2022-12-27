@@ -54,9 +54,9 @@ SETTINGS_NAMES = ['count_from', 'format', 'support_ru', 'processing_ru', 'naming
                   'marker_enc', 'marker_dec', 'dir_enc_from', 'dir_enc_to', 'dir_dec_from', 'dir_dec_to', 'example_key']
 
 # Варианты настроек с перечислимым типом
-SUPPORT_RU_MODES = ['no', 'yes']  # Варианты поддержки кириллических букв
-PROCESSING_RU_MODES = ['transliterate to latin', 'don`t change']  # Варианты обработки кириллических букв
-NAMING_MODES = ['encryption', 'numeration', 'add prefix', 'add postfix', 'don`t change']  # Варианты именования выходных файлов
+SUPPORT_RU_MODES = ['yes', 'no']  # Варианты поддержки кириллических букв
+PROCESSING_RU_MODES = ['don`t change', 'transliterate to latin']  # Варианты обработки кириллических букв
+NAMING_MODES = ['don`t change', 'encryption', 'numeration', 'add prefix', 'add postfix']  # Варианты именования выходных файлов
 PRINT_INFO_MODES = ['don`t print', 'print']  # Варианты печати информации
 
 # Значения настроек по умолчанию
@@ -424,7 +424,7 @@ def decode_filename(name):
 
 
 # Преобразование имени файла
-def filename_processing(op_mode, naming_mode, base_name, ext, outp_dir, marker, count_correct):
+def filename_processing(op_mode, naming_mode, base_name, ext, output_dir, marker, count_correct):
     if op_mode == 'E':  # При шифровке
         count_same = 1  # Счётчик файлов с таким же именем
         counter = ''
@@ -441,7 +441,7 @@ def filename_processing(op_mode, naming_mode, base_name, ext, outp_dir, marker, 
                 new_name = base_name + counter
             new_name += ext
 
-            if new_name not in os.listdir(outp_dir):  # Если нет файлов с таким же именем, то завершаем цикл
+            if new_name not in os.listdir(output_dir):  # Если нет файлов с таким же именем, то завершаем цикл
                 break
             count_same += 1
             counter = f' [{count_same}]'  # Если уже есть файл с таким именем, то добавляется индекс
@@ -459,7 +459,7 @@ def filename_processing(op_mode, naming_mode, base_name, ext, outp_dir, marker, 
 
         count_same = 1  # Счётчик файлов с таким же именем
         temp_name = new_name + ext
-        while temp_name in os.listdir(outp_dir):  # Если уже есть файл с таким именем, то добавляется индекс
+        while temp_name in os.listdir(output_dir):  # Если уже есть файл с таким именем, то добавляется индекс
             count_same += 1
             temp_name = f'{new_name} [{count_same}]{ext}'
         new_name = temp_name
@@ -467,7 +467,7 @@ def filename_processing(op_mode, naming_mode, base_name, ext, outp_dir, marker, 
 
 
 # Обработка папки с файлами
-def encrypt_dir(op_mode, marker, formats, inp_dir, outp_dir, count_all):
+def encrypt_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
     count_correct = settings['count_from'] - 1  # Счётчик количества обработанных файлов
     for filename in os.listdir(inp_dir):  # Проход по файлам
         base_name, ext = os.path.splitext(filename)
@@ -485,7 +485,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, outp_dir, count_all):
         start = perf_counter()
         try:
             if ext in ['.png', '.jpg', '.jpeg', '.bmp']:
-                res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '.png', outp_dir, marker, count_correct)  # Преобразование имени файла
+                res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '.png', output_dir, marker, count_correct)  # Преобразование имени файла
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
 
@@ -493,7 +493,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, outp_dir, count_all):
                 if settings['print_info'] == 'print':
                     print(img.shape)
 
-                outp_path = os.path.join(outp_dir, res_name)
+                outp_path = os.path.join(output_dir, res_name)
                 if op_mode == 'E':  # Запись результата
                     imsave(outp_path, encode_file(img).astype(uint8))
                 else:
@@ -502,12 +502,12 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, outp_dir, count_all):
                     imsave(outp_path, img.astype(uint8))
                 print()
             elif ext == '.gif':
-                res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', outp_dir, marker, count_correct)  # Преобразование имени файла
+                res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', output_dir, marker, count_correct)  # Преобразование имени файла
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
 
-                res = os.path.join(outp_dir, res_name)
-                if res_name not in os.listdir(outp_dir):
+                res = os.path.join(output_dir, res_name)
+                if res_name not in os.listdir(output_dir):
                     os.mkdir(res)
                 open(os.path.join(res, '_gif'), 'w')
 
@@ -526,13 +526,13 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, outp_dir, count_all):
                     imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
                     os.remove(TMP_PATH)
             elif isdir and '_gif' in os.listdir(pth) and op_mode == 'D':
-                res_name = filename_processing(op_mode, settings['naming_mode'], filename, '.gif', outp_dir, marker, count_correct)  # Преобразование имени файла
+                res_name = filename_processing(op_mode, settings['naming_mode'], filename, '.gif', output_dir, marker, count_correct)  # Преобразование имени файла
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
 
                 inp_dir_tmp = os.path.join(inp_dir, filename)
                 frames = sorted((fr for fr in os.listdir(inp_dir_tmp) if fr.endswith('.png')))
-                res = os.path.join(outp_dir, res_name)
+                res = os.path.join(output_dir, res_name)
 
                 img = imread(os.path.join(inp_dir_tmp, frames[0]))
                 h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b = decode_file_calc(img)
@@ -551,13 +551,13 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, outp_dir, count_all):
                     os.remove(TMP_PATH)
                 writer.close()
             elif ext in ['.avi', '.mp4', '.webm']:
-                tmp_name = filename_processing(op_mode, 1, base_name, '', outp_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
-                res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', outp_dir, marker, count_correct)
+                tmp_name = filename_processing(op_mode, 'numeration', base_name, '', output_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
+                res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', output_dir, marker, count_correct)
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
 
-                res = os.path.join(outp_dir, tmp_name)
-                if tmp_name not in os.listdir(outp_dir):
+                res = os.path.join(output_dir, tmp_name)
+                if tmp_name not in os.listdir(output_dir):
                     os.mkdir(res)
                 open(os.path.join(res, '_vid'), 'w')
 
@@ -579,15 +579,15 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, outp_dir, count_all):
                 imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
                 os.remove(TMP_PATH)
 
-                os.rename(res, os.path.join(outp_dir, res_name))
+                os.rename(res, os.path.join(output_dir, res_name))
             elif isdir and '_vid' in os.listdir(pth) and op_mode == 'D':
-                tmp_name = filename_processing(op_mode, 1, filename, '.mp4', outp_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
-                res_name = filename_processing(op_mode, settings['naming_mode'], filename, '.mp4', outp_dir, marker, count_correct)
+                tmp_name = filename_processing(op_mode, 'numeration', filename, '.mp4', output_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
+                res_name = filename_processing(op_mode, settings['naming_mode'], filename, '.mp4', output_dir, marker, count_correct)
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
 
                 inp_dir_tmp = os.path.join(inp_dir, filename)
-                res = os.path.join(outp_dir, tmp_name)
+                res = os.path.join(output_dir, tmp_name)
 
                 img = imread(os.path.join(inp_dir_tmp, '000000.png'))
                 height = img.shape[0]
@@ -613,16 +613,16 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, outp_dir, count_all):
                 os.remove(TMP_PATH)
                 video.release()
 
-                os.rename(res, os.path.join(outp_dir, res_name))
+                os.rename(res, os.path.join(output_dir, res_name))
             elif isdir:
-                res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', outp_dir, marker, count_correct)  # Преобразование имени файла
+                res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', output_dir, marker, count_correct)  # Преобразование имени файла
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
 
                 new_inp_dir = os.path.join(inp_dir, filename)
-                new_outp_dir = os.path.join(outp_dir, res_name)
+                new_outp_dir = os.path.join(output_dir, res_name)
 
-                if res_name not in os.listdir(outp_dir):
+                if res_name not in os.listdir(output_dir):
                     os.mkdir(new_outp_dir)
 
                 print()
