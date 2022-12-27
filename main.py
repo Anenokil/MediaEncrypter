@@ -19,8 +19,8 @@ kernel32 = ctypes.windll.kernel32
 kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-55'
-PROGRAM_DATE = '27.12.2022 15:04'
+PROGRAM_VERSION = 'v6.0.0'
+PROGRAM_DATE = '27.12.2022 15:27'
 
 """ Цвета """
 
@@ -649,11 +649,10 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 print()
 
                 count_all = encrypt_dir(op_mode, marker, formats, new_inp_dir, new_outp_dir, count_all)
+                print(f'{Fore.GREEN}(DIR) ', end='')
         except Exception as err:
             print_warn('Couldn`t process the file')
             print(f'{Fore.YELLOW}{err}{Style.RESET_ALL}')
-        if isdir:
-            print(f'{Fore.GREEN}(DIR) ', end='')
         print(f'{Fore.GREEN}Time: {perf_counter() - start}{Style.RESET_ALL}\n')
     return count_all
 
