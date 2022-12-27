@@ -14,8 +14,8 @@ from tkinter.filedialog import askdirectory
 from time import perf_counter
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-41'
-PROGRAM_DATE = '27.12.2022 10:39'
+PROGRAM_VERSION = 'v6.0.0_PRE-42'
+PROGRAM_DATE = '27.12.2022 10:58'
 
 """ Цвета """
 
@@ -27,7 +27,7 @@ COLOR_MCM = '#DCDCDC'
 COLOR_FOOTER = '#666666'
 COLOR_LOGO = '#FF7200'
 COLOR_KEY = '#EE0000'
-COLOR_EXAMPLE_KEY = '#44CCDD'
+COLOR_EXAMPLE_KEY = '#44AABB'
 
 """ Пути и файлы """
 
@@ -49,29 +49,22 @@ settings = {}
 INT_SETTINGS_NUM = 6  # Количество числовых настроек
 SETTINGS_NUM = 13  # Количество всех настроек
 
-# Значения настроек по умолчанию
-COUNT_FROM_DEF = 1
-FORMAT_DEF = 1
-SUPPORT_RU_DEF = 0
-PROCESSING_RU_DEF = 0
-NAMING_MODE_DEF = 0
-PRINT_INFO_DEF = 0
-MARKER_ENC_DEF = '_ENC_'
-MARKER_DEC_DEF = '_DEC_'
-DIR_ENC_FROM_DEF = 'f_src'
-DIR_ENC_TO_DEF = 'f_enc'
-DIR_DEC_FROM_DEF = 'f_enc'
-DIR_DEC_TO_DEF = 'f_dec'
-EXAMPLE_KEY_DEF = '_123456789_123456789_123456789_123456789'
-
+# Названия настроек
 SETTINGS_NAMES = ['count_from', 'format', 'support_ru', 'processing_ru', 'naming_mode', 'print_info',
                   'marker_enc', 'marker_dec', 'dir_enc_from', 'dir_enc_to', 'dir_dec_from', 'dir_dec_to', 'example_key']
 
+# Значения настроек по умолчанию
+DEFAULT_SETTINGS = {'count_from': 1, 'format': 1,
+                    'support_ru': 0, 'processing_ru': 0, 'naming_mode': 0, 'print_info': 0,
+                    'marker_enc': '_ENC_', 'marker_dec': '_DEC',
+                    'dir_enc_from': 'f_src', 'dir_enc_to': 'f_enc', 'dir_dec_from': 'f_enc', 'dir_dec_to': 'f_dec',
+                    'example_key': '_123456789_123456789_123456789_123456789'}
+
 # Варианты настроек с перечислимым типом
-SUPPORT_RU_MODES = ['no', 'yes']  # Варианты настройки поддержки кириллических букв
-PROCESSING_RU_MODES = ['transliterate to latin', 'don`t change']  # Варианты настройки обработки кириллических букв
-NAMING_MODES = ['encryption', 'numeration', 'add prefix', 'add postfix', 'don`t change']  # Варианты настройки именования выходных файлов
-PRINT_INFO_MODES = ['don`t print', 'print']  # Варианты настройки печати информации
+SUPPORT_RU_MODES = ['no', 'yes']  # Варианты поддержки кириллических букв
+PROCESSING_RU_MODES = ['transliterate to latin', 'don`t change']  # Варианты обработки кириллических букв
+NAMING_MODES = ['encryption', 'numeration', 'add prefix', 'add postfix', 'don`t change']  # Варианты именования выходных файлов
+PRINT_INFO_MODES = ['don`t print', 'print']  # Варианты печати информации
 
 """ Ключ """
 
@@ -106,40 +99,29 @@ def check_key(key):
 
 # Установка значений по умолчанию для всех настроек
 def set_default_settings():
-    settings['count_from'] = COUNT_FROM_DEF
-    settings['format'] = FORMAT_DEF
-    settings['support_ru'] = SUPPORT_RU_DEF
-    settings['processing_ru'] = PROCESSING_RU_DEF
-    settings['naming_mode'] = NAMING_MODE_DEF
-    settings['print_info'] = PRINT_INFO_DEF
-    settings['marker_enc'] = MARKER_ENC_DEF
-    settings['marker_dec'] = MARKER_DEC_DEF
-    settings['dir_enc_from'] = DIR_ENC_FROM_DEF
-    settings['dir_enc_to'] = DIR_ENC_TO_DEF
-    settings['dir_dec_from'] = DIR_DEC_FROM_DEF
-    settings['dir_dec_to'] = DIR_DEC_TO_DEF
-    settings['example_key'] = EXAMPLE_KEY_DEF
+    for name in SETTINGS_NAMES:
+        settings[name] = DEFAULT_SETTINGS[name]
 
 
 # Проверка и исправление настроек
 def correct_settings():
     if not is_num(settings['count_from']):
-        settings['count_from'] = COUNT_FROM_DEF
+        settings['count_from'] = DEFAULT_SETTINGS['count_from']
     if not settings['format'].isnumeric():
-        settings['format'] = FORMAT_DEF
+        settings['format'] = DEFAULT_SETTINGS['format']
     if settings['print_info'] not in ['0', '1']:
-        settings['print_info'] = PRINT_INFO_DEF
+        settings['print_info'] = DEFAULT_SETTINGS['print_info']
     if settings['support_ru'] not in ['0', '1']:
-        settings['support_ru'] = SUPPORT_RU_DEF
+        settings['support_ru'] = DEFAULT_SETTINGS['support_ru']
     if settings['naming_mode'] not in ['0', '1', '2', '3', '4']:
-        settings['naming_mode'] = NAMING_MODE_DEF
+        settings['naming_mode'] = DEFAULT_SETTINGS['naming_mode']
     if settings['processing_ru'] not in ['0', '1']:
-        settings['processing_ru'] = PROCESSING_RU_DEF
+        settings['processing_ru'] = DEFAULT_SETTINGS['processing_ru']
     if check_key(settings['example_key'])[0] != '+':
-        settings['example_key'] = EXAMPLE_KEY_DEF
+        settings['example_key'] = DEFAULT_SETTINGS['example_key']
 
     if settings['support_ru'] == '0':
-        settings['processing_ru'] = PROCESSING_RU_DEF
+        settings['processing_ru'] = DEFAULT_SETTINGS['processing_ru']
 
 
 # Загрузка настроек из файла
@@ -967,7 +949,7 @@ class SettingsW(tk.Toplevel):
     def processing_ru_state(self):
         if not self.inp_support_ru.get():
             self.combo_processing_ru['state'] = 'disabled'
-            self.inp_processing_ru.set(PROCESSING_RU_MODES[PROCESSING_RU_DEF])
+            self.inp_processing_ru.set(PROCESSING_RU_MODES[DEFAULT_SETTINGS['processing_ru']])
         else:
             self.combo_processing_ru['state'] = 'readonly'
 
@@ -1063,19 +1045,19 @@ class SettingsW(tk.Toplevel):
 
     # Установить настройки по умолчанию
     def set_default_settings(self):
-        self.inp_count_from.set(str(COUNT_FROM_DEF))
-        self.inp_format.set(str(FORMAT_DEF))
-        self.inp_support_ru.set(bool(SUPPORT_RU_DEF))
-        self.inp_processing_ru.set(PROCESSING_RU_MODES[PROCESSING_RU_DEF])
-        self.inp_naming_mode.set(NAMING_MODES[NAMING_MODE_DEF])
-        self.inp_print_info.set(PRINT_INFO_MODES[PRINT_INFO_DEF])
-        self.inp_marker_enc.set(MARKER_ENC_DEF)
-        self.inp_marker_dec.set(MARKER_DEC_DEF)
-        self.inp_dir_enc_from.set(DIR_ENC_FROM_DEF)
-        self.inp_dir_enc_to.set(DIR_ENC_TO_DEF)
-        self.inp_dir_dec_from.set(DIR_DEC_FROM_DEF)
-        self.inp_dir_dec_to.set(DIR_DEC_TO_DEF)
-        self.inp_example_key.set(EXAMPLE_KEY_DEF)
+        self.inp_count_from.set(str(DEFAULT_SETTINGS['count_from']))
+        self.inp_format.set(str(DEFAULT_SETTINGS['format']))
+        self.inp_support_ru.set(bool(DEFAULT_SETTINGS['support_ru']))
+        self.inp_processing_ru.set(PROCESSING_RU_MODES[DEFAULT_SETTINGS['processing_ru']])
+        self.inp_naming_mode.set(NAMING_MODES[DEFAULT_SETTINGS['naming_mode']])
+        self.inp_print_info.set(PRINT_INFO_MODES[DEFAULT_SETTINGS['print_info']])
+        self.inp_marker_enc.set(DEFAULT_SETTINGS['marker_enc'])
+        self.inp_marker_dec.set(DEFAULT_SETTINGS['marker_dec'])
+        self.inp_dir_enc_from.set(DEFAULT_SETTINGS['dir_enc_from'])
+        self.inp_dir_enc_to.set(DEFAULT_SETTINGS['dir_enc_to'])
+        self.inp_dir_dec_from.set(DEFAULT_SETTINGS['dir_dec_from'])
+        self.inp_dir_dec_to.set(DEFAULT_SETTINGS['dir_dec_to'])
+        self.inp_example_key.set(DEFAULT_SETTINGS['example_key'])
 
     # Сохранить пользовательские настройки
     def save_custom_settings(self):
@@ -1120,37 +1102,37 @@ class SettingsW(tk.Toplevel):
         with open(filepath, 'r') as file:  # Загрузка настроек из файла
             tmp = file.readline().strip()
             if not is_num(tmp):
-                tmp = COUNT_FROM_DEF
+                tmp = DEFAULT_SETTINGS['count_from']
             self.inp_count_from.set(tmp)
 
             tmp = file.readline().strip()
             if not tmp.isnumeric():
-                tmp = FORMAT_DEF
+                tmp = DEFAULT_SETTINGS['format']
             self.inp_format.set(tmp)
 
             tmp_ = file.readline().strip()
             if tmp_ not in ['0', '1']:
-                tmp_ = SUPPORT_RU_DEF
+                tmp_ = DEFAULT_SETTINGS['support_ru']
             self.inp_support_ru.set(bool(int(tmp_)))
 
             tmp = file.readline().strip()
             if tmp_ == '0':
-                tmp = PROCESSING_RU_DEF
+                tmp = DEFAULT_SETTINGS['processing_ru']
                 self.combo_processing_ru['state'] = 'disabled'
             else:
                 self.combo_processing_ru['state'] = 'readonly'
                 if tmp not in ['0', '1']:
-                    tmp = PROCESSING_RU_DEF
+                    tmp = DEFAULT_SETTINGS['processing_ru']
             self.inp_processing_ru.set(PROCESSING_RU_MODES[tmp])
 
             tmp = file.readline().strip()
             if tmp not in ['0', '1', '2', '3', '4']:
-                tmp = NAMING_MODE_DEF
+                tmp = DEFAULT_SETTINGS['naming_mode']
             self.inp_naming_mode.set(NAMING_MODES[tmp])
 
             tmp = file.readline().strip()
             if tmp not in ['0', '1']:
-                tmp = PRINT_INFO_DEF
+                tmp = DEFAULT_SETTINGS['print_info']
             self.inp_print_info.set(PRINT_INFO_MODES[tmp])
 
             self.inp_marker_enc.set(  file.readline().strip())
@@ -1162,7 +1144,7 @@ class SettingsW(tk.Toplevel):
 
             tmp = file.readline().strip()
             if check_key(tmp)[0] != '+':
-                tmp = EXAMPLE_KEY_DEF
+                tmp = DEFAULT_SETTINGS['example_key']
             self.inp_example_key.set(tmp)
 
     # Удалить пользовательские настройки
