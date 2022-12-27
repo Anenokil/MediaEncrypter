@@ -18,10 +18,9 @@ import ctypes  # Для цветного текста в консоли Windows
 kernel32 = ctypes.windll.kernel32
 kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
-
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-48'
-PROGRAM_DATE = '27.12.2022 13:21'
+PROGRAM_VERSION = 'v6.0.0_PRE-49'
+PROGRAM_DATE = '27.12.2022 13:27'
 
 """ Цвета """
 
@@ -228,6 +227,7 @@ def extract_key_values(b):
         print(f'  SH2 C: {shift2_r}, {shift2_g}, {shift2_b}')
         print(f'  ML  N: {mult_name}')
         print(f'  ORDER: {order}')
+        print('======================================================================================')
 
 
 """ Алгоритм шифровки/дешифровки """
@@ -652,6 +652,8 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
         except Exception as err:
             print_warn('Couldn`t process the file')
             print(f'{Fore.YELLOW}{err}{Style.RESET_ALL}')
+        if isdir:
+            print(f'{Fore.GREEN}(DIR) ', end='')
         print(f'{Fore.GREEN}Time: {perf_counter() - start}{Style.RESET_ALL}\n')
     return count_all
 
