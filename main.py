@@ -14,8 +14,8 @@ from tkinter.filedialog import askdirectory
 from time import perf_counter
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-39'
-PROGRAM_DATE = '27.12.2022 10:04'
+PROGRAM_VERSION = 'v6.0.0_PRE-40'
+PROGRAM_DATE = '27.12.2022 10:32'
 
 """ Цвета """
 
@@ -889,9 +889,9 @@ class SettingsW(tk.Toplevel):
         self.inp_count_from    = tk.StringVar(value=str(settings['count_from']))
         self.inp_format        = tk.StringVar(value=str(settings['format']))
         self.inp_support_ru    = tk.BooleanVar(value=bool(settings['support_ru']))
-        self.inp_processing_ru = tk.StringVar()
-        self.inp_naming_mode   = tk.StringVar()
-        self.inp_print_info    = tk.StringVar()
+        self.inp_processing_ru = tk.StringVar(value=PROCESSING_RU_MODES[PROCESSING_RU_DEF])
+        self.inp_naming_mode   = tk.StringVar(value=NAMING_MODES[NAMING_MODE_DEF])
+        self.inp_print_info    = tk.StringVar(value=PRINT_INFO_MODES[PRINT_INFO_DEF])
         self.inp_marker_enc    = tk.StringVar(value=settings['marker_enc'])
         self.inp_marker_dec    = tk.StringVar(value=settings['marker_dec'])
         self.inp_dir_enc_from  = tk.StringVar(value=settings['dir_enc_from'])
@@ -917,10 +917,6 @@ class SettingsW(tk.Toplevel):
         self.entry_dir_dec_to    = tk.Entry(   self.frameFields, textvariable=self.inp_dir_dec_to,   width=45)
         self.entry_example_key   = tk.Entry(   self.frameFields, textvariable=self.inp_example_key,  width=KEY_LEN, font='TkFixedFont', validate='key', validatecommand=self.vcmd_key)
         self.combo_print_info    = Combobox(   self.frameFields, textvariable=self.inp_print_info, values=PRINT_INFO_MODES, state='readonly')
-
-        self.combo_naming_mode.current(  settings['naming_mode'])
-        self.combo_processing_ru.current(settings['processing_ru'])
-        self.combo_print_info.current(   settings['print_info'])
 
         if not self.inp_support_ru.get():
             self.combo_processing_ru['state'] = 'disabled'
@@ -971,7 +967,7 @@ class SettingsW(tk.Toplevel):
     def processing_ru_state(self):
         if not self.inp_support_ru.get():
             self.combo_processing_ru['state'] = 'disabled'
-            self.inp_processing_ru.set(PROCESSING_RU_MODES[int(PROCESSING_RU_DEF)])
+            self.inp_processing_ru.set(PROCESSING_RU_MODES[PROCESSING_RU_DEF])
         else:
             self.combo_processing_ru['state'] = 'readonly'
 
@@ -1070,9 +1066,9 @@ class SettingsW(tk.Toplevel):
         self.inp_count_from.set(str(COUNT_FROM_DEF))
         self.inp_format.set(str(FORMAT_DEF))
         self.inp_support_ru.set(bool(SUPPORT_RU_DEF))
-        self.combo_processing_ru.current(PROCESSING_RU_DEF)
-        self.combo_naming_mode.current(NAMING_MODE_DEF)
-        self.combo_print_info.current(PRINT_INFO_DEF)
+        self.inp_processing_ru.set(PROCESSING_RU_MODES[PROCESSING_RU_DEF])
+        self.inp_naming_mode.set(NAMING_MODES[NAMING_MODE_DEF])
+        self.inp_print_info.set(PRINT_INFO_MODES[PRINT_INFO_DEF])
         self.inp_marker_enc.set(MARKER_ENC_DEF)
         self.inp_marker_dec.set(MARKER_DEC_DEF)
         self.inp_dir_enc_from.set(DIR_ENC_FROM_DEF)
@@ -1145,17 +1141,17 @@ class SettingsW(tk.Toplevel):
                 self.combo_processing_ru['state'] = 'readonly'
                 if tmp not in ['0', '1']:
                     tmp = PROCESSING_RU_DEF
-            self.combo_processing_ru.current(int(tmp))
+            self.inp_processing_ru.set(PROCESSING_RU_MODES[tmp])
 
             tmp = file.readline().strip()
             if tmp not in ['0', '1', '2', '3', '4']:
                 tmp = NAMING_MODE_DEF
-            self.combo_naming_mode.current(int(tmp))
+            self.inp_naming_mode.set(NAMING_MODES[tmp])
 
             tmp = file.readline().strip()
             if tmp not in ['0', '1']:
                 tmp = PRINT_INFO_DEF
-            self.combo_print_info.current(int(tmp))
+            self.inp_print_info.set(PRINT_INFO_MODES[tmp])
 
             self.inp_marker_enc.set(  file.readline().strip())
             self.inp_marker_dec.set(  file.readline().strip())
