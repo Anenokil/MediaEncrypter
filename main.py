@@ -20,7 +20,7 @@ kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
 PROGRAM_VERSION = 'v6.0.0'
-PROGRAM_DATE = '27.12.2022 15:27'
+PROGRAM_DATE = '27.12.2022 15:46'
 
 """ Цвета """
 
@@ -76,7 +76,7 @@ SETTINGS_NAMES = ['count_from', 'format', 'support_ru', 'processing_ru', 'naming
 # Варианты значений настроек с перечислимым типом
 SUPPORT_RU_MODES = ['yes', 'no']  # Варианты поддержки кириллических букв
 PROCESSING_RU_MODES = ['don`t change', 'transliterate to latin']  # Варианты обработки кириллических букв
-NAMING_MODES = ['don`t change', 'encryption', 'numeration', 'add prefix', 'add postfix']  # Варианты именования выходных файлов
+NAMING_MODES = ['don`t change', 'encryption', 'numbering', 'add prefix', 'add postfix']  # Варианты именования выходных файлов
 PRINT_INFO_MODES = ['don`t print', 'print']  # Варианты печати информации
 
 # Значения настроек по умолчанию
@@ -452,7 +452,7 @@ def filename_processing(op_mode, naming_mode, base_name, ext, output_dir, marker
         while True:
             if naming_mode == 'encryption':
                 new_name = encode_filename(base_name + counter)
-            elif naming_mode == 'numeration':
+            elif naming_mode == 'numbering':
                 new_name = ('{:0' + str(settings['format']) + '}').format(count_correct) + counter
             elif naming_mode == 'add prefix':
                 new_name = marker + base_name + counter
@@ -469,7 +469,7 @@ def filename_processing(op_mode, naming_mode, base_name, ext, output_dir, marker
     else:  # При дешифровке
         if naming_mode == 'encryption':
             new_name = decode_filename(base_name)
-        elif naming_mode == 'numeration':
+        elif naming_mode == 'numbering':
             new_name = ('{:0' + str(settings['format']) + '}').format(count_correct)
         elif naming_mode == 'add prefix':
             new_name = marker + base_name
@@ -572,7 +572,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                     os.remove(TMP_PATH)
                 writer.close()
             elif ext in ['.avi', '.mp4', '.webm']:
-                tmp_name = filename_processing(op_mode, 'numeration', base_name, '', output_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
+                tmp_name = filename_processing(op_mode, 'numbering', base_name, '', output_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
                 res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', output_dir, marker, count_correct)
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
@@ -602,7 +602,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
 
                 os.rename(res, os.path.join(output_dir, res_name))
             elif isdir and '_vid' in os.listdir(pth) and op_mode == 'D':
-                tmp_name = filename_processing(op_mode, 'numeration', filename, '.mp4', output_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
+                tmp_name = filename_processing(op_mode, 'numbering', filename, '.mp4', output_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
                 res_name = filename_processing(op_mode, settings['naming_mode'], filename, '.mp4', output_dir, marker, count_correct)
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
@@ -806,7 +806,7 @@ class EnterSaveNameW(tk.Toplevel):
             return
         self.name_is_correct = True
         if f'{filename}.txt' in os.listdir(CUSTOM_SETTINGS_PATH):  # Если уже есть сохранение с таким названием
-            window = PopupDialogueW(self, 'There is a save with same name already!\nAre you want to rewrite it?')
+            window = PopupDialogueW(self, 'A save with that name already exists!\nDo you want to overwrite it?')
             self.wait_window(window)
             answer = window.open()
             if not answer:
@@ -861,7 +861,7 @@ class EnterKeyW(tk.Toplevel):
         key = self.key.get()
         code, cause = check_key(key)
         if code == 'L':  # Если неверная длина ключа
-            PopupMsgW(self, f'Wrong length of the key: {cause}!\nShould be {KEY_LEN}', title='Error')
+            PopupMsgW(self, f'Invalid key length: {cause}!\nMust be {KEY_LEN}', title='Error')
             return
         self.has_key = True
         self.destroy()
@@ -887,11 +887,11 @@ class SettingsW(tk.Toplevel):
         self.frameFields.grid(row=0, column=0, columnspan=4, padx=4, pady=4)
 
         tk.Label(self.frameFields, text='File names conversion mode').grid(      row=0,  column=0, padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self.frameFields, text='Start counting files from').grid(       row=1,  column=0, padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self.frameFields, text='Number of digits in numbers').grid(     row=2,  column=0, padx=(6, 1), pady=1, sticky='E')
+        tk.Label(self.frameFields, text='Start numbering files from').grid(       row=1,  column=0, padx=(6, 1), pady=1, sticky='E')
+        tk.Label(self.frameFields, text='Number of characters in number').grid(     row=2,  column=0, padx=(6, 1), pady=1, sticky='E')
         tk.Label(self.frameFields, text='Marker for encoded files').grid(        row=3,  column=0, padx=(6, 1), pady=1, sticky='E')
         tk.Label(self.frameFields, text='Marker for decoded files').grid(        row=4,  column=0, padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self.frameFields, text='Support russian letters').grid(         row=5,  column=0, padx=(6, 1), pady=1, sticky='E')
+        tk.Label(self.frameFields, text='Russian letters support').grid(         row=5,  column=0, padx=(6, 1), pady=1, sticky='E')
         tk.Label(self.frameFields, text='Russian letters processing mode').grid( row=6,  column=0, padx=(6, 1), pady=1, sticky='E')
         tk.Label(self.frameFields, text='Source folder when encoding').grid(     row=7,  column=0, padx=(6, 1), pady=1, sticky='E')
         tk.Label(self.frameFields, text='Destination folder when encoding').grid(row=8,  column=0, padx=(6, 1), pady=1, sticky='E')
@@ -952,10 +952,10 @@ class SettingsW(tk.Toplevel):
         self.entry_example_key.grid(  row=11, column=1, columnspan=4, pady=1,      sticky='W')
         self.combo_print_info.grid(   row=12, column=1, columnspan=4, pady=(1, 4), sticky='W')
 
-        tk.Label(self.frameFields, text='(only for numerating file names conversion mode)').grid(    row=1, column=2, columnspan=3, padx=(0, 6), pady=1, sticky='W')
-        tk.Label(self.frameFields, text='(only for numerating file names conversion mode)').grid(    row=2, column=2, columnspan=3, padx=(0, 6), pady=1, sticky='W')
-        tk.Label(self.frameFields, text='(only for prefix/postfix file names conversion mode)').grid(row=3, column=3, columnspan=2, padx=(0, 6), pady=1, sticky='W')
-        tk.Label(self.frameFields, text='(only for prefix/postfix file names conversion mode)').grid(row=4, column=3, columnspan=2, padx=(0, 6), pady=1, sticky='W')
+        tk.Label(self.frameFields, text='(if the numbering name processing mode is selected)').grid(     row=1, column=2, columnspan=3, padx=(0, 6), pady=1, sticky='W')
+        tk.Label(self.frameFields, text='(if the numbering name processing mode is selected)').grid(     row=2, column=2, columnspan=3, padx=(0, 6), pady=1, sticky='W')
+        tk.Label(self.frameFields, text='(if the prefix/postfix name processing mode is selected)').grid(row=3, column=3, columnspan=2, padx=(0, 6), pady=1, sticky='W')
+        tk.Label(self.frameFields, text='(if the prefix/postfix name processing mode is selected)').grid(row=4, column=3, columnspan=2, padx=(0, 6), pady=1, sticky='W')
 
         try:
             self.img_search = tk.PhotoImage(file=os.path.join(RESOURCES_DIR, 'search.png'))
@@ -1109,7 +1109,7 @@ class SettingsW(tk.Toplevel):
     # Сохранить пользовательские настройки
     def save_custom_settings(self):
         if self.has_changes():  # Если были изменения, то предлагается сохранить их
-            window = PopupDialogueW(self, f'There are unsaved changes!\n Are you want to continue?', title='Warning')
+            window = PopupDialogueW(self, f'There are unsaved changes!\n Do you want to continue?', title='Warning')
             self.wait_window(window)
             answer = window.open()
             if not answer:
@@ -1343,7 +1343,7 @@ class ManualW(tk.Toplevel):
             self.inp_shift2_g.get() == '' or\
             self.inp_shift2_b.get() == '' or\
             self.inp_mult_name.get() == '':
-            PopupMsgW(self, 'All fields should be filled', title='Error')
+            PopupMsgW(self, 'All fields must be filled', title='Error')
             return False
 
         mult_blocks_h_r = int(self.inp_mult_blocks_h_r.get())
