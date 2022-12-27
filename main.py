@@ -14,8 +14,8 @@ from tkinter.filedialog import askdirectory
 import time
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-11'
-PROGRAM_DATE = '27.12.2022  2:58'
+PROGRAM_VERSION = 'v6.0.0_PRE-13'
+PROGRAM_DATE = '27.12.2022  4:52'
 
 COLOR_STD = '#FFFFFF'
 COLOR_ERROR = '#EE3333'
@@ -1062,8 +1062,10 @@ class SettingsW(tk.Toplevel):
             return False, ''
         else:
             window = PopupChooseW(self, csf_list, 'Choose a save you want to ' + cmd_name)
-            filename = window.open() + '.txt'
-            return True, filename
+            filename = window.open()
+            if filename == '':
+                return False, ''
+            return True, filename + '.txt'
 
     # Загрузить пользовательские настройки
     def load_custom_settings(self):
