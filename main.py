@@ -14,8 +14,8 @@ from tkinter.filedialog import askdirectory
 import time
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-26'
-PROGRAM_DATE = '27.12.2022  7:50'
+PROGRAM_VERSION = 'v6.0.0_PRE-27'
+PROGRAM_DATE = '27.12.2022  7:58'
 
 """ Цвета """
 
@@ -1277,10 +1277,11 @@ class ManualW(tk.Toplevel):
         tk.Label(self.frameAll, text='Channels order').grid(          row=1, column=2, sticky='E', padx=(6, 1), pady=(0, 4))
         self.inp_order = tk.StringVar()  # Порядок следования каналов после перемешивания
         self.inp_mult_name = tk.StringVar()  # Сдвиг букв в имени файла
-        self.entry_order =     tk.Entry(self.frameAll, textvariable=self.inp_order,     validate='key', validatecommand=self.vcmd)
+        self.spin_order = tk.Spinbox(self.frameAll, textvariable=self.inp_order, values=[str(i) for i in range(6)],
+                                     state='readonly', validate='key', validatecommand=self.vcmd)
         self.entry_mult_name = tk.Entry(self.frameAll, textvariable=self.inp_mult_name, validate='key', validatecommand=self.vcmd)
         self.entry_mult_name.grid(row=1, column=1, padx=(0, 6), pady=4, sticky='W')
-        self.entry_order.grid(    row=1, column=3, padx=(0, 6), pady=4, sticky='W')
+        self.spin_order.grid(     row=1, column=3, padx=(0, 6), pady=4, sticky='W')
 
         self.btn_encode = tk.Button(self, text='Encode', command=self.pre_encode)
         self.btn_decode = tk.Button(self, text='Decode', command=self.pre_decode)
