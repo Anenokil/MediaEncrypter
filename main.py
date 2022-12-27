@@ -14,8 +14,8 @@ from tkinter.filedialog import askdirectory
 from time import perf_counter
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-40'
-PROGRAM_DATE = '27.12.2022 10:32'
+PROGRAM_VERSION = 'v6.0.0_PRE-41'
+PROGRAM_DATE = '27.12.2022 10:39'
 
 """ Цвета """
 
@@ -889,9 +889,9 @@ class SettingsW(tk.Toplevel):
         self.inp_count_from    = tk.StringVar(value=str(settings['count_from']))
         self.inp_format        = tk.StringVar(value=str(settings['format']))
         self.inp_support_ru    = tk.BooleanVar(value=bool(settings['support_ru']))
-        self.inp_processing_ru = tk.StringVar(value=PROCESSING_RU_MODES[PROCESSING_RU_DEF])
-        self.inp_naming_mode   = tk.StringVar(value=NAMING_MODES[NAMING_MODE_DEF])
-        self.inp_print_info    = tk.StringVar(value=PRINT_INFO_MODES[PRINT_INFO_DEF])
+        self.inp_processing_ru = tk.StringVar(value=PROCESSING_RU_MODES[settings['processing_ru']])
+        self.inp_naming_mode   = tk.StringVar(value=NAMING_MODES[settings['naming_mode']])
+        self.inp_print_info    = tk.StringVar(value=PRINT_INFO_MODES[settings['print_info']])
         self.inp_marker_enc    = tk.StringVar(value=settings['marker_enc'])
         self.inp_marker_dec    = tk.StringVar(value=settings['marker_dec'])
         self.inp_dir_enc_from  = tk.StringVar(value=settings['dir_enc_from'])
