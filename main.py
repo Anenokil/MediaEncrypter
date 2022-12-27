@@ -1332,10 +1332,12 @@ class MainW(tk.Tk):
         else:
             correct_settings()  # Проверка корректности настроек
 
-        self.lbl_header1 = tk.Label(self, font='StdFont 15', text='Anenokil development presents')
-        self.lbl_header2 = tk.Label(self, font='Times 21', fg=COLOR_LOGO, text=PROGRAM_NAME)
+        self.frameHead = tk.LabelFrame(self)
+        self.frameHead.grid(row=0, padx=6, pady=4)
+        self.lbl_header1 = tk.Label(self.frameHead, font='StdFont 15', text='Anenokil development presents')
+        self.lbl_header2 = tk.Label(self.frameHead, font='Times 21', fg=COLOR_LOGO, text=PROGRAM_NAME)
         self.lbl_header1.grid(row=0, padx=7, pady=(7, 0))
-        self.lbl_header2.grid(row=1, padx=7)
+        self.lbl_header2.grid(row=1, padx=7, pady=(0, 7))
 
         self.btn_settings = tk.Button(self, text='Settings',    command=self.open_settings)
         self.btn_encode = tk.Button(  self, text='Encode',      command=self.encode)
@@ -1348,7 +1350,7 @@ class MainW(tk.Tk):
         self.btn_mcm.grid(     row=5, pady=5)
         self.btn_close.grid(   row=6, pady=5)
 
-        self.lbl_footer = tk.Label(self, font='StdFont 8', fg=COLOR_FOOTER, text=f'{PROGRAM_VERSION} {PROGRAM_DATE}')
+        self.lbl_footer = tk.Label(self, font='StdFont 8', fg=COLOR_FOOTER, text=f'{PROGRAM_VERSION} - {PROGRAM_DATE}')
         self.lbl_footer.grid(row=7, padx=7, pady=(0, 3), sticky='S')
 
     # Перейти в настройки
