@@ -14,8 +14,8 @@ from tkinter.filedialog import askdirectory
 from time import perf_counter
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-35'
-PROGRAM_DATE = '27.12.2022  9:49'
+PROGRAM_VERSION = 'v6.0.0_PRE-36'
+PROGRAM_DATE = '27.12.2022  9:54'
 
 """ Цвета """
 
@@ -155,19 +155,8 @@ def load_settings(filename):
 # Сохранить настройки в файл
 def save_settings_to_file(filename=SETTINGS_PATH):
     with open(filename, 'w') as file:
-        file.write(f'{settings["count_from"]}\n'
-                   f'{settings["format"]}\n'
-                   f'{settings["support_ru"]}\n'
-                   f'{settings["processing_ru"]}\n'
-                   f'{settings["naming_mode"]}\n'
-                   f'{settings["print_info"]}\n'
-                   f'{settings["marker_enc"]}\n'
-                   f'{settings["marker_dec"]}\n'
-                   f'{settings["dir_enc_from"]}\n'
-                   f'{settings["dir_enc_to"]}\n'
-                   f'{settings["dir_dec_from"]}\n'
-                   f'{settings["dir_dec_to"]}\n'
-                   f'{settings["example_key"]}')
+        for name in SETTINGS_NAMES:
+            file.write(f'{settings[name]}\n')
 
 
 # Преобразование ключа в массив битов (каждый символ - в 6 битов)
