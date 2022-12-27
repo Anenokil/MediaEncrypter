@@ -14,8 +14,8 @@ from tkinter.filedialog import askdirectory
 from time import perf_counter
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-30'
-PROGRAM_DATE = '27.12.2022  8:14'
+PROGRAM_VERSION = 'v6.0.0_PRE-31'
+PROGRAM_DATE = '27.12.2022  8:18'
 
 """ Цвета """
 
@@ -1405,8 +1405,7 @@ class MainW(tk.Tk):
 
     # Перейти в настройки
     def open_settings(self):
-        SettingsW(self)
-        return
+        SettingsW(self).open()
 
     # Отправить на шифровку
     def encode(self):
