@@ -14,8 +14,8 @@ from tkinter.filedialog import askdirectory
 import time
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-15'
-PROGRAM_DATE = '27.12.2022  5:24'
+PROGRAM_VERSION = 'v6.0.0_PRE-16'
+PROGRAM_DATE = '27.12.2022  5:31'
 
 COLOR_STD = '#FFFFFF'
 COLOR_ERROR = '#EE3333'
@@ -766,6 +766,7 @@ class EnterSaveNameW(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.title('Media encrypter')
+        self.name_is_correct = False
 
         tk.Label(self, text='Enter a name for save your custom settings').grid(row=0, padx=6, pady=(4, 1))
         self.name = tk.StringVar()
@@ -777,7 +778,9 @@ class EnterSaveNameW(tk.Toplevel):
         filename = self.name.get()
         if filename == '':
             PopupMsgW(self, 'Incorrect name for save', title='Error')
+            self.name_is_correct = False
             return
+        self.name_is_correct = True
         if filename + '.txt' in os.listdir(CUSTOM_SETTINGS_DIR):  # Если уже есть сохранение с таким названием
             window = PopupDialogueW(self, 'There is a save with same name already!\nAre you want to rewrite it?')
             answer = window.open()
@@ -786,7 +789,7 @@ class EnterSaveNameW(tk.Toplevel):
         self.destroy()
 
     def open(self):
-        return self.name.get()
+        return self.name_is_correct, self.name.get()
 
 
 # Всплывающее окно ввода пароля
@@ -1050,8 +1053,10 @@ class SettingsW(tk.Toplevel):
                 return
         window = EnterSaveNameW(self)
         self.wait_window(window)
-        filename = window.open() + '.txt'
-        copyfile(SETTINGS_PATH, os.path.join(CUSTOM_SETTINGS_DIR, filename))
+        filename_is_correct, filename = window.open()
+        if not filename_is_correct:
+            return
+        copyfile(SETTINGS_PATH, os.path.join(CUSTOM_SETTINGS_DIR, filename + '.txt'))
 
     # Выбрать файл с сохранением
     def choose_custom_save(self, cmd_name):
