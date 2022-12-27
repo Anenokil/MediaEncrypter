@@ -14,8 +14,8 @@ from tkinter.filedialog import askdirectory
 from time import perf_counter
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-33'
-PROGRAM_DATE = '27.12.2022  9:29'
+PROGRAM_VERSION = 'v6.0.0_PRE-34'
+PROGRAM_DATE = '27.12.2022  9:39'
 
 """ Цвета """
 
@@ -52,10 +52,10 @@ SETTINGS_NUM = 13  # Количество всех настроек
 # Значения настроек по умолчанию
 COUNT_FROM_DEF = 1
 FORMAT_DEF = 1
-NAMING_MODE_DEF = 0
-PRINT_INFO_DEF = 0
 SUPPORT_RU_DEF = 0
 PROCESSING_RU_DEF = 0
+NAMING_MODE_DEF = 0
+PRINT_INFO_DEF = 0
 MARKER_ENC_DEF = '_ENC_'
 MARKER_DEC_DEF = '_DEC_'
 DIR_ENC_FROM_DEF = 'f_src'
@@ -64,14 +64,14 @@ DIR_DEC_FROM_DEF = 'f_enc'
 DIR_DEC_TO_DEF = 'f_dec'
 EXAMPLE_KEY_DEF = '_123456789_123456789_123456789_123456789'
 
-SETTINGS_NAMES = ['count_from', 'format', 'naming_mode', 'print_info', 'support_ru', 'processing_ru',
+SETTINGS_NAMES = ['count_from', 'format', 'support_ru', 'processing_ru', 'naming_mode', 'print_info',
                   'marker_enc', 'marker_dec', 'dir_enc_from', 'dir_enc_to', 'dir_dec_from', 'dir_dec_to', 'example_key']
 
 # Варианты настроек с перечислимым типом
-NAMING_MODES = ['encryption', 'numeration', 'add prefix', 'add postfix', 'don`t change']  # Варианты настройки именования выходных файлов
-PRINT_INFO_MODES = ['don`t print', 'print']  # Варианты настройки печати информации
 SUPPORT_RU_MODES = ['no', 'yes']  # Варианты настройки поддержки кириллических букв
 PROCESSING_RU_MODES = ['transliterate to latin', 'don`t change']  # Варианты настройки обработки кириллических букв
+NAMING_MODES = ['encryption', 'numeration', 'add prefix', 'add postfix', 'don`t change']  # Варианты настройки именования выходных файлов
+PRINT_INFO_MODES = ['don`t print', 'print']  # Варианты настройки печати информации
 
 """ Ключ """
 
@@ -108,10 +108,10 @@ def check_key(key):
 def set_default_settings():
     settings['count_from'] = COUNT_FROM_DEF
     settings['format'] = FORMAT_DEF
-    settings['naming_mode'] = NAMING_MODE_DEF
-    settings['print_info'] = PRINT_INFO_DEF
     settings['support_ru'] = SUPPORT_RU_DEF
     settings['processing_ru'] = PROCESSING_RU_DEF
+    settings['naming_mode'] = NAMING_MODE_DEF
+    settings['print_info'] = PRINT_INFO_DEF
     settings['marker_enc'] = MARKER_ENC_DEF
     settings['marker_dec'] = MARKER_DEC_DEF
     settings['dir_enc_from'] = DIR_ENC_FROM_DEF
@@ -127,12 +127,12 @@ def correct_settings():
         settings['count_from'] = COUNT_FROM_DEF
     if not settings['format'].isnumeric():
         settings['format'] = FORMAT_DEF
-    if settings['naming_mode'] not in ['0', '1', '2', '3', '4']:
-        settings['naming_mode'] = NAMING_MODE_DEF
     if settings['print_info'] not in ['0', '1']:
         settings['print_info'] = PRINT_INFO_DEF
     if settings['support_ru'] not in ['0', '1']:
         settings['support_ru'] = SUPPORT_RU_DEF
+    if settings['naming_mode'] not in ['0', '1', '2', '3', '4']:
+        settings['naming_mode'] = NAMING_MODE_DEF
     if settings['processing_ru'] not in ['0', '1']:
         settings['processing_ru'] = PROCESSING_RU_DEF
     if check_key(settings['example_key']) != '+':
@@ -156,8 +156,8 @@ def load_settings(filename):
 def save_settings_to_file(filename=SETTINGS_PATH):
     with open(filename, 'w') as file:  # Запись исправленных настроек в файл
         file.write(str(settings['count_from']) + '\n' + str(settings['format']) + '\n' +
-                   str(settings['naming_mode']) + '\n' + str(settings['print_info']) + '\n' +
                    str(settings['support_ru']) + '\n' + str(settings['processing_ru']) + '\n' +
+                   str(settings['naming_mode']) + '\n' + str(settings['print_info']) + '\n' +
                    settings['marker_enc'] + '\n' + settings['marker_dec'] + '\n' +
                    settings['dir_enc_from'] + '\n' + settings['dir_enc_to'] + '\n' +
                    settings['dir_dec_from'] + '\n' + settings['dir_dec_to'] + '\n' +
@@ -893,10 +893,10 @@ class SettingsW(tk.Toplevel):
 
         self.inp_count_from    = tk.StringVar(value=str(settings['count_from']))
         self.inp_format        = tk.StringVar(value=str(settings['format']))
-        self.inp_naming_mode   = tk.StringVar()
-        self.inp_print_info    = tk.StringVar()
         self.inp_support_ru    = tk.BooleanVar(value=bool(settings['support_ru']))
         self.inp_processing_ru = tk.StringVar()
+        self.inp_naming_mode   = tk.StringVar()
+        self.inp_print_info    = tk.StringVar()
         self.inp_marker_enc    = tk.StringVar(value=settings['marker_enc'])
         self.inp_marker_dec    = tk.StringVar(value=settings['marker_dec'])
         self.inp_dir_enc_from  = tk.StringVar(value=settings['dir_enc_from'])
@@ -984,10 +984,10 @@ class SettingsW(tk.Toplevel):
     def has_changes(self):
         return settings['count_from'] != int(self.inp_count_from.get()) or\
             settings['format'] != int(self.inp_format.get()) or\
-            settings['naming_mode'] != NAMING_MODES.index(self.inp_naming_mode.get()) or\
-            settings['print_info'] != PRINT_INFO_MODES.index(self.inp_print_info.get()) or\
             settings['support_ru'] != int(self.inp_support_ru.get()) or\
             settings['processing_ru'] != PROCESSING_RU_MODES.index(self.inp_processing_ru.get()) or\
+            settings['naming_mode'] != NAMING_MODES.index(self.inp_naming_mode.get()) or\
+            settings['print_info'] != PRINT_INFO_MODES.index(self.inp_print_info.get()) or\
             settings['marker_enc'] != self.inp_marker_enc.get() or\
             settings['marker_dec'] != self.inp_marker_dec.get() or\
             settings['dir_enc_from'] != self.inp_dir_enc_from.get() or\
@@ -1046,10 +1046,10 @@ class SettingsW(tk.Toplevel):
 
         settings['count_from']    = int(self.inp_count_from.get())
         settings['format']        = int(self.inp_format.get())
-        settings['naming_mode']   = NAMING_MODES.index(self.inp_naming_mode.get())
-        settings['print_info']    = PRINT_INFO_MODES.index(self.inp_print_info.get())
         settings['support_ru']    = int(self.inp_support_ru.get())
         settings['processing_ru'] = PROCESSING_RU_MODES.index(self.inp_processing_ru.get())
+        settings['naming_mode']   = NAMING_MODES.index(self.inp_naming_mode.get())
+        settings['print_info']    = PRINT_INFO_MODES.index(self.inp_print_info.get())
         settings['marker_enc']    = self.inp_marker_enc.get()
         settings['marker_dec']    = self.inp_marker_dec.get()
         settings['dir_enc_from']  = self.inp_dir_enc_from.get()
@@ -1074,10 +1074,10 @@ class SettingsW(tk.Toplevel):
     def set_default_settings(self):
         self.inp_count_from.set(str(COUNT_FROM_DEF))
         self.inp_format.set(str(FORMAT_DEF))
-        self.combo_naming_mode.current(NAMING_MODE_DEF)
-        self.combo_print_info.current(PRINT_INFO_DEF)
         self.inp_support_ru.set(bool(SUPPORT_RU_DEF))
         self.combo_processing_ru.current(PROCESSING_RU_DEF)
+        self.combo_naming_mode.current(NAMING_MODE_DEF)
+        self.combo_print_info.current(PRINT_INFO_DEF)
         self.inp_marker_enc.set(MARKER_ENC_DEF)
         self.inp_marker_dec.set(MARKER_DEC_DEF)
         self.inp_dir_enc_from.set(DIR_ENC_FROM_DEF)
@@ -1137,16 +1137,6 @@ class SettingsW(tk.Toplevel):
                 tmp = FORMAT_DEF
             self.inp_format.set(tmp)
 
-            tmp = file.readline().strip()
-            if tmp not in ['0', '1', '2', '3', '4']:
-                tmp = NAMING_MODE_DEF
-            self.combo_naming_mode.current(int(tmp))
-
-            tmp = file.readline().strip()
-            if tmp not in ['0', '1']:
-                tmp = PRINT_INFO_DEF
-            self.combo_print_info.current(int(tmp))
-
             tmp_ = file.readline().strip()
             if tmp_ not in ['0', '1']:
                 tmp_ = SUPPORT_RU_DEF
@@ -1161,6 +1151,16 @@ class SettingsW(tk.Toplevel):
                 if tmp not in ['0', '1']:
                     tmp = PROCESSING_RU_DEF
             self.combo_processing_ru.current(int(tmp))
+
+            tmp = file.readline().strip()
+            if tmp not in ['0', '1', '2', '3', '4']:
+                tmp = NAMING_MODE_DEF
+            self.combo_naming_mode.current(int(tmp))
+
+            tmp = file.readline().strip()
+            if tmp not in ['0', '1']:
+                tmp = PRINT_INFO_DEF
+            self.combo_print_info.current(int(tmp))
 
             self.inp_marker_enc.set(  file.readline().strip())
             self.inp_marker_dec.set(  file.readline().strip())
