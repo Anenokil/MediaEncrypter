@@ -19,8 +19,8 @@ kernel32 = ctypes.windll.kernel32
 kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-49'
-PROGRAM_DATE = '27.12.2022 13:27'
+PROGRAM_VERSION = 'v6.0.0_PRE-50'
+PROGRAM_DATE = '27.12.2022 13:37'
 
 """ Цвета """
 
@@ -835,20 +835,25 @@ class EnterKeyW(tk.Toplevel):
 
         self.txt_example_key = tk.Text(self, height=1, width=KEY_LEN, borderwidth=0, font='TkFixedFont', fg=COLOR_EXAMPLE_KEY)
         self.txt_example_key.insert(1.0, settings['example_key'])
-        self.txt_example_key.grid(row=1, column=1, padx=(0, 6), pady=1)
+        self.txt_example_key.grid(row=1, column=1, padx=(0, 4), pady=1)
         self.txt_example_key.configure(state='disabled')
         self.txt_example_key.bind('<Button-1>', focus_text)
 
-        tk.Label(self, text=f'Enter a key ({KEY_LEN} symbols; only latin letters, digits, - and _)').grid(row=0, columnspan=2, padx=6, pady=4)
+        tk.Label(self, text=f'Enter a key ({KEY_LEN} symbols; only latin letters, digits, - and _)').grid(row=0, columnspan=3, padx=6, pady=4)
         tk.Label(self, text='An example of a key:').grid(row=1, column=0, padx=(6, 1), pady=1, sticky='E')
         tk.Label(self, text='Enter a key:').grid(        row=2, column=0, padx=(6, 1), pady=1, sticky='E')
 
         self.vcmd = (self.register(validate_key), '%P')
         self.entry_key = tk.Entry(self, textvariable=self.key, width=KEY_LEN, validate='key', validatecommand=self.vcmd, font='TkFixedFont', fg=COLOR_KEY)
+        self.btn_copy_example = tk.Button(self, text='COPY', command=self.copy_example_key)
         self.btn_submit = tk.Button(self, text='Submit', bg=COLOR_ACCEPT, command=self.check_key_and_return)
 
-        self.entry_key.grid(row=2, column=1, padx=(0, 6), pady=1, sticky='W')
-        self.btn_submit.grid(row=3, columnspan=2, pady=4)
+        self.entry_key.grid(row=2, column=1, padx=(0, 4), pady=1, sticky='W')
+        self.btn_copy_example.grid(row=1, column=2, padx=(0, 6), pady=1)
+        self.btn_submit.grid(row=3, columnspan=3, pady=4)
+
+    def copy_example_key(self):
+        self.key.set(settings['example_key'])
 
     # Проверить корректность ключа и, если корректен, сохранить
     def check_key_and_return(self):
