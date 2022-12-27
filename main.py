@@ -14,8 +14,8 @@ from tkinter.filedialog import askdirectory
 import time
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-22'
-PROGRAM_DATE = '27.12.2022  7:22'
+PROGRAM_VERSION = 'v6.0.0_PRE-23'
+PROGRAM_DATE = '27.12.2022  7:24'
 
 """ Цвета """
 
@@ -1146,8 +1146,10 @@ class SettingsW(tk.Toplevel):
             if tmp_ == '0':
                 tmp = PROCESSING_RU_DEF
                 self.combo_processing_ru['state'] = 'disabled'
-            elif tmp not in ['0', '1']:
-                tmp = PROCESSING_RU_DEF
+            else:
+                self.combo_processing_ru['state'] = 'readonly'
+                if tmp not in ['0', '1']:
+                    tmp = PROCESSING_RU_DEF
             self.combo_processing_ru.current(int(tmp))
 
             self.inp_dir_enc_from.set(file.readline().strip())
