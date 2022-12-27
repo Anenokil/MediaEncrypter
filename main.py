@@ -12,6 +12,12 @@ import tkinter as tk
 from tkinter.ttk import Combobox, Checkbutton
 from tkinter.filedialog import askdirectory
 from time import perf_counter
+from colorama import Fore, Style  # Цвета в консоли
+import ctypes  # Для цветного текста в консоли Windows
+
+kernel32 = ctypes.windll.kernel32
+kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+
 
 PROGRAM_NAME = 'Media encrypter'
 PROGRAM_VERSION = 'v6.0.0_PRE-45'
@@ -89,7 +95,7 @@ KEY_LEN = 40  # Длина ключа
 
 # Вывод предупреждения в консоль
 def print_warn(text):
-    print(f'[!!!] {text} [!!!]')
+    print(f'{Fore.RED}[!!!] {text} [!!!]{Style.RESET_ALL}')
 
 
 # Является ли строка целым числом
@@ -642,7 +648,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
         except Exception as err:
             print_warn('Couldn`t process the file')
             print(err)
-        print(f'Time: {perf_counter() - start}\n')
+        print(f'{Fore.GREEN}Time: {perf_counter() - start}{Style.RESET_ALL}\n')
     return count_all
 
 
@@ -1462,8 +1468,8 @@ class MainW(tk.Tk):
 
 # Вывод информации о программе
 print('======================================================================================\n')
-print('                            Anenokil development  presents')
-print('                            ' + (30 - len(PROGRAM_NAME) - len(PROGRAM_VERSION) - 1) // 2 * ' ' + PROGRAM_NAME + '  ' + PROGRAM_VERSION)
+print(f'                            {Fore.RED}Anenokil development{Style.RESET_ALL}  presents')
+print('                            ' + (30 - len(PROGRAM_NAME) - len(PROGRAM_VERSION) - 1) // 2 * ' ' + f'{Fore.BLUE}{PROGRAM_NAME}{Style.RESET_ALL}  {PROGRAM_VERSION}')
 print('                            ' + (30 - len(PROGRAM_DATE)) // 2 * ' ' + PROGRAM_DATE + '\n')
 print('======================================================================================')
 
