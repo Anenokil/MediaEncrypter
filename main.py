@@ -9,13 +9,13 @@ import imageio.v2 as io  # Составление gif-изображений и�
 from moviepy.editor import VideoFileClip  # Разбиение видео на кадры
 import cv2  # Составление видео из кадров
 import tkinter as tk
-import tkinter.ttk as ttk
+from tkinter.ttk import Combobox, Checkbutton
 from tkinter.filedialog import askdirectory
-import time
+from time import perf_counter
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-29'
-PROGRAM_DATE = '27.12.2022  8:09'
+PROGRAM_VERSION = 'v6.0.0_PRE-30'
+PROGRAM_DATE = '27.12.2022  8:14'
 
 """ Цвета """
 
@@ -498,7 +498,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, outp_dir, count_all):
             continue
         count_correct += 1
 
-        start = time.perf_counter()
+        start = perf_counter()
         try:
             if ext in ['.png', '.jpg', '.jpeg', '.bmp']:
                 res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '.png', outp_dir, marker, count_correct)  # Преобразование имени файла
@@ -647,7 +647,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, outp_dir, count_all):
         except Exception as err:
             print_warn('Couldn`t process the file')
             print(err)
-        print(f'Time: {time.perf_counter() - start}\n')
+        print(f'Time: {perf_counter() - start}\n')
     return count_all
 
 
@@ -764,7 +764,7 @@ class PopupDialogueW(tk.Toplevel):
         return self.answer
 
 
-# Всплывающее окно с полем ttk.Combobox
+# Всплывающее окно с полем Combobox
 class PopupChooseW(tk.Toplevel):
     def __init__(self, parent, values, msg='Choose the one of these', btn_text='Confirm', title='Media encrypter'):
         super().__init__(parent)
@@ -772,7 +772,7 @@ class PopupChooseW(tk.Toplevel):
 
         tk.Label(self, text=msg).grid(row=0, padx=6, pady=(4, 1))
         self.answer = tk.StringVar()
-        ttk.Combobox(self, textvariable=self.answer, values=values, state='readonly').grid(row=1, padx=6, pady=1)
+        Combobox(self, textvariable=self.answer, values=values, state='readonly').grid(row=1, padx=6, pady=1)
         tk.Button(self, text=btn_text, bg=COLOR_ACCEPT, command=self.destroy).grid(row=2, padx=6, pady=4)
 
     def open(self):
@@ -905,19 +905,19 @@ class SettingsW(tk.Toplevel):
         self.vcmd_num     = (self.register(validate_num), '%P')
         self.vcmd_key     = (self.register(lambda value: validate_len(value, KEY_LEN)), '%P')
 
-        self.combo_naming_mode   = ttk.Combobox(   self.frameFields, textvariable=self.inp_naming_mode, values=NAMING_MODES, state='readonly')
+        self.combo_naming_mode   = Combobox(   self.frameFields, textvariable=self.inp_naming_mode, values=NAMING_MODES, state='readonly')
         self.entry_count_from    = tk.Entry(       self.frameFields, textvariable=self.inp_count_from, width=10, validate='key', validatecommand=self.vcmd_num)
         self.entry_format        = tk.Entry(       self.frameFields, textvariable=self.inp_format,     width=10, validate='key', validatecommand=self.vcmd_natural)
         self.entry_marker_enc    = tk.Entry(       self.frameFields, textvariable=self.inp_marker_enc)
         self.entry_marker_dec    = tk.Entry(       self.frameFields, textvariable=self.inp_marker_dec)
-        self.check_support_ru    = ttk.Checkbutton(self.frameFields,     variable=self.inp_support_ru, command=self.processing_ru_state)
-        self.combo_processing_ru = ttk.Combobox(   self.frameFields, textvariable=self.inp_processing_ru, values=PROCESSING_RU_MODES, state='readonly')
+        self.check_support_ru    = Checkbutton(self.frameFields,     variable=self.inp_support_ru, command=self.processing_ru_state)
+        self.combo_processing_ru = Combobox(   self.frameFields, textvariable=self.inp_processing_ru, values=PROCESSING_RU_MODES, state='readonly')
         self.entry_dir_enc_from  = tk.Entry(       self.frameFields, textvariable=self.inp_dir_enc_from, width=45)
         self.entry_dir_enc_to    = tk.Entry(       self.frameFields, textvariable=self.inp_dir_enc_to,   width=45)
         self.entry_dir_dec_from  = tk.Entry(       self.frameFields, textvariable=self.inp_dir_dec_from, width=45)
         self.entry_dir_dec_to    = tk.Entry(       self.frameFields, textvariable=self.inp_dir_dec_to,   width=45)
         self.entry_example_key   = tk.Entry(       self.frameFields, textvariable=self.inp_example_key,  width=KEY_LEN, font='TkFixedFont', validate='key', validatecommand=self.vcmd_key)
-        self.combo_print_info    = ttk.Combobox(   self.frameFields, textvariable=self.inp_print_info, values=PRINT_INFO_MODES, state='readonly')
+        self.combo_print_info    = Combobox(   self.frameFields, textvariable=self.inp_print_info, values=PRINT_INFO_MODES, state='readonly')
 
         self.combo_naming_mode.current(  int(settings['naming_mode']))
         self.combo_processing_ru.current(int(settings['processing_ru']))
