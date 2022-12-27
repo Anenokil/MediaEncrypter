@@ -19,8 +19,8 @@ kernel32 = ctypes.windll.kernel32
 kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-54'
-PROGRAM_DATE = '27.12.2022 14:17'
+PROGRAM_VERSION = 'v6.0.0_PRE-55'
+PROGRAM_DATE = '27.12.2022 15:04'
 
 """ Цвета """
 
@@ -958,10 +958,17 @@ class SettingsW(tk.Toplevel):
         tk.Label(self.frameFields, text='(only for prefix/postfix file names conversion mode)').grid(row=3, column=3, columnspan=2, padx=(0, 6), pady=1, sticky='W')
         tk.Label(self.frameFields, text='(only for prefix/postfix file names conversion mode)').grid(row=4, column=3, columnspan=2, padx=(0, 6), pady=1, sticky='W')
 
-        self.btn_source_enc = tk.Button(self.frameFields, text='Search', command=self.choose_source_enc)
-        self.btn_dest_enc   = tk.Button(self.frameFields, text='Search', command=self.choose_dest_enc)
-        self.btn_source_dec = tk.Button(self.frameFields, text='Search', command=self.choose_source_dec)
-        self.btn_dest_dec   = tk.Button(self.frameFields, text='Search', command=self.choose_dest_dec)
+        try:
+            self.img_search = tk.PhotoImage(file=os.path.join(RESOURCES_DIR, 'search.png'))
+            self.btn_source_enc = tk.Button(self.frameFields, image=self.img_search, command=self.choose_source_enc)
+            self.btn_dest_enc   = tk.Button(self.frameFields, image=self.img_search, command=self.choose_dest_enc)
+            self.btn_source_dec = tk.Button(self.frameFields, image=self.img_search, command=self.choose_source_dec)
+            self.btn_dest_dec   = tk.Button(self.frameFields, image=self.img_search, command=self.choose_dest_dec)
+        except:
+            self.btn_source_enc = tk.Button(self.frameFields, text='Search', command=self.choose_source_enc)
+            self.btn_dest_enc   = tk.Button(self.frameFields, text='Search', command=self.choose_dest_enc)
+            self.btn_source_dec = tk.Button(self.frameFields, text='Search', command=self.choose_source_dec)
+            self.btn_dest_dec   = tk.Button(self.frameFields, text='Search', command=self.choose_dest_dec)
         self.btn_source_enc.grid(row=7,  column=4, padx=(3, 6), pady=1, sticky='W')
         self.btn_dest_enc.grid(  row=8,  column=4, padx=(3, 6), pady=1, sticky='W')
         self.btn_source_dec.grid(row=9,  column=4, padx=(3, 6), pady=1, sticky='W')
@@ -1407,11 +1414,11 @@ class MainW(tk.Tk):
         self.lbl_header1.grid(row=0, padx=7, pady=(7, 0))
         self.lbl_header2.grid(row=1, padx=7, pady=(0, 7))
 
-        self.btn_settings = tk.Button(self, text='Settings',    command=self.open_settings)
-        self.btn_encode = tk.Button(  self, text='Encode',      command=self.encode)
-        self.btn_decode = tk.Button(  self, text='Decode',      command=self.decode)
-        self.btn_mcm = tk.Button(     self, text='Debug (MCM)', command=self.mcm, bg=COLOR_MCM)
-        self.btn_close = tk.Button(   self, text='Close',       command=self.quit, bg=COLOR_CLOSE)
+        self.btn_settings = tk.Button(self, text='Settings',    font='StdFont 12', command=self.open_settings)
+        self.btn_encode = tk.Button(  self, text='Encode',      font='StdFont 12', command=self.encode)
+        self.btn_decode = tk.Button(  self, text='Decode',      font='StdFont 12', command=self.decode)
+        self.btn_mcm = tk.Button(     self, text='Debug (MCM)', font='StdFont 12', command=self.mcm, bg=COLOR_MCM)
+        self.btn_close = tk.Button(   self, text='Close',       font='StdFont 12', command=self.quit, bg=COLOR_CLOSE)
         self.btn_settings.grid(row=2, pady=5)
         self.btn_encode.grid(  row=3, pady=5)
         self.btn_decode.grid(  row=4, pady=5)
