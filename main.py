@@ -14,8 +14,8 @@ from tkinter.filedialog import askdirectory
 import time
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-24'
-PROGRAM_DATE = '27.12.2022  7:38'
+PROGRAM_VERSION = 'v6.0.0_PRE-25'
+PROGRAM_DATE = '27.12.2022  7:41'
 
 """ Цвета """
 
@@ -979,7 +979,7 @@ class SettingsW(tk.Toplevel):
             settings['format'] != self.inp_format.get() or\
             settings['marker_enc'] != self.inp_marker_enc.get() or\
             settings['marker_dec'] != self.inp_marker_dec.get() or\
-            settings['support_ru'] != SUPPORT_RU_MODES[int(self.inp_support_ru.get())] or\
+            settings['support_ru'] != str(int(self.inp_support_ru.get())) or\
             settings['processing_ru'] != str(PROCESSING_RU_MODES.index(self.inp_processing_ru.get())) or\
             settings['dir_enc_from'] != self.inp_dir_enc_from.get() or\
             settings['dir_enc_to'] != self.inp_dir_enc_to.get() or\
