@@ -14,8 +14,8 @@ from tkinter.filedialog import askdirectory
 from time import perf_counter
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-43'
-PROGRAM_DATE = '27.12.2022 11:28'
+PROGRAM_VERSION = 'v6.0.0_PRE-45'
+PROGRAM_DATE = '27.12.2022 12:55'
 
 """ Цвета """
 
@@ -37,6 +37,17 @@ TMP_PATH = os.path.join(RESOURCES_DIR, TMP_FILE)
 SETTINGS_PATH = os.path.join(RESOURCES_DIR, 'settings.txt')  # Файл с настройками
 CUSTOM_SETTINGS_DIR = os.path.join(RESOURCES_DIR, 'custom_settings')  # Папка с сохранёнными пользовательскими настройками
 
+if RESOURCES_DIR not in os.listdir(os.curdir):
+    os.mkdir(RESOURCES_DIR)
+
+# Затирание временного файла при запуске программы, если он остался с прошлого сеанса
+if TMP_FILE in os.listdir(RESOURCES_DIR):
+    open(TMP_PATH, 'w')
+    os.remove(TMP_PATH)
+
+if CUSTOM_SETTINGS_DIR not in os.listdir(RESOURCES_DIR):
+    os.mkdir(CUSTOM_SETTINGS_DIR)
+
 # Допустимые в названии файлов символы (Windows)
 FN_SYMBOLS_WITHOUT_RU = '#\' 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@$%^&()[]{}-=_+`~;,.'
 FN_SYMBOLS_WITH_RU = FN_SYMBOLS_WITHOUT_RU + 'абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ'
@@ -53,7 +64,7 @@ SETTINGS_NUM = 13  # Количество всех настроек
 SETTINGS_NAMES = ['count_from', 'format', 'support_ru', 'processing_ru', 'naming_mode', 'print_info',
                   'marker_enc', 'marker_dec', 'dir_enc_from', 'dir_enc_to', 'dir_dec_from', 'dir_dec_to', 'example_key']
 
-# Варианты настроек с перечислимым типом
+# Варианты значений настроек с перечислимым типом
 SUPPORT_RU_MODES = ['yes', 'no']  # Варианты поддержки кириллических букв
 PROCESSING_RU_MODES = ['don`t change', 'transliterate to latin']  # Варианты обработки кириллических букв
 NAMING_MODES = ['don`t change', 'encryption', 'numeration', 'add prefix', 'add postfix']  # Варианты именования выходных файлов
@@ -1448,11 +1459,6 @@ class MainW(tk.Tk):
         elif action == 'D':
             decode()
 
-
-# Затирание временного файла при запуске программы, если он остался с прошлого сеанса
-if TMP_FILE in os.listdir(RESOURCES_DIR):
-    open(TMP_PATH, 'w')
-    os.remove(TMP_PATH)
 
 # Вывод информации о программе
 print('======================================================================================\n')
