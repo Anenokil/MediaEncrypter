@@ -14,8 +14,10 @@ from tkinter.filedialog import askdirectory
 import time
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-17'
-PROGRAM_DATE = '27.12.2022  5:40'
+PROGRAM_VERSION = 'v6.0.0_PRE-19'
+PROGRAM_DATE = '27.12.2022  6:29'
+
+""" Цвета """
 
 COLOR_STD = '#FFFFFF'
 COLOR_ERROR = '#EE3333'
@@ -27,19 +29,23 @@ COLOR_LOGO = '#FF7200'
 COLOR_KEY = '#EE0000'
 COLOR_EXAMPLE_KEY = '#44CCDD'
 
-""" Пути """
+""" Пути и файлы """
+
 RESOURCES_DIR = 'resources'  # Главная папка с ресурсами
 TMP_FILE = 'tmp.png'  # Временный файл для обработки gif-изображений и видео
 TMP_PATH = os.path.join(RESOURCES_DIR, TMP_FILE)
 SETTINGS_PATH = os.path.join(RESOURCES_DIR, 'settings.txt')  # Файл с настройками
 CUSTOM_SETTINGS_DIR = os.path.join(RESOURCES_DIR, 'custom_settings')  # Папка с сохранёнными пользовательскими настройками
 
-FN_SYMBOLS = "#' 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@$%^&()[]{}-=_+`~;,."\
-             "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"  # Допустимые в названии файлов символы (Windows)
-FN_SYMB_NUM = len(FN_SYMBOLS)  # Количество допустимых символов
+# Допустимые в названии файлов символы (Windows)
+FN_SYMBOLS_WITHOUT_RU = '#\' 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@$%^&()[]{}-=_+`~;,.'
+FN_SYMBOLS_WITH_RU = FN_SYMBOLS_WITHOUT_RU + 'абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ'
+FN_SYMBOLS_WITHOUT_RU_NUM = len(FN_SYMBOLS_WITHOUT_RU)
+FN_SYMBOLS_WITH_RU_NUM = len(FN_SYMBOLS_WITH_RU)
 
 """ Настройки """
-SETTINGS_NUM = 12  # Количество настроек
+
+SETTINGS_NUM = 13  # Количество настроек
 
 # Значения настроек по умолчанию
 settings = {}
@@ -49,6 +55,7 @@ COUNT_FROM_DEF = '1'
 FORMAT_DEF = '1'
 MARKER_ENC_DEF = '_ENC_'
 MARKER_DEC_DEF = '_DEC_'
+SUPPORT_RU_DEF = '0'
 RU_LETTERS_DEF = '0'
 DIR_ENC_FROM_DEF = 'f_src'
 DIR_ENC_TO_DEF = 'f_enc'
@@ -57,15 +64,17 @@ DIR_DEC_TO_DEF = 'f_dec'
 EXAMPLE_KEY_DEF = '_123456789_123456789_123456789_123456789'
 PRINT_INFO_DEF = '0'
 
-SETTINGS_NAMES = ['naming_mode', 'count_from', 'format', 'marker_enc', 'marker_dec', 'ru_letters',
+SETTINGS_NAMES = ['naming_mode', 'count_from', 'format', 'marker_enc', 'marker_dec', 'support_ru', 'ru_letters',
                   'dir_enc_from', 'dir_enc_to', 'dir_dec_from', 'dir_dec_to', 'example_key', 'print_info']
 
 # Варианты настроек с перечислимым типом
 NAMING_MODES = ['encryption', 'numeration', 'add prefix', 'add postfix', 'don`t change']  # Варианты настройки именования выходных файлов
+SUPPORT_RU_MODES = ['no', 'yes']  # Варианты настройки поддержки кириллических букв
 RU_LETTERS_MODES = ['transliterate to latin', 'don`t change']  # Варианты настройки обработки кириллических букв
 PRINT_INFO_MODES = ['don`t print', 'print']  # Варианты настройки печати информации
 
 """ Ключ """
+
 KEY_SYMBOLS = '0123456789-abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ'  # Допустимые в ключе символы
 KEY_LEN = 40  # Длина ключа
 
@@ -102,6 +111,7 @@ def set_default_settings():
     settings['format'] = FORMAT_DEF
     settings['marker_enc'] = MARKER_ENC_DEF
     settings['marker_dec'] = MARKER_DEC_DEF
+    settings['support_ru'] = SUPPORT_RU_DEF
     settings['ru_letters'] = RU_LETTERS_DEF
     settings['dir_enc_from'] = DIR_ENC_FROM_DEF
     settings['dir_enc_to'] = DIR_ENC_TO_DEF
@@ -126,6 +136,8 @@ def correct_settings():
         settings['count_from'] = COUNT_FROM_DEF
     if not settings['format'].isnumeric():
         settings['format'] = FORMAT_DEF
+    if settings['support_ru'] not in ['0', '1']:
+        settings['support_ru'] = SUPPORT_RU_DEF
     if settings['ru_letters'] not in ['0', '1']:
         settings['ru_letters'] = RU_LETTERS_DEF
     if check_key(settings['example_key']) != '+':
@@ -137,11 +149,12 @@ def correct_settings():
 # Сохранить настройки в файл
 def save_settings_to_file(filename=SETTINGS_PATH):
     with open(filename, 'w') as file:  # Запись исправленных настроек в файл
-        file.write(
-            settings['naming_mode'] + '\n' + settings['count_from'] + '\n' + settings['format'] + '\n' +
-            settings['marker_enc'] + '\n' + settings['marker_dec'] + '\n' + settings['ru_letters'] + '\n' +
-            settings['dir_enc_from'] + '\n' + settings['dir_enc_to'] + '\n' + settings['dir_dec_from'] + '\n' +
-            settings['dir_dec_to'] + '\n' + settings['example_key'] + '\n' + settings['print_info'])
+        file.write(settings['naming_mode'] + '\n' + settings['count_from'] + '\n' + settings['format'] + '\n' +
+                   settings['marker_enc'] + '\n' + settings['marker_dec'] + '\n' +
+                   settings['support_ru'] + '\n' + settings['ru_letters'] + '\n' +
+                   settings['dir_enc_from'] + '\n' + settings['dir_enc_to'] + '\n' +
+                   settings['dir_dec_from'] + '\n' + settings['dir_dec_to'] + '\n' +
+                   settings['example_key'] + '\n' + settings['print_info'])
 
 
 # Преобразование ключа в массив битов (каждый символ - в 6 битов)
@@ -194,7 +207,7 @@ def extract_key_values(b):
     shift2_g = bites_sum(b[3][26:28], b[5][10:14], b[5][24:25])  # Вторичное смещение цвета для зелёного канала
     shift2_b = bites_sum(b[3][4:6],   b[3][38:40], b[5][22:24], b[5][36:38])  # Вторичное смещение цвета для синего канала
     order = bites_sum(b[0][38], b[2][37], b[5][2]) % 6  # Порядок следования каналов после перемешивания
-    mult_name = bites_sum(b[0][39], b[1][38:40], b[2][36], b[3][0:2], b[4][4:6], b[5][3]) % (FN_SYMB_NUM - 1) + 1  # Сдвиг букв в имени файла
+    mult_name = bites_sum(b[0][39], b[1][38:40], b[2][36], b[3][0:2], b[4][4:6], b[5][3]) % (fn_symbols_num - 1) + 1  # Сдвиг букв в имени файла
 
     if settings['print_info'] == '1':  # Вывод ключевых значений
         print('                                    KEY  CONSTANTS')
@@ -202,11 +215,11 @@ def extract_key_values(b):
         print(f'  ML BW: {mult_blocks_w_r}, {mult_blocks_w_g}, {mult_blocks_w_b}')
         print(f'  SH  H: {shift_h_r}, {shift_h_g}, {shift_h_b}')
         print(f'  SH  W: {shift_w_r}, {shift_w_g}, {shift_w_b}')
-        print(f'  ORDER: {order}')
         print(f'  SH1 C: {shift_r}, {shift_g}, {shift_b}')
         print(f'  ML  C: {mult_r}, {mult_g}, {mult_b}')
         print(f'  SH2 C: {shift2_r}, {shift2_g}, {shift2_b}')
         print(f'  ML  N: {mult_name}')
+        print(f'  ORDER: {order}')
 
 
 """ Алгоритм шифровки/дешифровки """
@@ -386,14 +399,14 @@ def encode_filename(name):
     if settings['ru_letters'] == '0':  # Транслитерация кириллицы
         name = translit(name, language_code='ru', reversed=True)
 
-    # Нахождение наименьшего числа, взаимно-простого с FN_SYMB_NUM, большего чем mult_name + len(name)
+    # Нахождение наименьшего числа, взаимно-простого с fn_symbols_num, большего чем mult_name + len(name)
     mn = mult_name + len(name)
-    while gcd(mn, FN_SYMB_NUM) != 1:
+    while gcd(mn, fn_symbols_num) != 1:
         mn += 1
 
     new_name = ''
     for letter in name:  # Шифровка
-        letter = FN_SYMBOLS[(FN_SYMBOLS.find(letter) + 3) * mn % FN_SYMB_NUM]
+        letter = fn_symbols[(fn_symbols.find(letter) + 3) * mn % fn_symbols_num]
         new_name = letter + new_name
     new_name = f'_{new_name}_'  # Защита от потери крайних пробелов
     return new_name
@@ -403,18 +416,18 @@ def encode_filename(name):
 def decode_filename(name):
     name = name[1:-1]  # Защита от потери крайних пробелов
 
-    # Нахождение наименьшего числа, взаимно-простого с FN_SYMB_NUM, большего чем mult_name + len(name)
+    # Нахождение наименьшего числа, взаимно-простого с fn_symbols_num, большего чем mult_name + len(name)
     mn = mult_name + len(name)
-    while gcd(mn, FN_SYMB_NUM) != 1:
+    while gcd(mn, fn_symbols_num) != 1:
         mn += 1
 
-    arr = [0] * FN_SYMB_NUM  # Дешифровочный массив
-    for i in range(FN_SYMB_NUM):
-        arr[(i + 3) * mn % FN_SYMB_NUM] = i
+    arr = [0] * fn_symbols_num  # Дешифровочный массив
+    for i in range(fn_symbols_num):
+        arr[(i + 3) * mn % fn_symbols_num] = i
 
     new_name = ''
     for letter in name:  # Дешифровка
-        letter = FN_SYMBOLS[arr[FN_SYMBOLS.find(letter)]]
+        letter = fn_symbols[arr[fn_symbols.find(letter)]]
         new_name = letter + new_name
 
     if settings['ru_letters'] == '0':  # Транслитерация кириллицы
@@ -770,7 +783,7 @@ class EnterSaveNameW(tk.Toplevel):
 
         tk.Label(self, text='Enter a name for save your custom settings').grid(row=0, padx=6, pady=(4, 1))
         self.name = tk.StringVar()
-        self.vcmd = (self.register(lambda value: validate_symbols(value, FN_SYMBOLS)), '%P')
+        self.vcmd = (self.register(lambda value: validate_symbols(value, FN_SYMBOLS_WITH_RU)), '%P')
         tk.Entry(self, textvariable=self.name, validate='key', validatecommand=self.vcmd).grid(row=1, padx=6, pady=1)
         tk.Button(self, text='Confirm', bg=COLOR_ACCEPT, command=self.check_and_return).grid(row=2, padx=6, pady=4)
 
@@ -858,19 +871,21 @@ class SettingsW(tk.Toplevel):
         tk.Label(self.frameFields, text='Number of digits in numbers').grid(     row=2,  column=0, padx=(6, 1), pady=1, sticky='E')
         tk.Label(self.frameFields, text='Marker for encoded files').grid(        row=3,  column=0, padx=(6, 1), pady=1, sticky='E')
         tk.Label(self.frameFields, text='Marker for decoded files').grid(        row=4,  column=0, padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self.frameFields, text='Russian letters processing mode').grid( row=5,  column=0, padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self.frameFields, text='Source folder when encoding').grid(     row=6,  column=0, padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self.frameFields, text='Destination folder when encoding').grid(row=7,  column=0, padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self.frameFields, text='Source folder when decoding').grid(     row=8,  column=0, padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self.frameFields, text='Destination folder when decoding').grid(row=9,  column=0, padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self.frameFields, text='Example of a key').grid(                row=10, column=0, padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self.frameFields, text='Whether to print info').grid(           row=11, column=0, padx=(6, 1), pady=1, sticky='E')
+        tk.Label(self.frameFields, text='Support russian letters').grid(         row=5,  column=0, padx=(6, 1), pady=1, sticky='E')
+        tk.Label(self.frameFields, text='Russian letters processing mode').grid( row=6,  column=0, padx=(6, 1), pady=1, sticky='E')
+        tk.Label(self.frameFields, text='Source folder when encoding').grid(     row=7,  column=0, padx=(6, 1), pady=1, sticky='E')
+        tk.Label(self.frameFields, text='Destination folder when encoding').grid(row=8,  column=0, padx=(6, 1), pady=1, sticky='E')
+        tk.Label(self.frameFields, text='Source folder when decoding').grid(     row=9,  column=0, padx=(6, 1), pady=1, sticky='E')
+        tk.Label(self.frameFields, text='Destination folder when decoding').grid(row=10, column=0, padx=(6, 1), pady=1, sticky='E')
+        tk.Label(self.frameFields, text='Example of a key').grid(                row=11, column=0, padx=(6, 1), pady=1, sticky='E')
+        tk.Label(self.frameFields, text='Whether to print info').grid(           row=12, column=0, padx=(6, 1), pady=1, sticky='E')
 
         self.inp_naming_mode  = tk.StringVar()
         self.inp_count_from   = tk.StringVar(value=settings['count_from'])
         self.inp_format       = tk.StringVar(value=settings['format'])
         self.inp_marker_enc   = tk.StringVar(value=settings['marker_enc'])
         self.inp_marker_dec   = tk.StringVar(value=settings['marker_dec'])
+        self.inp_support_ru   = tk.StringVar()
         self.inp_ru_letters   = tk.StringVar()
         self.inp_dir_enc_from = tk.StringVar(value=settings['dir_enc_from'])
         self.inp_dir_enc_to   = tk.StringVar(value=settings['dir_enc_to'])
@@ -888,6 +903,7 @@ class SettingsW(tk.Toplevel):
         self.entry_format       = tk.Entry(    self.frameFields, textvariable=self.inp_format,     width=10, validate='key', validatecommand=self.vcmd_natural)
         self.entry_marker_enc   = tk.Entry(    self.frameFields, textvariable=self.inp_marker_enc)
         self.entry_marker_dec   = tk.Entry(    self.frameFields, textvariable=self.inp_marker_dec)
+        self.combo_support_ru   = ttk.Combobox(self.frameFields, textvariable=self.inp_support_ru, values=SUPPORT_RU_MODES, state='readonly')
         self.combo_ru_letters   = ttk.Combobox(self.frameFields, textvariable=self.inp_ru_letters, values=RU_LETTERS_MODES, state='readonly')
         self.entry_dir_enc_from = tk.Entry(    self.frameFields, textvariable=self.inp_dir_enc_from, width=45)
         self.entry_dir_enc_to   = tk.Entry(    self.frameFields, textvariable=self.inp_dir_enc_to,   width=45)
@@ -897,6 +913,7 @@ class SettingsW(tk.Toplevel):
         self.combo_print_info   = ttk.Combobox(self.frameFields, textvariable=self.inp_print_info, values=PRINT_INFO_MODES, state='readonly')
 
         self.combo_naming_mode.current(int(settings['naming_mode']))
+        self.combo_support_ru.current( int(settings['support_ru']))
         self.combo_ru_letters.current( int(settings['ru_letters']))
         self.combo_print_info.current( int(settings['print_info']))
 
@@ -905,13 +922,14 @@ class SettingsW(tk.Toplevel):
         self.entry_format.grid(      row=2,  column=1, columnspan=1, pady=1,      sticky='W')
         self.entry_marker_enc.grid(  row=3,  column=1, columnspan=2, pady=1,      sticky='W')
         self.entry_marker_dec.grid(  row=4,  column=1, columnspan=2, pady=1,      sticky='W')
-        self.combo_ru_letters.grid(  row=5,  column=1, columnspan=4, pady=1,      sticky='W')
-        self.entry_dir_enc_from.grid(row=6,  column=1, columnspan=3, pady=1,      sticky='W')
-        self.entry_dir_enc_to.grid(  row=7,  column=1, columnspan=3, pady=1,      sticky='W')
-        self.entry_dir_dec_from.grid(row=8,  column=1, columnspan=3, pady=1,      sticky='W')
-        self.entry_dir_dec_to.grid(  row=9,  column=1, columnspan=3, pady=1,      sticky='W')
-        self.entry_example_key.grid( row=10, column=1, columnspan=4, pady=1,      sticky='W')
-        self.combo_print_info.grid(  row=11, column=1, columnspan=4, pady=(1, 4), sticky='W')
+        self.combo_support_ru.grid(  row=5,  column=1, columnspan=4, pady=1,      sticky='W')
+        self.combo_ru_letters.grid(  row=6,  column=1, columnspan=4, pady=1,      sticky='W')
+        self.entry_dir_enc_from.grid(row=7,  column=1, columnspan=3, pady=1,      sticky='W')
+        self.entry_dir_enc_to.grid(  row=8,  column=1, columnspan=3, pady=1,      sticky='W')
+        self.entry_dir_dec_from.grid(row=9,  column=1, columnspan=3, pady=1,      sticky='W')
+        self.entry_dir_dec_to.grid(  row=10, column=1, columnspan=3, pady=1,      sticky='W')
+        self.entry_example_key.grid( row=11, column=1, columnspan=4, pady=1,      sticky='W')
+        self.combo_print_info.grid(  row=12, column=1, columnspan=4, pady=(1, 4), sticky='W')
 
         tk.Label(self.frameFields, text='(only for numerating file names conversion mode)').grid(    row=1, column=2, columnspan=3, padx=(0, 6), pady=1, sticky='W')
         tk.Label(self.frameFields, text='(only for numerating file names conversion mode)').grid(    row=2, column=2, columnspan=3, padx=(0, 6), pady=1, sticky='W')
@@ -922,15 +940,15 @@ class SettingsW(tk.Toplevel):
         self.btn_dest_enc   = tk.Button(self.frameFields, text='Search', command=self.choose_dest_enc)
         self.btn_source_dec = tk.Button(self.frameFields, text='Search', command=self.choose_source_dec)
         self.btn_dest_dec   = tk.Button(self.frameFields, text='Search', command=self.choose_dest_dec)
-        self.btn_source_enc.grid(row=6, column=4, padx=(3, 6), pady=1, sticky='W')
-        self.btn_dest_enc.grid(  row=7, column=4, padx=(3, 6), pady=1, sticky='W')
-        self.btn_source_dec.grid(row=8, column=4, padx=(3, 6), pady=1, sticky='W')
-        self.btn_dest_dec.grid(  row=9, column=4, padx=(3, 6), pady=1, sticky='W')
+        self.btn_source_enc.grid(row=7,  column=4, padx=(3, 6), pady=1, sticky='W')
+        self.btn_dest_enc.grid(  row=8,  column=4, padx=(3, 6), pady=1, sticky='W')
+        self.btn_source_dec.grid(row=9,  column=4, padx=(3, 6), pady=1, sticky='W')
+        self.btn_dest_dec.grid(  row=10, column=4, padx=(3, 6), pady=1, sticky='W')
 
-        self.btn_def           = tk.Button(self.frameAll, text='Set default settings',                         command=self.set_default_settings)
+        self.btn_def           = tk.Button(self.frameAll, text='Set default settings',                          command=self.set_default_settings)
         self.btn_save_custom   = tk.Button(self.frameAll, text='Save current settings as your custom settings', command=self.save_custom_settings)
-        self.btn_load_custom   = tk.Button(self.frameAll, text='Load your custom settings',                    command=self.load_custom_settings)
-        self.btn_remove_custom = tk.Button(self.frameAll, text='Remove your custom settings',                  command=self.remove_custom_settings)
+        self.btn_load_custom   = tk.Button(self.frameAll, text='Load your custom settings',                     command=self.load_custom_settings)
+        self.btn_remove_custom = tk.Button(self.frameAll, text='Remove your custom settings',                   command=self.remove_custom_settings)
         self.btn_def.grid(          row=1, column=0, padx=4,      pady=(0, 4))
         self.btn_save_custom.grid(  row=1, column=1, padx=(0, 4), pady=(0, 4))
         self.btn_load_custom.grid(  row=1, column=2, padx=(0, 4), pady=(0, 4))
@@ -948,6 +966,7 @@ class SettingsW(tk.Toplevel):
             settings['format'] != self.inp_format.get() or\
             settings['marker_enc'] != self.inp_marker_enc.get() or\
             settings['marker_dec'] != self.inp_marker_dec.get() or\
+            settings['support_ru'] != str(SUPPORT_RU_MODES.index(self.inp_support_ru.get())) or\
             settings['ru_letters'] != str(RU_LETTERS_MODES.index(self.inp_ru_letters.get())) or\
             settings['dir_enc_from'] != self.inp_dir_enc_from.get() or\
             settings['dir_enc_to'] != self.inp_dir_enc_to.get() or\
@@ -1009,6 +1028,7 @@ class SettingsW(tk.Toplevel):
         settings['format']       = self.inp_format.get()
         settings['marker_enc']   = self.inp_marker_enc.get()
         settings['marker_dec']   = self.inp_marker_dec.get()
+        settings['support_ru']   = str(SUPPORT_RU_MODES.index(self.inp_support_ru.get()))
         settings['ru_letters']   = str(RU_LETTERS_MODES.index(self.inp_ru_letters.get()))
         settings['dir_enc_from'] = self.inp_dir_enc_from.get()
         settings['dir_enc_to']   = self.inp_dir_enc_to.get()
@@ -1037,6 +1057,7 @@ class SettingsW(tk.Toplevel):
         self.inp_marker_enc.set(MARKER_ENC_DEF)
         self.inp_marker_dec.set(MARKER_DEC_DEF)
         self.combo_ru_letters.current(int(RU_LETTERS_DEF))
+        self.combo_support_ru.current(int(SUPPORT_RU_DEF))
         self.inp_dir_enc_from.set(DIR_ENC_FROM_DEF)
         self.inp_dir_enc_to.set(DIR_ENC_TO_DEF)
         self.inp_dir_dec_from.set(DIR_DEC_FROM_DEF)
@@ -1102,6 +1123,11 @@ class SettingsW(tk.Toplevel):
 
             self.inp_marker_enc.set(file.readline().strip())
             self.inp_marker_dec.set(file.readline().strip())
+
+            tmp = file.readline().strip()
+            if tmp not in ['0', '1']:
+                tmp = SUPPORT_RU_DEF
+            self.combo_support_ru.current(int(tmp))
 
             tmp = file.readline().strip()
             if tmp not in ['0', '1']:
@@ -1364,6 +1390,15 @@ class MainW(tk.Tk):
         has_key, key = window.open()
         if not has_key:
             return
+
+        global fn_symbols, fn_symbols_num
+        if settings['support_ru'] == '0':
+            fn_symbols = FN_SYMBOLS_WITHOUT_RU
+            fn_symbols_num = FN_SYMBOLS_WITHOUT_RU_NUM
+        else:
+            fn_symbols = FN_SYMBOLS_WITH_RU
+            fn_symbols_num = FN_SYMBOLS_WITH_RU_NUM
+
         extract_key_values(key_to_bites(key))
         encode()
 
@@ -1373,6 +1408,15 @@ class MainW(tk.Tk):
         has_key, key = window.open()
         if not has_key:
             return
+
+        global fn_symbols, fn_symbols_num
+        if settings['support_ru'] == '0':
+            fn_symbols = FN_SYMBOLS_WITHOUT_RU
+            fn_symbols_num = FN_SYMBOLS_WITHOUT_RU_NUM
+        else:
+            fn_symbols = FN_SYMBOLS_WITH_RU
+            fn_symbols_num = FN_SYMBOLS_WITH_RU_NUM
+
         extract_key_values(key_to_bites(key))
         decode()
 
@@ -1380,6 +1424,14 @@ class MainW(tk.Tk):
     def mcm(self):
         window = ManualW(self)
         action = window.open()
+
+        global fn_symbols, fn_symbols_num
+        if settings['support_ru'] == '0':
+            fn_symbols = FN_SYMBOLS_WITHOUT_RU
+            fn_symbols_num = FN_SYMBOLS_WITHOUT_RU_NUM
+        else:
+            fn_symbols = FN_SYMBOLS_WITH_RU
+            fn_symbols_num = FN_SYMBOLS_WITH_RU_NUM
 
         if action == 'E':
             encode()
