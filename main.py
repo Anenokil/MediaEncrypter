@@ -14,8 +14,8 @@ from tkinter.filedialog import askdirectory
 from time import perf_counter
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-42'
-PROGRAM_DATE = '27.12.2022 10:58'
+PROGRAM_VERSION = 'v6.0.0_PRE-43'
+PROGRAM_DATE = '27.12.2022 11:28'
 
 """ Цвета """
 
@@ -46,25 +46,26 @@ FN_SYMBOLS_WITH_RU_NUM = len(FN_SYMBOLS_WITH_RU)
 """ Настройки """
 
 settings = {}
-INT_SETTINGS_NUM = 6  # Количество числовых настроек
+INT_SETTINGS_NUM = 2  # Количество числовых настроек
 SETTINGS_NUM = 13  # Количество всех настроек
 
 # Названия настроек
 SETTINGS_NAMES = ['count_from', 'format', 'support_ru', 'processing_ru', 'naming_mode', 'print_info',
                   'marker_enc', 'marker_dec', 'dir_enc_from', 'dir_enc_to', 'dir_dec_from', 'dir_dec_to', 'example_key']
 
-# Значения настроек по умолчанию
-DEFAULT_SETTINGS = {'count_from': 1, 'format': 1,
-                    'support_ru': 0, 'processing_ru': 0, 'naming_mode': 0, 'print_info': 0,
-                    'marker_enc': '_ENC_', 'marker_dec': '_DEC',
-                    'dir_enc_from': 'f_src', 'dir_enc_to': 'f_enc', 'dir_dec_from': 'f_enc', 'dir_dec_to': 'f_dec',
-                    'example_key': '_123456789_123456789_123456789_123456789'}
-
 # Варианты настроек с перечислимым типом
 SUPPORT_RU_MODES = ['no', 'yes']  # Варианты поддержки кириллических букв
 PROCESSING_RU_MODES = ['transliterate to latin', 'don`t change']  # Варианты обработки кириллических букв
 NAMING_MODES = ['encryption', 'numeration', 'add prefix', 'add postfix', 'don`t change']  # Варианты именования выходных файлов
 PRINT_INFO_MODES = ['don`t print', 'print']  # Варианты печати информации
+
+# Значения настроек по умолчанию
+DEFAULT_SETTINGS = {'count_from': 1, 'format': 1,
+                    'support_ru': 'no', 'processing_ru': 'transliterate to latin',
+                    'naming_mode': 'encryption', 'print_info': 'don`t print',
+                    'marker_enc': '_ENC_', 'marker_dec': '_DEC',
+                    'dir_enc_from': 'f_src', 'dir_enc_to': 'f_enc', 'dir_dec_from': 'f_enc', 'dir_dec_to': 'f_dec',
+                    'example_key': '_123456789_123456789_123456789_123456789'}
 
 """ Ключ """
 
@@ -109,18 +110,20 @@ def correct_settings():
         settings['count_from'] = DEFAULT_SETTINGS['count_from']
     if not settings['format'].isnumeric():
         settings['format'] = DEFAULT_SETTINGS['format']
-    if settings['print_info'] not in ['0', '1']:
-        settings['print_info'] = DEFAULT_SETTINGS['print_info']
-    if settings['support_ru'] not in ['0', '1']:
+
+    if settings['support_ru'] not in SUPPORT_RU_MODES:
         settings['support_ru'] = DEFAULT_SETTINGS['support_ru']
-    if settings['naming_mode'] not in ['0', '1', '2', '3', '4']:
-        settings['naming_mode'] = DEFAULT_SETTINGS['naming_mode']
-    if settings['processing_ru'] not in ['0', '1']:
+    if settings['processing_ru'] not in PROCESSING_RU_MODES:
         settings['processing_ru'] = DEFAULT_SETTINGS['processing_ru']
+    if settings['print_info'] not in PRINT_INFO_MODES:
+        settings['print_info'] = DEFAULT_SETTINGS['print_info']
+    if settings['naming_mode'] not in NAMING_MODES:
+        settings['naming_mode'] = DEFAULT_SETTINGS['naming_mode']
+
     if check_key(settings['example_key'])[0] != '+':
         settings['example_key'] = DEFAULT_SETTINGS['example_key']
 
-    if settings['support_ru'] == '0':
+    if settings['support_ru'] == DEFAULT_SETTINGS['support_ru']:
         settings['processing_ru'] = DEFAULT_SETTINGS['processing_ru']
 
 
@@ -193,7 +196,7 @@ def extract_key_values(b):
     order = bites_sum(b[0][38], b[2][37], b[5][2]) % 6  # Порядок следования каналов после перемешивания
     mult_name = bites_sum(b[0][39], b[1][38:40], b[2][36], b[3][0:2], b[4][4:6], b[5][3]) % (fn_symbols_num - 1) + 1  # Сдвиг букв в имени файла
 
-    if settings['print_info'] == 1:  # Вывод ключевых значений
+    if settings['print_info'] == 'print':  # Вывод ключевых значений
         print('                                    KEY  CONSTANTS')
         print(f'  ML BH: {mult_blocks_h_r}, {mult_blocks_h_g}, {mult_blocks_h_b}')
         print(f'  ML BW: {mult_blocks_w_r}, {mult_blocks_w_g}, {mult_blocks_w_b}')
@@ -221,7 +224,7 @@ def mix_blocks(img, mult_h, mult_w, shift_h, shift_w):
     while gcd(mult_w, w) != 1 or mult_w % w == 1:
         mult_w += 1
 
-    if settings['print_info'] == 1:
+    if settings['print_info'] == 'print':
         print(f'{h}x{w}: {mult_h} {mult_w}')
 
     img_tmp = img.copy()
@@ -291,7 +294,7 @@ def recover_blocks_calc(h, w, mult_h, mult_w):
     while gcd(mult_w, w) != 1 or mult_w % w == 1:
         mult_w += 1
 
-    if settings['print_info'] == 1:
+    if settings['print_info'] == 'print':
         print(f'{h}x{w}: {mult_h} {mult_w}')
 
     dec_h = [0] * h  # Составление массива обратных сдвигов по вертикали
@@ -380,7 +383,7 @@ def decode_file(img, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b)
 
 # Шифровка имени файла
 def encode_filename(name):
-    if settings['processing_ru'] == 0:  # Транслитерация кириллицы
+    if settings['processing_ru'] == 'transliterate to latin':  # Транслитерация кириллицы
         name = translit(name, language_code='ru', reversed=True)
 
     # Нахождение наименьшего числа, взаимно-простого с fn_symbols_num, большего чем mult_name + len(name)
@@ -414,7 +417,7 @@ def decode_filename(name):
         letter = fn_symbols[arr[fn_symbols.find(letter)]]
         new_name = letter + new_name
 
-    if settings['processing_ru'] == 0:  # Транслитерация кириллицы
+    if settings['processing_ru'] == 'transliterate to latin':  # Транслитерация кириллицы
         new_name = translit(new_name, language_code='ru', reversed=True)
 
     return new_name
@@ -426,13 +429,13 @@ def filename_processing(op_mode, naming_mode, base_name, ext, outp_dir, marker, 
         count_same = 1  # Счётчик файлов с таким же именем
         counter = ''
         while True:
-            if naming_mode == 0:
+            if naming_mode == 'encryption':
                 new_name = encode_filename(base_name + counter)
-            elif naming_mode == 1:
+            elif naming_mode == 'numeration':
                 new_name = ('{:0' + str(settings['format']) + '}').format(count_correct) + counter
-            elif naming_mode == 2:
+            elif naming_mode == 'add prefix':
                 new_name = marker + base_name + counter
-            elif naming_mode == 3:
+            elif naming_mode == 'add postfix':
                 new_name = base_name + marker + counter
             else:
                 new_name = base_name + counter
@@ -443,13 +446,13 @@ def filename_processing(op_mode, naming_mode, base_name, ext, outp_dir, marker, 
             count_same += 1
             counter = f' [{count_same}]'  # Если уже есть файл с таким именем, то добавляется индекс
     else:  # При дешифровке
-        if naming_mode == 0:
+        if naming_mode == 'encryption':
             new_name = decode_filename(base_name)
-        elif naming_mode == 1:
+        elif naming_mode == 'numeration':
             new_name = ('{:0' + str(settings['format']) + '}').format(count_correct)
-        elif naming_mode == 2:
+        elif naming_mode == 'add prefix':
             new_name = marker + base_name
-        elif naming_mode == 3:
+        elif naming_mode == 'add postfix':
             new_name = base_name + marker
         else:
             new_name = base_name
@@ -487,7 +490,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, outp_dir, count_all):
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
 
                 img = imread(os.path.join(inp_dir, filename))  # Считывание изображения
-                if settings['print_info'] == 1:
+                if settings['print_info'] == 'print':
                     print(img.shape)
 
                 outp_path = os.path.join(outp_dir, res_name)
@@ -515,7 +518,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, outp_dir, count_all):
                         im.save(TMP_PATH)
 
                         fr = imread(TMP_PATH)
-                        if settings['print_info'] == 1:  # Вывод информации о считывании
+                        if settings['print_info'] == 'print':  # Вывод информации о считывании
                             print(fr.shape)
                         outp_path = os.path.join(res, '{:05}.png'.format(i))
                         imsave(outp_path, encode_file(fr).astype(uint8))
@@ -538,7 +541,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, outp_dir, count_all):
                     for i in range(len(frames)):
                         print(f'frame {i + 1}')
                         fr = imread(os.path.join(inp_dir_tmp, frames[i]))
-                        if settings['print_info'] == 1:  # Вывод информации о считывании
+                        if settings['print_info'] == 'print':  # Вывод информации о считывании
                             print(fr.shape)
                         img = decode_file(fr, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b)
                         imsave(TMP_PATH, img.astype(uint8))
@@ -568,7 +571,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, outp_dir, count_all):
                     print(f'frame {count + 1}')
 
                     fr = imread(TMP_PATH)
-                    if settings['print_info'] == 1:  # Вывод информации о считывании
+                    if settings['print_info'] == 'print':  # Вывод информации о считывании
                         print(fr.shape)
                     imsave(frame_filename, encode_file(fr).astype(uint8))
                     count += 1
@@ -599,7 +602,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, outp_dir, count_all):
                     if f.endswith('.png'):
                         print(f'frame {count + 1}')
                         img = imread(os.path.join(inp_dir_tmp, f))
-                        if settings['print_info'] == 1:  # Вывод информации о считывании
+                        if settings['print_info'] == 'print':  # Вывод информации о считывании
                             print(img.shape)
                         fr = decode_file(img, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b)
                         imsave(TMP_PATH, fr.astype(uint8))
@@ -870,10 +873,13 @@ class SettingsW(tk.Toplevel):
 
         self.inp_count_from    = tk.StringVar(value=str(settings['count_from']))
         self.inp_format        = tk.StringVar(value=str(settings['format']))
-        self.inp_support_ru    = tk.BooleanVar(value=bool(settings['support_ru']))
-        self.inp_processing_ru = tk.StringVar(value=PROCESSING_RU_MODES[settings['processing_ru']])
-        self.inp_naming_mode   = tk.StringVar(value=NAMING_MODES[settings['naming_mode']])
-        self.inp_print_info    = tk.StringVar(value=PRINT_INFO_MODES[settings['print_info']])
+        if settings['support_ru'] == 'yes':
+            self.inp_support_ru = tk.BooleanVar(value=True)
+        else:
+            self.inp_support_ru = tk.BooleanVar(value=False)
+        self.inp_processing_ru = tk.StringVar(value=settings['processing_ru'])
+        self.inp_naming_mode   = tk.StringVar(value=settings['naming_mode'])
+        self.inp_print_info    = tk.StringVar(value=settings['print_info'])
         self.inp_marker_enc    = tk.StringVar(value=settings['marker_enc'])
         self.inp_marker_dec    = tk.StringVar(value=settings['marker_dec'])
         self.inp_dir_enc_from  = tk.StringVar(value=settings['dir_enc_from'])
@@ -949,18 +955,19 @@ class SettingsW(tk.Toplevel):
     def processing_ru_state(self):
         if not self.inp_support_ru.get():
             self.combo_processing_ru['state'] = 'disabled'
-            self.inp_processing_ru.set(PROCESSING_RU_MODES[DEFAULT_SETTINGS['processing_ru']])
+            self.inp_processing_ru.set(DEFAULT_SETTINGS['processing_ru'])
         else:
             self.combo_processing_ru['state'] = 'readonly'
 
     # Были ли изменены настройки
     def has_changes(self):
         return settings['count_from'] != int(self.inp_count_from.get()) or\
-            settings['format'] != int(self.inp_format.get()) or\
-            settings['support_ru'] != int(self.inp_support_ru.get()) or\
-            settings['processing_ru'] != PROCESSING_RU_MODES.index(self.inp_processing_ru.get()) or\
-            settings['naming_mode'] != NAMING_MODES.index(self.inp_naming_mode.get()) or\
-            settings['print_info'] != PRINT_INFO_MODES.index(self.inp_print_info.get()) or\
+            settings['format'] != int(self.inp_format.get()) or \
+            (settings['support_ru'] == 'no'  and     self.inp_support_ru.get()) or\
+            (settings['support_ru'] == 'yes' and not self.inp_support_ru.get()) or\
+            settings['processing_ru'] != self.inp_processing_ru.get() or\
+            settings['naming_mode'] != self.inp_naming_mode.get() or\
+            settings['print_info'] != self.inp_print_info.get() or\
             settings['marker_enc'] != self.inp_marker_enc.get() or\
             settings['marker_dec'] != self.inp_marker_dec.get() or\
             settings['dir_enc_from'] != self.inp_dir_enc_from.get() or\
@@ -1019,10 +1026,13 @@ class SettingsW(tk.Toplevel):
 
         settings['count_from']    = int(self.inp_count_from.get())
         settings['format']        = int(self.inp_format.get())
-        settings['support_ru']    = int(self.inp_support_ru.get())
-        settings['processing_ru'] = PROCESSING_RU_MODES.index(self.inp_processing_ru.get())
-        settings['naming_mode']   = NAMING_MODES.index(self.inp_naming_mode.get())
-        settings['print_info']    = PRINT_INFO_MODES.index(self.inp_print_info.get())
+        if self.inp_support_ru.get():
+            settings['support_ru'] = 'yes'
+        else:
+            settings['support_ru'] = 'no'
+        settings['processing_ru'] = self.inp_processing_ru.get()
+        settings['naming_mode']   = self.inp_naming_mode.get()
+        settings['print_info']    = self.inp_print_info.get()
         settings['marker_enc']    = self.inp_marker_enc.get()
         settings['marker_dec']    = self.inp_marker_dec.get()
         settings['dir_enc_from']  = self.inp_dir_enc_from.get()
@@ -1047,7 +1057,7 @@ class SettingsW(tk.Toplevel):
     def set_default_settings(self):
         self.inp_count_from.set(str(DEFAULT_SETTINGS['count_from']))
         self.inp_format.set(str(DEFAULT_SETTINGS['format']))
-        self.inp_support_ru.set(bool(DEFAULT_SETTINGS['support_ru']))
+        self.inp_support_ru.set(False)
         self.inp_processing_ru.set(PROCESSING_RU_MODES[DEFAULT_SETTINGS['processing_ru']])
         self.inp_naming_mode.set(NAMING_MODES[DEFAULT_SETTINGS['naming_mode']])
         self.inp_print_info.set(PRINT_INFO_MODES[DEFAULT_SETTINGS['print_info']])
@@ -1111,29 +1121,32 @@ class SettingsW(tk.Toplevel):
             self.inp_format.set(tmp)
 
             tmp_ = file.readline().strip()
-            if tmp_ not in ['0', '1']:
+            if tmp_ not in SUPPORT_RU_MODES:
                 tmp_ = DEFAULT_SETTINGS['support_ru']
-            self.inp_support_ru.set(bool(int(tmp_)))
+            if tmp_ == 'yes':
+                self.inp_support_ru.set(True)
+            else:
+                self.inp_support_ru.set(False)
 
             tmp = file.readline().strip()
-            if tmp_ == '0':
+            if tmp_ == DEFAULT_SETTINGS['support_ru']:
                 tmp = DEFAULT_SETTINGS['processing_ru']
                 self.combo_processing_ru['state'] = 'disabled'
             else:
                 self.combo_processing_ru['state'] = 'readonly'
-                if tmp not in ['0', '1']:
+                if tmp not in PROCESSING_RU_MODES:
                     tmp = DEFAULT_SETTINGS['processing_ru']
-            self.inp_processing_ru.set(PROCESSING_RU_MODES[tmp])
+            self.inp_processing_ru.set(tmp)
 
             tmp = file.readline().strip()
-            if tmp not in ['0', '1', '2', '3', '4']:
+            if tmp not in NAMING_MODES:
                 tmp = DEFAULT_SETTINGS['naming_mode']
-            self.inp_naming_mode.set(NAMING_MODES[tmp])
+            self.inp_naming_mode.set(tmp)
 
             tmp = file.readline().strip()
-            if tmp not in ['0', '1']:
+            if tmp not in PRINT_INFO_MODES:
                 tmp = DEFAULT_SETTINGS['print_info']
-            self.inp_print_info.set(PRINT_INFO_MODES[tmp])
+            self.inp_print_info.set(tmp)
 
             self.inp_marker_enc.set(  file.readline().strip())
             self.inp_marker_dec.set(  file.readline().strip())
@@ -1389,7 +1402,7 @@ class MainW(tk.Tk):
             return
 
         global fn_symbols, fn_symbols_num
-        if settings['support_ru'] == 0:
+        if settings['support_ru'] == 'no':
             fn_symbols = FN_SYMBOLS_WITHOUT_RU
             fn_symbols_num = FN_SYMBOLS_WITHOUT_RU_NUM
         else:
@@ -1407,7 +1420,7 @@ class MainW(tk.Tk):
             return
 
         global fn_symbols, fn_symbols_num
-        if settings['support_ru'] == 0:
+        if settings['support_ru'] == 'no':
             fn_symbols = FN_SYMBOLS_WITHOUT_RU
             fn_symbols_num = FN_SYMBOLS_WITHOUT_RU_NUM
         else:
@@ -1423,7 +1436,7 @@ class MainW(tk.Tk):
         action = window.open()
 
         global fn_symbols, fn_symbols_num
-        if settings['support_ru'] == 0:
+        if settings['support_ru'] == 'no':
             fn_symbols = FN_SYMBOLS_WITHOUT_RU
             fn_symbols_num = FN_SYMBOLS_WITHOUT_RU_NUM
         else:
