@@ -14,8 +14,8 @@ from tkinter.filedialog import askdirectory
 import time
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-16'
-PROGRAM_DATE = '27.12.2022  5:31'
+PROGRAM_VERSION = 'v6.0.0_PRE-17'
+PROGRAM_DATE = '27.12.2022  5:40'
 
 COLOR_STD = '#FFFFFF'
 COLOR_ERROR = '#EE3333'
@@ -761,7 +761,7 @@ class PopupChooseW(tk.Toplevel):
         return self.answer.get()
 
 
-# Всплывающее окно ввода названия сохранения
+# Всплывающее окно для ввода названия сохранения
 class EnterSaveNameW(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
@@ -778,13 +778,13 @@ class EnterSaveNameW(tk.Toplevel):
         filename = self.name.get()
         if filename == '':
             PopupMsgW(self, 'Incorrect name for save', title='Error')
-            self.name_is_correct = False
             return
         self.name_is_correct = True
         if filename + '.txt' in os.listdir(CUSTOM_SETTINGS_DIR):  # Если уже есть сохранение с таким названием
             window = PopupDialogueW(self, 'There is a save with same name already!\nAre you want to rewrite it?')
             answer = window.open()
             if not answer:
+                self.name_is_correct = False
                 return
         self.destroy()
 
@@ -792,7 +792,7 @@ class EnterSaveNameW(tk.Toplevel):
         return self.name_is_correct, self.name.get()
 
 
-# Всплывающее окно ввода пароля
+# Всплывающее окно для ввода пароля
 class EnterKeyW(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
