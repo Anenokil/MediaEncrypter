@@ -14,8 +14,8 @@ from tkinter.filedialog import askdirectory
 import time
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-23'
-PROGRAM_DATE = '27.12.2022  7:24'
+PROGRAM_VERSION = 'v6.0.0_PRE-24'
+PROGRAM_DATE = '27.12.2022  7:38'
 
 """ Цвета """
 
@@ -915,9 +915,9 @@ class SettingsW(tk.Toplevel):
         self.entry_example_key   = tk.Entry(       self.frameFields, textvariable=self.inp_example_key,  width=KEY_LEN, font='TkFixedFont', validate='key', validatecommand=self.vcmd_key)
         self.combo_print_info    = ttk.Combobox(   self.frameFields, textvariable=self.inp_print_info, values=PRINT_INFO_MODES, state='readonly')
 
-        self.combo_naming_mode.current(int(settings['naming_mode']))
-        self.combo_processing_ru.current( int(settings['processing_ru']))
-        self.combo_print_info.current( int(settings['print_info']))
+        self.combo_naming_mode.current(  int(settings['naming_mode']))
+        self.combo_processing_ru.current(int(settings['processing_ru']))
+        self.combo_print_info.current(   int(settings['print_info']))
 
         if not self.inp_support_ru.get():
             self.combo_processing_ru['state'] = 'disabled'
@@ -1041,7 +1041,7 @@ class SettingsW(tk.Toplevel):
         settings['format']        = self.inp_format.get()
         settings['marker_enc']    = self.inp_marker_enc.get()
         settings['marker_dec']    = self.inp_marker_dec.get()
-        settings['support_ru']    = SUPPORT_RU_MODES[int(self.inp_support_ru.get())]
+        settings['support_ru']    = str(int(self.inp_support_ru.get()))
         settings['processing_ru'] = str(PROCESSING_RU_MODES.index(self.inp_processing_ru.get()))
         settings['dir_enc_from']  = self.inp_dir_enc_from.get()
         settings['dir_enc_to']    = self.inp_dir_enc_to.get()
