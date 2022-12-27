@@ -14,8 +14,8 @@ from tkinter.filedialog import askdirectory
 import time
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-20'
-PROGRAM_DATE = '27.12.2022  6:49'
+PROGRAM_VERSION = 'v6.0.0_PRE-21'
+PROGRAM_DATE = '27.12.2022  7:13'
 
 """ Цвета """
 
@@ -144,6 +144,9 @@ def correct_settings():
         settings['example_key'] = EXAMPLE_KEY_DEF
     if settings['print_info'] not in ['0', '1']:
         settings['print_info'] = PRINT_INFO_DEF
+
+    if settings['support_ru'] == '0':
+        settings['ru_letters'] = RU_LETTERS_DEF
 
 
 # Сохранить настройки в файл
@@ -903,7 +906,7 @@ class SettingsW(tk.Toplevel):
         self.entry_format       = tk.Entry(       self.frameFields, textvariable=self.inp_format,     width=10, validate='key', validatecommand=self.vcmd_natural)
         self.entry_marker_enc   = tk.Entry(       self.frameFields, textvariable=self.inp_marker_enc)
         self.entry_marker_dec   = tk.Entry(       self.frameFields, textvariable=self.inp_marker_dec)
-        self.check_support_ru   = ttk.Checkbutton(self.frameFields,     variable=self.inp_support_ru)
+        self.check_support_ru   = ttk.Checkbutton(self.frameFields,     variable=self.inp_support_ru, command=self.block_ru)
         self.combo_ru_letters   = ttk.Combobox(   self.frameFields, textvariable=self.inp_ru_letters, values=RU_LETTERS_MODES, state='readonly')
         self.entry_dir_enc_from = tk.Entry(       self.frameFields, textvariable=self.inp_dir_enc_from, width=45)
         self.entry_dir_enc_to   = tk.Entry(       self.frameFields, textvariable=self.inp_dir_enc_to,   width=45)
@@ -915,6 +918,9 @@ class SettingsW(tk.Toplevel):
         self.combo_naming_mode.current(int(settings['naming_mode']))
         self.combo_ru_letters.current( int(settings['ru_letters']))
         self.combo_print_info.current( int(settings['print_info']))
+
+        if not self.inp_support_ru.get():
+            self.combo_ru_letters['state'] = 'disabled'
 
         self.combo_naming_mode.grid( row=0,  column=1, columnspan=4, pady=(4, 1), sticky='W')
         self.entry_count_from.grid(  row=1,  column=1, columnspan=1, pady=1,      sticky='W')
@@ -958,6 +964,14 @@ class SettingsW(tk.Toplevel):
         self.btn_save.grid( row=2, column=0, pady=(0, 4))
         self.btn_close.grid(row=2, column=1, pady=(0, 4))
 
+    # Заблокировать изменение настройки обработки кириллицы
+    def block_ru(self):
+        if not self.inp_support_ru.get():
+            self.combo_ru_letters['state'] = 'disabled'
+            self.inp_ru_letters.set(RU_LETTERS_MODES[int(RU_LETTERS_DEF)])
+        else:
+            self.combo_ru_letters['state'] = 'readonly'
+
     # Были ли изменены настройки
     def has_changes(self):
         return settings['naming_mode'] != str(NAMING_MODES.index(self.inp_naming_mode.get())) or\
@@ -965,7 +979,7 @@ class SettingsW(tk.Toplevel):
             settings['format'] != self.inp_format.get() or\
             settings['marker_enc'] != self.inp_marker_enc.get() or\
             settings['marker_dec'] != self.inp_marker_dec.get() or\
-            settings['support_ru'] != str(SUPPORT_RU_MODES.index(str(int(self.inp_support_ru.get())))) or\
+            settings['support_ru'] != SUPPORT_RU_MODES[int(self.inp_support_ru.get())] or\
             settings['ru_letters'] != str(RU_LETTERS_MODES.index(self.inp_ru_letters.get())) or\
             settings['dir_enc_from'] != self.inp_dir_enc_from.get() or\
             settings['dir_enc_to'] != self.inp_dir_enc_to.get() or\
@@ -1027,7 +1041,7 @@ class SettingsW(tk.Toplevel):
         settings['format']       = self.inp_format.get()
         settings['marker_enc']   = self.inp_marker_enc.get()
         settings['marker_dec']   = self.inp_marker_dec.get()
-        settings['support_ru']   = str(SUPPORT_RU_MODES.index(str(int(self.inp_support_ru.get()))))
+        settings['support_ru']   = SUPPORT_RU_MODES[int(self.inp_support_ru.get())]
         settings['ru_letters']   = str(RU_LETTERS_MODES.index(self.inp_ru_letters.get()))
         settings['dir_enc_from'] = self.inp_dir_enc_from.get()
         settings['dir_enc_to']   = self.inp_dir_enc_to.get()
@@ -1123,13 +1137,16 @@ class SettingsW(tk.Toplevel):
             self.inp_marker_enc.set(file.readline().strip())
             self.inp_marker_dec.set(file.readline().strip())
 
-            tmp = file.readline().strip()
-            if tmp not in ['0', '1']:
-                tmp = SUPPORT_RU_DEF
-            self.inp_support_ru.set(bool(int(tmp)))
+            tmp_ = file.readline().strip()
+            if tmp_ not in ['0', '1']:
+                tmp_ = SUPPORT_RU_DEF
+            self.inp_support_ru.set(bool(int(tmp_)))
 
             tmp = file.readline().strip()
-            if tmp not in ['0', '1']:
+            if tmp_ == '0':
+                tmp = RU_LETTERS_DEF
+                self.combo_ru_letters['state'] = 'disabled'
+            elif tmp not in ['0', '1']:
                 tmp = RU_LETTERS_DEF
             self.combo_ru_letters.current(int(tmp))
 
