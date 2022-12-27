@@ -14,8 +14,8 @@ from tkinter.filedialog import askdirectory
 import time
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-27'
-PROGRAM_DATE = '27.12.2022  7:58'
+PROGRAM_VERSION = 'v6.0.0_PRE-28'
+PROGRAM_DATE = '27.12.2022  8:00'
 
 """ Цвета """
 
@@ -1198,9 +1198,9 @@ class ManualW(tk.Toplevel):
         self.frameAll.grid(row=0, column=0, columnspan=2, padx=4, pady=4)
         self.frameRGB.grid(row=0, column=0, columnspan=4, padx=4, pady=4)
 
-        tk.Label(self.frameRGB, text='RED').grid(  row=0, column=1, pady=(4, 1))
-        tk.Label(self.frameRGB, text='GREEN').grid(row=0, column=2, pady=(4, 1))
-        tk.Label(self.frameRGB, text='BLUE').grid( row=0, column=3, pady=(4, 1))
+        tk.Label(self.frameRGB, text='RED', fg='RED').grid(  row=0, column=1, pady=(4, 1))
+        tk.Label(self.frameRGB, text='GREEN', fg='GREEN').grid(row=0, column=2, pady=(4, 1))
+        tk.Label(self.frameRGB, text='BLUE', fg='BLUE').grid( row=0, column=3, pady=(4, 1))
         tk.Label(self.frameRGB, text='H multiplier').grid(         row=1, column=0, sticky='E', padx=(6, 1), pady=1)
         tk.Label(self.frameRGB, text='W multiplier').grid(         row=2, column=0, sticky='E', padx=(6, 1), pady=1)
         tk.Label(self.frameRGB, text='H shift').grid(              row=3, column=0, sticky='E', padx=(6, 1), pady=1)
