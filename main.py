@@ -19,8 +19,8 @@ kernel32 = ctypes.windll.kernel32
 kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-51'
-PROGRAM_DATE = '27.12.2022 13:54'
+PROGRAM_VERSION = 'v6.0.0_PRE-52'
+PROGRAM_DATE = '27.12.2022 14:08'
 
 """ Цвета """
 
@@ -766,8 +766,6 @@ class PopupDialogueW(tk.Toplevel):
         self.destroy()
 
     def open(self):
-        self.grab_set()
-        self.wait_window()
         return self.answer
 
 
@@ -809,6 +807,7 @@ class EnterSaveNameW(tk.Toplevel):
         self.name_is_correct = True
         if f'{filename}.txt' in os.listdir(CUSTOM_SETTINGS_PATH):  # Если уже есть сохранение с таким названием
             window = PopupDialogueW(self, 'There is a save with same name already!\nAre you want to rewrite it?')
+            self.wait_window(window)
             answer = window.open()
             if not answer:
                 self.name_is_correct = False
@@ -1075,6 +1074,7 @@ class SettingsW(tk.Toplevel):
     def close(self):
         if self.has_changes():  # Если были изменения, то предлагается сохранить их
             window = PopupDialogueW(self, f'If you close the window, the changes will not be saved!\n Close settings?', title='Warning')
+            self.wait_window(window)
             answer = window.open()
             if answer:
                 self.destroy()
@@ -1101,6 +1101,7 @@ class SettingsW(tk.Toplevel):
     def save_custom_settings(self):
         if self.has_changes():  # Если были изменения, то предлагается сохранить их
             window = PopupDialogueW(self, f'There are unsaved changes!\n Are you want to continue?', title='Warning')
+            self.wait_window(window)
             answer = window.open()
             if not answer:
                 return
