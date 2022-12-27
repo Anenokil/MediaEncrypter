@@ -20,8 +20,8 @@ kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-47'
-PROGRAM_DATE = '27.12.2022 13:08'
+PROGRAM_VERSION = 'v6.0.0_PRE-48'
+PROGRAM_DATE = '27.12.2022 13:21'
 
 """ Цвета """
 
@@ -45,6 +45,7 @@ SETTINGS_PATH = os.path.join(RESOURCES_DIR, SETTINGS_FILENAME)
 TMP_FILENAME = 'tmp.png'  # Временный файл для обработки gif-изображений и видео
 TMP_PATH = os.path.join(RESOURCES_DIR, TMP_FILENAME)
 
+# Если нет папки с ресурсами
 if RESOURCES_DIR not in os.listdir(os.curdir):
     os.mkdir(RESOURCES_DIR)
 
@@ -53,6 +54,7 @@ if TMP_FILENAME in os.listdir(RESOURCES_DIR):
     open(TMP_PATH, 'w')
     os.remove(TMP_PATH)
 
+# Если нет папки с сохранёнными пользовательскими настройками
 if CUSTOM_SETTINGS_DIR not in os.listdir(RESOURCES_DIR):
     os.mkdir(CUSTOM_SETTINGS_PATH)
 
@@ -649,7 +651,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 count_all = encrypt_dir(op_mode, marker, formats, new_inp_dir, new_outp_dir, count_all)
         except Exception as err:
             print_warn('Couldn`t process the file')
-            print(err)
+            print(f'{Fore.YELLOW}{err}{Style.RESET_ALL}')
         print(f'{Fore.GREEN}Time: {perf_counter() - start}{Style.RESET_ALL}\n')
     return count_all
 
@@ -663,7 +665,7 @@ def encode():
     formats = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.avi', '.mp4', '.webm']
     count_all = 0
 
-    print('================================== START PROCESSING ==================================')
+    print('                                   START PROCESSING\n')
     encrypt_dir(op_mode, marker, formats, input_dir, output_dir, count_all)
     print('=============================== PROCESSING IS FINISHED ===============================')
 
@@ -686,7 +688,7 @@ def decode():
     formats = ['.png']
     count_all = 0
 
-    print('================================== START PROCESSING ==================================')
+    print('                                   START PROCESSING\n')
     encrypt_dir(op_mode, marker, formats, input_dir, output_dir, count_all)
     print('=============================== PROCESSING IS FINISHED ===============================')
 
