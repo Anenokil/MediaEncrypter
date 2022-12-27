@@ -14,15 +14,18 @@ from tkinter.filedialog import askdirectory
 import time
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-14'
-PROGRAM_DATE = '27.12.2022  4:58'
+PROGRAM_VERSION = 'v6.0.0_PRE-15'
+PROGRAM_DATE = '27.12.2022  5:24'
 
 COLOR_STD = '#FFFFFF'
 COLOR_ERROR = '#EE3333'
-COLOR_ACCEPT = '#55DD55'
+COLOR_ACCEPT = '#88DD88'
 COLOR_CLOSE = '#FF6666'
 COLOR_MCM = '#DCDCDC'
 COLOR_FOOTER = '#666666'
+COLOR_LOGO = '#FF7200'
+COLOR_KEY = '#EE0000'
+COLOR_EXAMPLE_KEY = '#44CCDD'
 
 """ Пути """
 RESOURCES_DIR = 'resources'  # Главная папка с ресурсами
@@ -712,8 +715,8 @@ class PopupMsgW(tk.Toplevel):
         super().__init__(parent)
         self.title(title)
 
-        tk.Label(self, text=msg).grid(row=0, column=0)
-        tk.Button(self, text=btn_text, command=self.destroy).grid(row=1, column=0)
+        tk.Label(self, text=msg).grid(row=0, column=0, padx=6, pady=4)
+        tk.Button(self, text=btn_text, command=self.destroy).grid(row=1, column=0, padx=6, pady=4)
 
 
 # Всплывающее окно с сообщением и двумя кнопками
@@ -723,9 +726,9 @@ class PopupDialogueW(tk.Toplevel):
         self.title(title)
         self.answer = False
 
-        tk.Label(self, text=msg).grid(row=0, columnspan=2)
-        tk.Button(self, text=btn_yes, command=self.yes).grid(row=1, column=0)
-        tk.Button(self, text=btn_no, command=self.no).grid(row=1, column=1)
+        tk.Label(self, text=msg).grid(row=0, columnspan=2, padx=6, pady=4)
+        tk.Button(self, text=btn_yes, bg=COLOR_ACCEPT, command=self.yes).grid(row=1, column=0, padx=(6, 10), pady=4, sticky='E')
+        tk.Button(self, text=btn_no, bg=COLOR_CLOSE, command=self.no).grid(   row=1, column=1, padx=(10, 6), pady=4, sticky='W')
 
     def yes(self):
         self.answer = True
@@ -747,10 +750,10 @@ class PopupChooseW(tk.Toplevel):
         super().__init__(parent)
         self.title(title)
 
-        tk.Label(self, text=msg).grid(row=0)
+        tk.Label(self, text=msg).grid(row=0, padx=6, pady=(4, 1))
         self.answer = tk.StringVar()
-        ttk.Combobox(self, textvariable=self.answer, values=values, state='readonly').grid(row=1)
-        tk.Button(self, text=btn_text, command=self.destroy).grid(row=2)
+        ttk.Combobox(self, textvariable=self.answer, values=values, state='readonly').grid(row=1, padx=6, pady=1)
+        tk.Button(self, text=btn_text, bg=COLOR_ACCEPT, command=self.destroy).grid(row=2, padx=6, pady=4)
 
     def open(self):
         self.grab_set()
@@ -764,11 +767,11 @@ class EnterSaveNameW(tk.Toplevel):
         super().__init__(parent)
         self.title('Media encrypter')
 
-        tk.Label(self, text='Enter a name for save your custom settings').grid(row=0)
+        tk.Label(self, text='Enter a name for save your custom settings').grid(row=0, padx=6, pady=(4, 1))
         self.name = tk.StringVar()
         self.vcmd = (self.register(lambda value: validate_symbols(value, FN_SYMBOLS)), '%P')
-        tk.Entry(self, textvariable=self.name, validate='key', validatecommand=self.vcmd).grid(row=1)
-        tk.Button(self, text='Confirm', command=self.check_and_return).grid(row=2)
+        tk.Entry(self, textvariable=self.name, validate='key', validatecommand=self.vcmd).grid(row=1, padx=6, pady=1)
+        tk.Button(self, text='Confirm', bg=COLOR_ACCEPT, command=self.check_and_return).grid(row=2, padx=6, pady=4)
 
     def check_and_return(self):
         filename = self.name.get()
@@ -794,27 +797,28 @@ class EnterKeyW(tk.Toplevel):
         self.key = tk.StringVar()
         self.has_key = False
 
+        # Функция нужна, чтобы можно было скопировать ключ-пример, но нельзя было его изменить
         def focus_text(event):
             self.txt_example_key.config(state='normal')
             self.txt_example_key.focus()
             self.txt_example_key.config(state='disabled')
 
-        self.txt_example_key = tk.Text(self, height=1, width=KEY_LEN, borderwidth=0, font='TkFixedFont')
+        self.txt_example_key = tk.Text(self, height=1, width=KEY_LEN, borderwidth=0, font='TkFixedFont', fg=COLOR_EXAMPLE_KEY)
         self.txt_example_key.insert(1.0, settings['example_key'])
-        self.txt_example_key.grid(row=1, column=1)
+        self.txt_example_key.grid(row=1, column=1, padx=(0, 6), pady=1)
         self.txt_example_key.configure(state='disabled')
         self.txt_example_key.bind('<Button-1>', focus_text)
 
-        tk.Label(self, text=f'Enter a key ({KEY_LEN} symbols; only latin letters, digits, - and _)').grid(row=0, columnspan=2)
-        tk.Label(self, text='An example of a key:').grid(row=1, column=0)
-        tk.Label(self, text='Enter a key:').grid(row=2, column=0, sticky='E')
+        tk.Label(self, text=f'Enter a key ({KEY_LEN} symbols; only latin letters, digits, - and _)').grid(row=0, columnspan=2, padx=6, pady=4)
+        tk.Label(self, text='An example of a key').grid(row=1, column=0, padx=(6, 1), pady=1, sticky='E')
+        tk.Label(self, text='Enter a key').grid(        row=2, column=0, padx=(6, 1), pady=1, sticky='E')
 
         self.vcmd = (self.register(validate_key), '%P')
-        self.entry_key = tk.Entry(self, textvariable=self.key, width=KEY_LEN, validate='key', validatecommand=self.vcmd, font='TkFixedFont')
-        self.btn_submit = tk.Button(self, text='Submit', command=self.check_key_and_return)
+        self.entry_key = tk.Entry(self, textvariable=self.key, width=KEY_LEN, validate='key', validatecommand=self.vcmd, font='TkFixedFont', fg=COLOR_KEY)
+        self.btn_submit = tk.Button(self, text='Submit', bg=COLOR_ACCEPT, command=self.check_key_and_return)
 
-        self.entry_key.grid(row=2, column=1, sticky='W')
-        self.btn_submit.grid(row=3, columnspan=2)
+        self.entry_key.grid(row=2, column=1, padx=(0, 6), pady=1, sticky='W')
+        self.btn_submit.grid(row=3, columnspan=2, pady=4)
 
     # Проверить корректность ключа и, если корректен, сохранить
     def check_key_and_return(self):
@@ -921,7 +925,7 @@ class SettingsW(tk.Toplevel):
         self.btn_dest_dec.grid(  row=9, column=4, padx=(3, 6), pady=1, sticky='W')
 
         self.btn_def           = tk.Button(self.frameAll, text='Set default settings',                         command=self.set_default_settings)
-        self.btn_save_custom   = tk.Button(self.frameAll, text='Add current settings to your custom settings', command=self.save_custom_settings)
+        self.btn_save_custom   = tk.Button(self.frameAll, text='Save current settings as your custom settings', command=self.save_custom_settings)
         self.btn_load_custom   = tk.Button(self.frameAll, text='Load your custom settings',                    command=self.load_custom_settings)
         self.btn_remove_custom = tk.Button(self.frameAll, text='Remove your custom settings',                  command=self.remove_custom_settings)
         self.btn_def.grid(          row=1, column=0, padx=4,      pady=(0, 4))
@@ -1324,7 +1328,7 @@ class MainW(tk.Tk):
             correct_settings()  # Проверка корректности настроек
 
         self.lbl_header1 = tk.Label(self, font='StdFont 15', text='Anenokil development presents')
-        self.lbl_header2 = tk.Label(self, font='Times 21', fg='RED', text=PROGRAM_NAME)
+        self.lbl_header2 = tk.Label(self, font='Times 21', fg=COLOR_LOGO, text=PROGRAM_NAME)
         self.lbl_header1.grid(row=0, padx=7, pady=(7, 0))
         self.lbl_header2.grid(row=1, padx=7)
 
