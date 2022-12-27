@@ -14,8 +14,8 @@ from tkinter.filedialog import askdirectory
 from time import perf_counter
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-37'
-PROGRAM_DATE = '27.12.2022  9:58'
+PROGRAM_VERSION = 'v6.0.0_PRE-38'
+PROGRAM_DATE = '27.12.2022 10:02'
 
 """ Цвета """
 
@@ -135,7 +135,7 @@ def correct_settings():
         settings['naming_mode'] = NAMING_MODE_DEF
     if settings['processing_ru'] not in ['0', '1']:
         settings['processing_ru'] = PROCESSING_RU_DEF
-    if check_key(settings['example_key']) != '+':
+    if check_key(settings['example_key'])[0] != '+':
         settings['example_key'] = EXAMPLE_KEY_DEF
 
     if settings['support_ru'] == '0':
