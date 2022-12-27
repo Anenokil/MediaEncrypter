@@ -14,8 +14,8 @@ from tkinter.filedialog import askdirectory
 from time import perf_counter
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-38'
-PROGRAM_DATE = '27.12.2022 10:02'
+PROGRAM_VERSION = 'v6.0.0_PRE-39'
+PROGRAM_DATE = '27.12.2022 10:04'
 
 """ Цвета """
 
@@ -902,7 +902,7 @@ class SettingsW(tk.Toplevel):
 
         self.vcmd_natural = (self.register(lambda value: validate_natural_and_len(value, 3)), '%P')
         self.vcmd_num     = (self.register(validate_num), '%P')
-        self.vcmd_key     = (self.register(lambda value: validate_len(value, KEY_LEN)), '%P')
+        self.vcmd_key     = (self.register(validate_key), '%P')
 
         self.combo_naming_mode   = Combobox(   self.frameFields, textvariable=self.inp_naming_mode, values=NAMING_MODES, state='readonly')
         self.entry_count_from    = tk.Entry(   self.frameFields, textvariable=self.inp_count_from, width=10, validate='key', validatecommand=self.vcmd_num)
