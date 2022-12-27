@@ -19,8 +19,8 @@ kernel32 = ctypes.windll.kernel32
 kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-52'
-PROGRAM_DATE = '27.12.2022 14:08'
+PROGRAM_VERSION = 'v6.0.0_PRE-53'
+PROGRAM_DATE = '27.12.2022 14:10'
 
 """ Цвета """
 
@@ -1086,9 +1086,9 @@ class SettingsW(tk.Toplevel):
         self.inp_count_from.set(str(DEFAULT_SETTINGS['count_from']))
         self.inp_format.set(str(DEFAULT_SETTINGS['format']))
         self.inp_support_ru.set(False)
-        self.inp_processing_ru.set(PROCESSING_RU_MODES[DEFAULT_SETTINGS['processing_ru']])
-        self.inp_naming_mode.set(NAMING_MODES[DEFAULT_SETTINGS['naming_mode']])
-        self.inp_print_info.set(PRINT_INFO_MODES[DEFAULT_SETTINGS['print_info']])
+        self.inp_processing_ru.set(DEFAULT_SETTINGS['processing_ru'])
+        self.inp_naming_mode.set(DEFAULT_SETTINGS['naming_mode'])
+        self.inp_print_info.set(DEFAULT_SETTINGS['print_info'])
         self.inp_marker_enc.set(DEFAULT_SETTINGS['marker_enc'])
         self.inp_marker_dec.set(DEFAULT_SETTINGS['marker_dec'])
         self.inp_dir_enc_from.set(DEFAULT_SETTINGS['dir_enc_from'])
