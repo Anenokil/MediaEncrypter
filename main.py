@@ -14,8 +14,8 @@ from tkinter.filedialog import askdirectory
 import time
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-19'
-PROGRAM_DATE = '27.12.2022  6:29'
+PROGRAM_VERSION = 'v6.0.0_PRE-20'
+PROGRAM_DATE = '27.12.2022  6:49'
 
 """ Цвета """
 
@@ -885,7 +885,7 @@ class SettingsW(tk.Toplevel):
         self.inp_format       = tk.StringVar(value=settings['format'])
         self.inp_marker_enc   = tk.StringVar(value=settings['marker_enc'])
         self.inp_marker_dec   = tk.StringVar(value=settings['marker_dec'])
-        self.inp_support_ru   = tk.StringVar()
+        self.inp_support_ru   = tk.BooleanVar(value=bool(int(settings['support_ru'])))
         self.inp_ru_letters   = tk.StringVar()
         self.inp_dir_enc_from = tk.StringVar(value=settings['dir_enc_from'])
         self.inp_dir_enc_to   = tk.StringVar(value=settings['dir_enc_to'])
@@ -898,22 +898,21 @@ class SettingsW(tk.Toplevel):
         self.vcmd_num     = (self.register(validate_num), '%P')
         self.vcmd_key     = (self.register(lambda value: validate_len(value, KEY_LEN)), '%P')
 
-        self.combo_naming_mode  = ttk.Combobox(self.frameFields, textvariable=self.inp_naming_mode, values=NAMING_MODES, state='readonly')
-        self.entry_count_from   = tk.Entry(    self.frameFields, textvariable=self.inp_count_from, width=10, validate='key', validatecommand=self.vcmd_num)
-        self.entry_format       = tk.Entry(    self.frameFields, textvariable=self.inp_format,     width=10, validate='key', validatecommand=self.vcmd_natural)
-        self.entry_marker_enc   = tk.Entry(    self.frameFields, textvariable=self.inp_marker_enc)
-        self.entry_marker_dec   = tk.Entry(    self.frameFields, textvariable=self.inp_marker_dec)
-        self.combo_support_ru   = ttk.Combobox(self.frameFields, textvariable=self.inp_support_ru, values=SUPPORT_RU_MODES, state='readonly')
-        self.combo_ru_letters   = ttk.Combobox(self.frameFields, textvariable=self.inp_ru_letters, values=RU_LETTERS_MODES, state='readonly')
-        self.entry_dir_enc_from = tk.Entry(    self.frameFields, textvariable=self.inp_dir_enc_from, width=45)
-        self.entry_dir_enc_to   = tk.Entry(    self.frameFields, textvariable=self.inp_dir_enc_to,   width=45)
-        self.entry_dir_dec_from = tk.Entry(    self.frameFields, textvariable=self.inp_dir_dec_from, width=45)
-        self.entry_dir_dec_to   = tk.Entry(    self.frameFields, textvariable=self.inp_dir_dec_to,   width=45)
-        self.entry_example_key  = tk.Entry(    self.frameFields, textvariable=self.inp_example_key,  width=KEY_LEN, font='TkFixedFont', validate='key', validatecommand=self.vcmd_key)
-        self.combo_print_info   = ttk.Combobox(self.frameFields, textvariable=self.inp_print_info, values=PRINT_INFO_MODES, state='readonly')
+        self.combo_naming_mode  = ttk.Combobox(   self.frameFields, textvariable=self.inp_naming_mode, values=NAMING_MODES, state='readonly')
+        self.entry_count_from   = tk.Entry(       self.frameFields, textvariable=self.inp_count_from, width=10, validate='key', validatecommand=self.vcmd_num)
+        self.entry_format       = tk.Entry(       self.frameFields, textvariable=self.inp_format,     width=10, validate='key', validatecommand=self.vcmd_natural)
+        self.entry_marker_enc   = tk.Entry(       self.frameFields, textvariable=self.inp_marker_enc)
+        self.entry_marker_dec   = tk.Entry(       self.frameFields, textvariable=self.inp_marker_dec)
+        self.check_support_ru   = ttk.Checkbutton(self.frameFields,     variable=self.inp_support_ru)
+        self.combo_ru_letters   = ttk.Combobox(   self.frameFields, textvariable=self.inp_ru_letters, values=RU_LETTERS_MODES, state='readonly')
+        self.entry_dir_enc_from = tk.Entry(       self.frameFields, textvariable=self.inp_dir_enc_from, width=45)
+        self.entry_dir_enc_to   = tk.Entry(       self.frameFields, textvariable=self.inp_dir_enc_to,   width=45)
+        self.entry_dir_dec_from = tk.Entry(       self.frameFields, textvariable=self.inp_dir_dec_from, width=45)
+        self.entry_dir_dec_to   = tk.Entry(       self.frameFields, textvariable=self.inp_dir_dec_to,   width=45)
+        self.entry_example_key  = tk.Entry(       self.frameFields, textvariable=self.inp_example_key,  width=KEY_LEN, font='TkFixedFont', validate='key', validatecommand=self.vcmd_key)
+        self.combo_print_info   = ttk.Combobox(   self.frameFields, textvariable=self.inp_print_info, values=PRINT_INFO_MODES, state='readonly')
 
         self.combo_naming_mode.current(int(settings['naming_mode']))
-        self.combo_support_ru.current( int(settings['support_ru']))
         self.combo_ru_letters.current( int(settings['ru_letters']))
         self.combo_print_info.current( int(settings['print_info']))
 
@@ -922,7 +921,7 @@ class SettingsW(tk.Toplevel):
         self.entry_format.grid(      row=2,  column=1, columnspan=1, pady=1,      sticky='W')
         self.entry_marker_enc.grid(  row=3,  column=1, columnspan=2, pady=1,      sticky='W')
         self.entry_marker_dec.grid(  row=4,  column=1, columnspan=2, pady=1,      sticky='W')
-        self.combo_support_ru.grid(  row=5,  column=1, columnspan=4, pady=1,      sticky='W')
+        self.check_support_ru.grid(  row=5,  column=1, columnspan=4, pady=1,      sticky='W')
         self.combo_ru_letters.grid(  row=6,  column=1, columnspan=4, pady=1,      sticky='W')
         self.entry_dir_enc_from.grid(row=7,  column=1, columnspan=3, pady=1,      sticky='W')
         self.entry_dir_enc_to.grid(  row=8,  column=1, columnspan=3, pady=1,      sticky='W')
@@ -966,7 +965,7 @@ class SettingsW(tk.Toplevel):
             settings['format'] != self.inp_format.get() or\
             settings['marker_enc'] != self.inp_marker_enc.get() or\
             settings['marker_dec'] != self.inp_marker_dec.get() or\
-            settings['support_ru'] != str(SUPPORT_RU_MODES.index(self.inp_support_ru.get())) or\
+            settings['support_ru'] != str(SUPPORT_RU_MODES.index(str(int(self.inp_support_ru.get())))) or\
             settings['ru_letters'] != str(RU_LETTERS_MODES.index(self.inp_ru_letters.get())) or\
             settings['dir_enc_from'] != self.inp_dir_enc_from.get() or\
             settings['dir_enc_to'] != self.inp_dir_enc_to.get() or\
@@ -1028,7 +1027,7 @@ class SettingsW(tk.Toplevel):
         settings['format']       = self.inp_format.get()
         settings['marker_enc']   = self.inp_marker_enc.get()
         settings['marker_dec']   = self.inp_marker_dec.get()
-        settings['support_ru']   = str(SUPPORT_RU_MODES.index(self.inp_support_ru.get()))
+        settings['support_ru']   = str(SUPPORT_RU_MODES.index(str(int(self.inp_support_ru.get()))))
         settings['ru_letters']   = str(RU_LETTERS_MODES.index(self.inp_ru_letters.get()))
         settings['dir_enc_from'] = self.inp_dir_enc_from.get()
         settings['dir_enc_to']   = self.inp_dir_enc_to.get()
@@ -1057,7 +1056,7 @@ class SettingsW(tk.Toplevel):
         self.inp_marker_enc.set(MARKER_ENC_DEF)
         self.inp_marker_dec.set(MARKER_DEC_DEF)
         self.combo_ru_letters.current(int(RU_LETTERS_DEF))
-        self.combo_support_ru.current(int(SUPPORT_RU_DEF))
+        self.inp_support_ru.set(bool(int(SUPPORT_RU_DEF)))
         self.inp_dir_enc_from.set(DIR_ENC_FROM_DEF)
         self.inp_dir_enc_to.set(DIR_ENC_TO_DEF)
         self.inp_dir_dec_from.set(DIR_DEC_FROM_DEF)
@@ -1127,7 +1126,7 @@ class SettingsW(tk.Toplevel):
             tmp = file.readline().strip()
             if tmp not in ['0', '1']:
                 tmp = SUPPORT_RU_DEF
-            self.combo_support_ru.current(int(tmp))
+            self.inp_support_ru.set(bool(int(tmp)))
 
             tmp = file.readline().strip()
             if tmp not in ['0', '1']:
