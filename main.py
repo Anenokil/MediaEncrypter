@@ -14,8 +14,8 @@ from tkinter.filedialog import askdirectory
 from time import perf_counter
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0_PRE-34'
-PROGRAM_DATE = '27.12.2022  9:39'
+PROGRAM_VERSION = 'v6.0.0_PRE-35'
+PROGRAM_DATE = '27.12.2022  9:49'
 
 """ Цвета """
 
@@ -144,7 +144,7 @@ def correct_settings():
 
 # Загрузка настроек из файла
 def load_settings(filename):
-    with open(filename, 'r') as file:  # Загрузка настроек из файла
+    with open(filename, 'r') as file:
         for i in range(SETTINGS_NUM):
             settings[SETTINGS_NAMES[i]] = file.readline().strip()
         correct_settings()
@@ -154,14 +154,20 @@ def load_settings(filename):
 
 # Сохранить настройки в файл
 def save_settings_to_file(filename=SETTINGS_PATH):
-    with open(filename, 'w') as file:  # Запись исправленных настроек в файл
-        file.write(str(settings['count_from']) + '\n' + str(settings['format']) + '\n' +
-                   str(settings['support_ru']) + '\n' + str(settings['processing_ru']) + '\n' +
-                   str(settings['naming_mode']) + '\n' + str(settings['print_info']) + '\n' +
-                   settings['marker_enc'] + '\n' + settings['marker_dec'] + '\n' +
-                   settings['dir_enc_from'] + '\n' + settings['dir_enc_to'] + '\n' +
-                   settings['dir_dec_from'] + '\n' + settings['dir_dec_to'] + '\n' +
-                   settings['example_key'])
+    with open(filename, 'w') as file:
+        file.write(f'{settings["count_from"]}\n'
+                   f'{settings["format"]}\n'
+                   f'{settings["support_ru"]}\n'
+                   f'{settings["processing_ru"]}\n'
+                   f'{settings["naming_mode"]}\n'
+                   f'{settings["print_info"]}\n'
+                   f'{settings["marker_enc"]}\n'
+                   f'{settings["marker_dec"]}\n'
+                   f'{settings["dir_enc_from"]}\n'
+                   f'{settings["dir_enc_to"]}\n'
+                   f'{settings["dir_dec_from"]}\n'
+                   f'{settings["dir_dec_to"]}\n'
+                   f'{settings["example_key"]}')
 
 
 # Преобразование ключа в массив битов (каждый символ - в 6 битов)
@@ -464,7 +470,7 @@ def filename_processing(op_mode, naming_mode, base_name, ext, outp_dir, marker, 
             if new_name not in os.listdir(outp_dir):  # Если нет файлов с таким же именем, то завершаем цикл
                 break
             count_same += 1
-            counter = ' [' + str(count_same) + ']'  # Если уже есть файл с таким именем, то добавляется индекс
+            counter = f' [{count_same}]'  # Если уже есть файл с таким именем, то добавляется индекс
     else:  # При дешифровке
         if naming_mode == 0:
             new_name = decode_filename(base_name)
@@ -804,7 +810,7 @@ class EnterSaveNameW(tk.Toplevel):
             PopupMsgW(self, 'Incorrect name for save', title='Error')
             return
         self.name_is_correct = True
-        if filename + '.txt' in os.listdir(CUSTOM_SETTINGS_DIR):  # Если уже есть сохранение с таким названием
+        if f'{filename}.txt' in os.listdir(CUSTOM_SETTINGS_DIR):  # Если уже есть сохранение с таким названием
             window = PopupDialogueW(self, 'There is a save with same name already!\nAre you want to rewrite it?')
             answer = window.open()
             if not answer:
@@ -1098,7 +1104,7 @@ class SettingsW(tk.Toplevel):
         filename_is_correct, filename = window.open()
         if not filename_is_correct:
             return
-        copyfile(SETTINGS_PATH, os.path.join(CUSTOM_SETTINGS_DIR, filename + '.txt'))
+        copyfile(SETTINGS_PATH, os.path.join(CUSTOM_SETTINGS_DIR, f'{filename}.txt'))
 
     # Выбрать файл с сохранением
     def choose_custom_save(self, cmd_name):
@@ -1113,11 +1119,11 @@ class SettingsW(tk.Toplevel):
             PopupMsgW(self, 'There are no saves!', title='Error')
             return False, ''
         else:
-            window = PopupChooseW(self, csf_list, 'Choose a save you want to ' + cmd_name)
+            window = PopupChooseW(self, csf_list, f'Choose a save you want to {cmd_name}')
             filename = window.open()
             if filename == '':
                 return False, ''
-            return True, filename + '.txt'
+            return True, f'{filename}.txt'
 
     # Загрузить пользовательские настройки
     def load_custom_settings(self):
