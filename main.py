@@ -25,8 +25,8 @@ if sys.platform == 'win32':
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.7'
-PROGRAM_DATE = '30.12.2022  7:51'
+PROGRAM_VERSION = 'v6.0.8'
+PROGRAM_DATE = '30.12.2022  8:03'
 
 """ Цвета """
 
@@ -77,7 +77,7 @@ SETTINGS_NUM = 13  # Количество всех настроек
 
 # Названия настроек
 SETTINGS_NAMES = ['count_from', 'format', 'support_ru', 'processing_ru', 'naming_mode', 'print_info',
-                  'marker_enc', 'marker_dec', 'dir_enc_from', 'dir_enc_to', 'dir_dec_from', 'dir_dec_to', 'example_key']
+                  'marker_enc', 'marker_dec', 'src_dir_enc', 'dst_dir_enc', 'src_dir_dec', 'dst_dir_dec', 'example_key']
 
 # Варианты значений настроек с перечислимым типом
 SUPPORT_RU_MODES = ['yes', 'no']  # Варианты поддержки кириллических букв
@@ -90,7 +90,7 @@ DEFAULT_SETTINGS = {'count_from': 1, 'format': 1,
                     'support_ru': 'no', 'processing_ru': 'transliterate to latin',
                     'naming_mode': 'encryption', 'print_info': 'don`t print',
                     'marker_enc': '_ENC_', 'marker_dec': '_DEC_',
-                    'dir_enc_from': 'f_src', 'dir_enc_to': 'f_enc', 'dir_dec_from': 'f_enc', 'dir_dec_to': 'f_dec',
+                    'src_dir_enc': 'f_src', 'dst_dir_enc': 'f_enc', 'src_dir_dec': 'f_enc', 'dst_dir_dec': 'f_dec',
                     'example_key': '_123456789_123456789_123456789_123456789'}
 
 """ Ключ """
@@ -666,8 +666,8 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
 # Шифровка
 def encode():
     op_mode = 'E'
-    input_dir = settings['dir_enc_from']
-    output_dir = settings['dir_enc_to']
+    input_dir = settings['src_dir_enc']
+    output_dir = settings['dst_dir_enc']
     marker = settings['marker_enc']
     formats = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.avi', '.mp4', '.webm']
     count_all = 0
@@ -689,8 +689,8 @@ def decode():
         DEC_B[i * mult_b % 256] = i
 
     op_mode = 'D'
-    input_dir = settings['dir_dec_from']
-    output_dir = settings['dir_dec_to']
+    input_dir = settings['src_dir_dec']
+    output_dir = settings['dst_dir_dec']
     marker = settings['marker_dec']
     formats = ['.png']
     count_all = 0
@@ -898,10 +898,10 @@ class SettingsW(tk.Toplevel):
         else:
             self.inp_support_ru = tk.BooleanVar(value=False)
         self.inp_processing_ru = tk.StringVar(value=settings['processing_ru'])
-        self.inp_dir_enc_from  = tk.StringVar(value=settings['dir_enc_from'])
-        self.inp_dir_enc_to    = tk.StringVar(value=settings['dir_enc_to'])
-        self.inp_dir_dec_from  = tk.StringVar(value=settings['dir_dec_from'])
-        self.inp_dir_dec_to    = tk.StringVar(value=settings['dir_dec_to'])
+        self.inp_src_dir_enc   = tk.StringVar(value=settings['src_dir_enc'])
+        self.inp_dst_dir_enc   = tk.StringVar(value=settings['dst_dir_enc'])
+        self.inp_src_dir_dec   = tk.StringVar(value=settings['src_dir_dec'])
+        self.inp_dst_dir_dec   = tk.StringVar(value=settings['dst_dir_dec'])
         self.inp_example_key   = tk.StringVar(value=settings['example_key'])
         self.inp_print_info    = tk.StringVar(value=settings['print_info'])
 
@@ -954,10 +954,10 @@ class SettingsW(tk.Toplevel):
         self.frameMarkerDec      = tk.LabelFrame(self.frameFields, borderwidth=0)
         self.check_support_ru    = Checkbutton(  self.frameFields,     variable=self.inp_support_ru, command=self.processing_ru_state)
         self.combo_processing_ru = Combobox(     self.frameFields, textvariable=self.inp_processing_ru, values=PROCESSING_RU_MODES, state='readonly')
-        self.frameDirEncFrom     = tk.LabelFrame(self.frameFields, borderwidth=0)
-        self.frameDirEncTo       = tk.LabelFrame(self.frameFields, borderwidth=0)
-        self.frameDirDecFrom     = tk.LabelFrame(self.frameFields, borderwidth=0)
-        self.frameDirDecTo       = tk.LabelFrame(self.frameFields, borderwidth=0)
+        self.frameSrcDirEnc      = tk.LabelFrame(self.frameFields, borderwidth=0)
+        self.frameDstDirEnc      = tk.LabelFrame(self.frameFields, borderwidth=0)
+        self.frameSrcDirDec      = tk.LabelFrame(self.frameFields, borderwidth=0)
+        self.frameDstDirDec      = tk.LabelFrame(self.frameFields, borderwidth=0)
         self.entry_example_key   = tk.Entry(     self.frameFields, textvariable=self.inp_example_key, relief='solid', width=KEY_LEN, font='TkFixedFont', validate='key', validatecommand=self.vcmd_key)
         self.combo_print_info    = Combobox(     self.frameFields, textvariable=self.inp_print_info, values=PRINT_INFO_MODES, state='readonly')
 
@@ -972,30 +972,30 @@ class SettingsW(tk.Toplevel):
         self.frameMarkerDec.grid(     row=4,  column=1, padx=(0, 6), pady=1,      sticky='W')
         self.check_support_ru.grid(   row=5,  column=1, padx=(0, 6), pady=1,      sticky='W')
         self.combo_processing_ru.grid(row=6,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frameDirEncFrom.grid(    row=7,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frameDirEncTo.grid(      row=8,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frameDirDecFrom.grid(    row=9,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frameDirDecTo.grid(      row=10, column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frameSrcDirEnc.grid(     row=7,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frameDstDirEnc.grid(     row=8,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frameSrcDirDec.grid(     row=9,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frameDstDirDec.grid(     row=10, column=1, padx=(0, 6), pady=1,      sticky='W')
         self.entry_example_key.grid(  row=11, column=1, padx=(0, 6), pady=1,      sticky='W')
         self.combo_print_info.grid(   row=12, column=1, padx=(0, 6), pady=(1, 4), sticky='W')
 
         # Содержимое и расположение настроек с фреймами
-        self.entry_count_from    = tk.Entry(self.frameCountFrom,  textvariable=self.inp_count_from,   relief='solid', width=10, validate='key', validatecommand=self.vcmd_num)
-        self.entry_format        = tk.Entry(self.frameFormat,     textvariable=self.inp_format,       relief='solid', width=10, validate='key', validatecommand=self.vcmd_natural)
-        self.entry_marker_enc    = tk.Entry(self.frameMarkerEnc,  textvariable=self.inp_marker_enc,   relief='solid')
-        self.entry_marker_dec    = tk.Entry(self.frameMarkerDec,  textvariable=self.inp_marker_dec,   relief='solid')
-        self.entry_dir_enc_from  = tk.Entry(self.frameDirEncFrom, textvariable=self.inp_dir_enc_from, relief='solid', width=65)
-        self.entry_dir_enc_to    = tk.Entry(self.frameDirEncTo,   textvariable=self.inp_dir_enc_to,   relief='solid', width=65)
-        self.entry_dir_dec_from  = tk.Entry(self.frameDirDecFrom, textvariable=self.inp_dir_dec_from, relief='solid', width=65)
-        self.entry_dir_dec_to    = tk.Entry(self.frameDirDecTo,   textvariable=self.inp_dir_dec_to,   relief='solid', width=65)
-        self.entry_count_from.grid(  row=0, column=0, padx=(0, 1))
-        self.entry_format.grid(      row=0, column=0, padx=(0, 1))
-        self.entry_marker_enc.grid(  row=0, column=0, padx=(0, 1))
-        self.entry_marker_dec.grid(  row=0, column=0, padx=(0, 1))
-        self.entry_dir_enc_from.grid(row=0, column=0, padx=(0, 1))
-        self.entry_dir_enc_to.grid(  row=0, column=0, padx=(0, 1))
-        self.entry_dir_dec_from.grid(row=0, column=0, padx=(0, 1))
-        self.entry_dir_dec_to.grid(  row=0, column=0, padx=(0, 1))
+        self.entry_count_from  = tk.Entry(self.frameCountFrom, textvariable=self.inp_count_from,  relief='solid', width=10, validate='key', validatecommand=self.vcmd_num)
+        self.entry_format      = tk.Entry(self.frameFormat,    textvariable=self.inp_format,      relief='solid', width=10, validate='key', validatecommand=self.vcmd_natural)
+        self.entry_marker_enc  = tk.Entry(self.frameMarkerEnc, textvariable=self.inp_marker_enc,  relief='solid')
+        self.entry_marker_dec  = tk.Entry(self.frameMarkerDec, textvariable=self.inp_marker_dec,  relief='solid')
+        self.entry_src_dir_enc = tk.Entry(self.frameSrcDirEnc, textvariable=self.inp_src_dir_enc, relief='solid', width=65)
+        self.entry_dst_dir_enc = tk.Entry(self.frameDstDirEnc, textvariable=self.inp_dst_dir_enc, relief='solid', width=65)
+        self.entry_src_dir_dec = tk.Entry(self.frameSrcDirDec, textvariable=self.inp_src_dir_dec, relief='solid', width=65)
+        self.entry_dst_dir_dec = tk.Entry(self.frameDstDirDec, textvariable=self.inp_dst_dir_dec, relief='solid', width=65)
+        self.entry_count_from.grid( row=0, column=0, padx=(0, 1))
+        self.entry_format.grid(     row=0, column=0, padx=(0, 1))
+        self.entry_marker_enc.grid( row=0, column=0, padx=(0, 1))
+        self.entry_marker_dec.grid( row=0, column=0, padx=(0, 1))
+        self.entry_src_dir_enc.grid(row=0, column=0, padx=(0, 1))
+        self.entry_dst_dir_enc.grid(row=0, column=0, padx=(0, 1))
+        self.entry_src_dir_dec.grid(row=0, column=0, padx=(0, 1))
+        self.entry_dst_dir_dec.grid(row=0, column=0, padx=(0, 1))
 
         tk.Label(self.frameCountFrom, text='(if the numbering name processing mode is selected)').grid(     row=0, column=1)
         tk.Label(self.frameFormat,    text='(if the numbering name processing mode is selected)').grid(     row=0, column=1)
@@ -1003,15 +1003,15 @@ class SettingsW(tk.Toplevel):
         tk.Label(self.frameMarkerDec, text='(if the prefix/postfix name processing mode is selected)').grid(row=0, column=1)
         try:
             self.img_search = tk.PhotoImage(file=os.path.join(RESOURCES_DIR, 'search.png'))
-            self.btn_source_enc = tk.Button(self.frameDirEncFrom, image=self.img_search, command=self.choose_source_enc)
-            self.btn_dest_enc   = tk.Button(self.frameDirEncTo,   image=self.img_search, command=self.choose_dest_enc)
-            self.btn_source_dec = tk.Button(self.frameDirDecFrom, image=self.img_search, command=self.choose_source_dec)
-            self.btn_dest_dec   = tk.Button(self.frameDirDecTo,   image=self.img_search, command=self.choose_dest_dec)
+            self.btn_source_enc = tk.Button(self.frameSrcDirEnc, image=self.img_search, command=self.choose_source_enc)
+            self.btn_dest_enc   = tk.Button(self.frameDstDirEnc, image=self.img_search, command=self.choose_dest_enc)
+            self.btn_source_dec = tk.Button(self.frameSrcDirDec, image=self.img_search, command=self.choose_source_dec)
+            self.btn_dest_dec   = tk.Button(self.frameDstDirDec, image=self.img_search, command=self.choose_dest_dec)
         except:
-            self.btn_source_enc = tk.Button(self.frameDirEncFrom, text='Search', command=self.choose_source_enc)
-            self.btn_dest_enc   = tk.Button(self.frameDirEncTo,   text='Search', command=self.choose_dest_enc)
-            self.btn_source_dec = tk.Button(self.frameDirDecFrom, text='Search', command=self.choose_source_dec)
-            self.btn_dest_dec   = tk.Button(self.frameDirDecTo,   text='Search', command=self.choose_dest_dec)
+            self.btn_source_enc = tk.Button(self.frameSrcDirEnc, text='Search', command=self.choose_source_enc)
+            self.btn_dest_enc   = tk.Button(self.frameDstDirEnc, text='Search', command=self.choose_dest_enc)
+            self.btn_source_dec = tk.Button(self.frameSrcDirDec, text='Search', command=self.choose_source_dec)
+            self.btn_dest_dec   = tk.Button(self.frameDstDirDec, text='Search', command=self.choose_dest_dec)
         self.btn_source_enc.grid(row=0, column=1)
         self.btn_dest_enc.grid(  row=0, column=1)
         self.btn_source_dec.grid(row=0, column=1)
@@ -1052,31 +1052,31 @@ class SettingsW(tk.Toplevel):
             settings['print_info'] != self.inp_print_info.get() or\
             settings['marker_enc'] != self.inp_marker_enc.get() or\
             settings['marker_dec'] != self.inp_marker_dec.get() or\
-            settings['dir_enc_from'] != self.inp_dir_enc_from.get() or\
-            settings['dir_enc_to'] != self.inp_dir_enc_to.get() or\
-            settings['dir_dec_from'] != self.inp_dir_dec_from.get() or\
-            settings['dir_dec_to'] != self.inp_dir_dec_to.get() or\
+            settings['src_dir_enc'] != self.inp_src_dir_enc.get() or\
+            settings['dst_dir_enc'] != self.inp_dst_dir_enc.get() or\
+            settings['src_dir_dec'] != self.inp_src_dir_dec.get() or\
+            settings['dst_dir_dec'] != self.inp_dst_dir_dec.get() or\
             settings['example_key'] != self.inp_example_key.get()
 
     # Выбор папки источника при шифровке
     def choose_source_enc(self):
         directory = askdirectory()
-        self.inp_dir_enc_from.set(directory)
+        self.inp_src_dir_enc.set(directory)
 
     # Выбор папки назначения при шифровке
     def choose_dest_enc(self):
         directory = askdirectory()
-        self.inp_dir_enc_to.set(directory)
+        self.inp_dst_dir_enc.set(directory)
 
     # Выбор папки источника при дешифровке
     def choose_source_dec(self):
         directory = askdirectory()
-        self.inp_dir_dec_from.set(directory)
+        self.inp_src_dir_dec.set(directory)
 
     # Выбор папки назначения при дешифровке
     def choose_dest_dec(self):
         directory = askdirectory()
-        self.inp_dir_dec_to.set(directory)
+        self.inp_dst_dir_dec.set(directory)
 
     # Сохранить изменения
     def save(self):
@@ -1117,10 +1117,10 @@ class SettingsW(tk.Toplevel):
         settings['print_info']    = self.inp_print_info.get()
         settings['marker_enc']    = self.inp_marker_enc.get()
         settings['marker_dec']    = self.inp_marker_dec.get()
-        settings['dir_enc_from']  = self.inp_dir_enc_from.get()
-        settings['dir_enc_to']    = self.inp_dir_enc_to.get()
-        settings['dir_dec_from']  = self.inp_dir_dec_from.get()
-        settings['dir_dec_to']    = self.inp_dir_dec_to.get()
+        settings['src_dir_enc']   = self.inp_src_dir_enc.get()
+        settings['dst_dir_enc']   = self.inp_dst_dir_enc.get()
+        settings['src_dir_dec']   = self.inp_src_dir_dec.get()
+        settings['dst_dir_dec']   = self.inp_dst_dir_dec.get()
         settings['example_key']   = self.inp_example_key.get()
 
         save_settings_to_file()
@@ -1146,10 +1146,10 @@ class SettingsW(tk.Toplevel):
         self.inp_print_info.set(DEFAULT_SETTINGS['print_info'])
         self.inp_marker_enc.set(DEFAULT_SETTINGS['marker_enc'])
         self.inp_marker_dec.set(DEFAULT_SETTINGS['marker_dec'])
-        self.inp_dir_enc_from.set(DEFAULT_SETTINGS['dir_enc_from'])
-        self.inp_dir_enc_to.set(DEFAULT_SETTINGS['dir_enc_to'])
-        self.inp_dir_dec_from.set(DEFAULT_SETTINGS['dir_dec_from'])
-        self.inp_dir_dec_to.set(DEFAULT_SETTINGS['dir_dec_to'])
+        self.inp_src_dir_enc.set(DEFAULT_SETTINGS['src_dir_enc'])
+        self.inp_dst_dir_enc.set(DEFAULT_SETTINGS['dst_dir_enc'])
+        self.inp_src_dir_dec.set(DEFAULT_SETTINGS['src_dir_dec'])
+        self.inp_dst_dir_dec.set(DEFAULT_SETTINGS['dst_dir_dec'])
         self.inp_example_key.set(DEFAULT_SETTINGS['example_key'])
 
     # Сохранить пользовательские настройки
@@ -1231,12 +1231,12 @@ class SettingsW(tk.Toplevel):
                 tmp = DEFAULT_SETTINGS['print_info']
             self.inp_print_info.set(tmp)
 
-            self.inp_marker_enc.set(  file.readline().strip())
-            self.inp_marker_dec.set(  file.readline().strip())
-            self.inp_dir_enc_from.set(file.readline().strip())
-            self.inp_dir_enc_to.set(  file.readline().strip())
-            self.inp_dir_dec_from.set(file.readline().strip())
-            self.inp_dir_dec_to.set(  file.readline().strip())
+            self.inp_marker_enc.set( file.readline().strip())
+            self.inp_marker_dec.set( file.readline().strip())
+            self.inp_src_dir_enc.set(file.readline().strip())
+            self.inp_dst_dir_enc.set(file.readline().strip())
+            self.inp_src_dir_dec.set(file.readline().strip())
+            self.inp_dst_dir_dec.set(file.readline().strip())
 
             tmp = file.readline().strip()
             if check_key(tmp)[0] != '+':
