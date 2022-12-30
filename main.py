@@ -25,8 +25,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.16'
-PROGRAM_DATE = '30.12.2022 12:47'
+PROGRAM_VERSION = 'v6.0.17'
+PROGRAM_DATE = '30.12.2022 13:33'
 
 """ Пути и файлы """
 
@@ -102,6 +102,7 @@ ST_BG         = {'light': '#EEEEEE', 'dark': '#222222', 'infernal': '#DD1515'}  
 ST_BG_RGB     = {'light': '#EEEEEE', 'dark': '#222222', 'infernal': '#993333'}  # bg
 
 ST_BORDER     = {'light': '#222222', 'dark': '#111111', 'infernal': '#330000'}  # highlightbackground
+ST_RELIEF     = {'light': 'groove',  'dark': 'solid',   'infernal': 'groove' }  # relief
 
 ST_SELECT     = {'light': '#BBBBBB', 'dark': '#444444', 'infernal': '#FF5500'}  # selectbackground
 ST_HIGHLIGHT  = {'light': '#00DD00', 'dark': '#007700', 'infernal': '#EEEEEE'}  # highlightcolor
@@ -910,9 +911,9 @@ class EnterKeyW(tk.Toplevel):
         self.txt_example_key.configure(state='disabled')
         self.txt_example_key.bind('<Button-1>', focus_text)
 
-        self.entry_key = tk.Entry(self, textvariable=self.key, bg=ST_ENTRY[st], fg=ST_KEY[st], highlightbackground=ST_BORDER[st], selectbackground=ST_SELECT[st], highlightcolor=ST_HIGHLIGHT[st], width=KEY_LEN, validate='key', validatecommand=self.vcmd, font='TkFixedFont')
-        self.btn_copy_example = tk.Button(self, text='COPY',   bg=ST_BTN[st],    fg=ST_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st], command=self.copy_example_key)
-        self.btn_submit       = tk.Button(self, text='Submit', bg=ST_ACCEPT[st], fg=ST_TEXT[st], activebackground=ST_ACC_SELECT[st], highlightbackground=ST_BORDER[st], command=self.check_key_and_return)
+        self.entry_key = tk.Entry(self, textvariable=self.key, width=KEY_LEN, font='TkFixedFont', validate='key', validatecommand=self.vcmd, bg=ST_ENTRY[st],  fg=ST_KEY[st], highlightbackground=ST_BORDER[st], selectbackground=ST_SELECT[st], highlightcolor=ST_HIGHLIGHT[st])
+        self.btn_copy_example = tk.Button(self, text='COPY',   command=self.copy_example_key,     bg=ST_BTN[st],    fg=ST_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.btn_submit       = tk.Button(self, text='Submit', command=self.check_key_and_return, bg=ST_ACCEPT[st], fg=ST_TEXT[st], activebackground=ST_ACC_SELECT[st], highlightbackground=ST_BORDER[st])
 
         self.entry_key.grid(row=2, column=1, padx=(0, 4), pady=1, sticky='W')
         self.btn_copy_example.grid(row=1, column=2, padx=(0, 6), pady=1)
@@ -986,26 +987,26 @@ class SettingsW(tk.Toplevel):
         """
 
         # Внешние фреймы
-        self.frame_all   = tk.LabelFrame(self,           bg=ST_BG[st], highlightbackground=ST_BORDER[st])
-        self.frameFields = tk.LabelFrame(self.frame_all, bg=ST_BG[st], highlightbackground=ST_BORDER[st])
-        self.frame_all.grid(  row=0, column=0, columnspan=2, padx=4, pady=4)
-        self.frameFields.grid(row=0, column=0, columnspan=4, padx=4, pady=4)
+        self.frame_all    = tk.LabelFrame(self,           bg=ST_BG[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
+        self.frame_fields = tk.LabelFrame(self.frame_all, bg=ST_BG[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
+        self.frame_all.grid(   row=0, column=0, columnspan=2, padx=4, pady=4)
+        self.frame_fields.grid(row=0, column=0, columnspan=4, padx=4, pady=4)
 
         # Названия настроек
-        self.lbl_style =         tk.Label(self.frameFields, text='Style',                            bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_naming_mode =   tk.Label(self.frameFields, text='File names conversion mode',       bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_count_from =    tk.Label(self.frameFields, text='Start numbering files from',       bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_format =        tk.Label(self.frameFields, text='Number of characters in number',   bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_marker_enc =    tk.Label(self.frameFields, text='Marker for encoded files',         bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_marker_dec =    tk.Label(self.frameFields, text='Marker for decoded files',         bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_support_ru =    tk.Label(self.frameFields, text='Russian letters support',          bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_processing_ru = tk.Label(self.frameFields, text='Russian letters processing mode',  bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_src_dir_enc =   tk.Label(self.frameFields, text='Source folder when encoding',      bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_dst_dir_enc =   tk.Label(self.frameFields, text='Destination folder when encoding', bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_src_dir_dec =   tk.Label(self.frameFields, text='Source folder when decoding',      bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_dst_dir_dec =   tk.Label(self.frameFields, text='Destination folder when decoding', bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_example_key =   tk.Label(self.frameFields, text='Example of a key',                 bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_print_info =    tk.Label(self.frameFields, text='Whether to print info',            bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_style =         tk.Label(self.frame_fields, text='Style',                            bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_naming_mode =   tk.Label(self.frame_fields, text='File names conversion mode',       bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_count_from =    tk.Label(self.frame_fields, text='Start numbering files from',       bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_format =        tk.Label(self.frame_fields, text='Number of characters in number',   bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_marker_enc =    tk.Label(self.frame_fields, text='Marker for encoded files',         bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_marker_dec =    tk.Label(self.frame_fields, text='Marker for decoded files',         bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_support_ru =    tk.Label(self.frame_fields, text='Russian letters support',          bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_processing_ru = tk.Label(self.frame_fields, text='Russian letters processing mode',  bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_src_dir_enc =   tk.Label(self.frame_fields, text='Source folder when encoding',      bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_dst_dir_enc =   tk.Label(self.frame_fields, text='Destination folder when encoding', bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_src_dir_dec =   tk.Label(self.frame_fields, text='Source folder when decoding',      bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_dst_dir_dec =   tk.Label(self.frame_fields, text='Destination folder when decoding', bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_example_key =   tk.Label(self.frame_fields, text='Example of a key',                 bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_print_info =    tk.Label(self.frame_fields, text='Whether to print info',            bg=ST_BG[st], fg=ST_TEXT[st])
         self.lbl_style.grid(        row=0,  column=0, padx=(6, 1), pady=(4, 1), sticky='E')
         self.lbl_naming_mode.grid(  row=1,  column=0, padx=(6, 1), pady=1,      sticky='E')
         self.lbl_count_from.grid(   row=2,  column=0, padx=(6, 1), pady=1,      sticky='E')
@@ -1030,20 +1031,20 @@ class SettingsW(tk.Toplevel):
         self.st_check.map('.TCheckbutton', background=[('active', ST_SELECT[st])])
 
         # Сами настройки
-        self.combo_style         = ttk.Combobox(   self.frameFields, textvariable=self.inp_style,       values=STYLE_MODES,  state='readonly', style='.TCombobox')
-        self.combo_naming_mode   = ttk.Combobox(   self.frameFields, textvariable=self.inp_naming_mode, values=NAMING_MODES, state='readonly', style='.TCombobox')
-        self.frameCountFrom      = tk.LabelFrame(  self.frameFields, borderwidth=0, bg=ST_BG[st])
-        self.frameFormat         = tk.LabelFrame(  self.frameFields, borderwidth=0, bg=ST_BG[st])
-        self.frameMarkerEnc      = tk.LabelFrame(  self.frameFields, borderwidth=0, bg=ST_BG[st])
-        self.frameMarkerDec      = tk.LabelFrame(  self.frameFields, borderwidth=0, bg=ST_BG[st])
-        self.check_support_ru    = ttk.Checkbutton(self.frameFields,     variable=self.inp_support_ru, command=self.processing_ru_state, style='.TCheckbutton')
-        self.combo_processing_ru = ttk.Combobox(   self.frameFields, textvariable=self.inp_processing_ru, values=PROCESSING_RU_MODES, state='readonly', style='.TCombobox')
-        self.frameSrcDirEnc      = tk.LabelFrame(  self.frameFields, borderwidth=0, bg=ST_BG[st])
-        self.frameDstDirEnc      = tk.LabelFrame(  self.frameFields, borderwidth=0, bg=ST_BG[st])
-        self.frameSrcDirDec      = tk.LabelFrame(  self.frameFields, borderwidth=0, bg=ST_BG[st])
-        self.frameDstDirDec      = tk.LabelFrame(  self.frameFields, borderwidth=0, bg=ST_BG[st])
-        self.entry_example_key   = tk.Entry(       self.frameFields, textvariable=self.inp_example_key, relief='solid', width=KEY_LEN, font='TkFixedFont', validate='key', validatecommand=self.vcmd_key, bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st])
-        self.combo_print_info    = ttk.Combobox(   self.frameFields, textvariable=self.inp_print_info, values=PRINT_INFO_MODES, state='readonly', style='.TCombobox')
+        self.combo_style         = ttk.Combobox(   self.frame_fields, textvariable=self.inp_style,       values=STYLE_MODES,  state='readonly', style='.TCombobox')
+        self.combo_naming_mode   = ttk.Combobox(   self.frame_fields, textvariable=self.inp_naming_mode, values=NAMING_MODES, state='readonly', style='.TCombobox')
+        self.frameCountFrom      = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
+        self.frameFormat         = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
+        self.frameMarkerEnc      = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
+        self.frameMarkerDec      = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
+        self.check_support_ru    = ttk.Checkbutton(self.frame_fields,     variable=self.inp_support_ru, command=self.processing_ru_state, style='.TCheckbutton')
+        self.combo_processing_ru = ttk.Combobox(   self.frame_fields, textvariable=self.inp_processing_ru, values=PROCESSING_RU_MODES, state='readonly', style='.TCombobox')
+        self.frame_src_dir_enc   = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
+        self.frame_dst_dir_enc   = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
+        self.frame_src_dir_dec   = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
+        self.frame_dst_dir_dec   = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
+        self.entry_example_key   = tk.Entry(       self.frame_fields, textvariable=self.inp_example_key, relief='solid', width=KEY_LEN, font='TkFixedFont', validate='key', validatecommand=self.vcmd_key, bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st])
+        self.combo_print_info    = ttk.Combobox(   self.frame_fields, textvariable=self.inp_print_info, values=PRINT_INFO_MODES, state='readonly', style='.TCombobox')
 
         if not self.inp_support_ru.get():
             self.combo_processing_ru['state'] = 'disabled'
@@ -1057,10 +1058,10 @@ class SettingsW(tk.Toplevel):
         self.frameMarkerDec.grid(     row=5,  column=1, padx=(0, 6), pady=1,      sticky='W')
         self.check_support_ru.grid(   row=6,  column=1, padx=(0, 6), pady=1,      sticky='W')
         self.combo_processing_ru.grid(row=7,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frameSrcDirEnc.grid(     row=8,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frameDstDirEnc.grid(     row=9,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frameSrcDirDec.grid(     row=10, column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frameDstDirDec.grid(     row=11, column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_src_dir_enc.grid(  row=8,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_dst_dir_enc.grid(  row=9,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_src_dir_dec.grid(  row=10, column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_dst_dir_dec.grid(  row=11, column=1, padx=(0, 6), pady=1,      sticky='W')
         self.entry_example_key.grid(  row=12, column=1, padx=(0, 6), pady=1,      sticky='W')
         self.combo_print_info.grid(   row=13, column=1, padx=(0, 6), pady=(1, 4), sticky='W')
 
@@ -1069,14 +1070,14 @@ class SettingsW(tk.Toplevel):
         max_len_marker = 70
         min_len_dir = 50
         max_len_dir = 120
-        self.entry_count_from  = tk.Entry(self.frameCountFrom, textvariable=self.inp_count_from,  bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=10, validate='key', validatecommand=self.vcmd_num)
-        self.entry_format      = tk.Entry(self.frameFormat,    textvariable=self.inp_format,      bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=5,  validate='key', validatecommand=self.vcmd_natural)
-        self.entry_marker_enc  = tk.Entry(self.frameMarkerEnc, textvariable=self.inp_marker_enc,  bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=min(max_len_marker,  max(min_len_marker, len(self.inp_marker_enc.get()))),  font='TkFixedFont', validate='key')
-        self.entry_marker_dec  = tk.Entry(self.frameMarkerDec, textvariable=self.inp_marker_dec,  bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=min(max_len_marker,  max(min_len_marker, len(self.inp_marker_dec.get()))),  font='TkFixedFont', validate='key')
-        self.entry_src_dir_enc = tk.Entry(self.frameSrcDirEnc, textvariable=self.inp_src_dir_enc, bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=min(max_len_dir,     max(min_len_dir,    len(self.inp_src_dir_enc.get()))), font='TkFixedFont', validate='key')
-        self.entry_dst_dir_enc = tk.Entry(self.frameDstDirEnc, textvariable=self.inp_dst_dir_enc, bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=min(max_len_dir,     max(min_len_dir,    len(self.inp_dst_dir_enc.get()))), font='TkFixedFont', validate='key')
-        self.entry_src_dir_dec = tk.Entry(self.frameSrcDirDec, textvariable=self.inp_src_dir_dec, bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=min(max_len_dir,     max(min_len_dir,    len(self.inp_src_dir_dec.get()))), font='TkFixedFont', validate='key')
-        self.entry_dst_dir_dec = tk.Entry(self.frameDstDirDec, textvariable=self.inp_dst_dir_dec, bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=min(max_len_dir,     max(min_len_dir,    len(self.inp_dst_dir_dec.get()))), font='TkFixedFont', validate='key')
+        self.entry_count_from  = tk.Entry(self.frameCountFrom,    textvariable=self.inp_count_from,  bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=10, validate='key', validatecommand=self.vcmd_num)
+        self.entry_format      = tk.Entry(self.frameFormat,       textvariable=self.inp_format,      bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=5,  validate='key', validatecommand=self.vcmd_natural)
+        self.entry_marker_enc  = tk.Entry(self.frameMarkerEnc,    textvariable=self.inp_marker_enc,  bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=min(max_len_marker,  max(min_len_marker, len(self.inp_marker_enc.get()))),  font='TkFixedFont', validate='key')
+        self.entry_marker_dec  = tk.Entry(self.frameMarkerDec,    textvariable=self.inp_marker_dec,  bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=min(max_len_marker,  max(min_len_marker, len(self.inp_marker_dec.get()))),  font='TkFixedFont', validate='key')
+        self.entry_src_dir_enc = tk.Entry(self.frame_src_dir_enc, textvariable=self.inp_src_dir_enc, bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=min(max_len_dir,     max(min_len_dir,    len(self.inp_src_dir_enc.get()))), font='TkFixedFont', validate='key')
+        self.entry_dst_dir_enc = tk.Entry(self.frame_dst_dir_enc, textvariable=self.inp_dst_dir_enc, bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=min(max_len_dir,     max(min_len_dir,    len(self.inp_dst_dir_enc.get()))), font='TkFixedFont', validate='key')
+        self.entry_src_dir_dec = tk.Entry(self.frame_src_dir_dec, textvariable=self.inp_src_dir_dec, bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=min(max_len_dir,     max(min_len_dir,    len(self.inp_src_dir_dec.get()))), font='TkFixedFont', validate='key')
+        self.entry_dst_dir_dec = tk.Entry(self.frame_dst_dir_dec, textvariable=self.inp_dst_dir_dec, bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=min(max_len_dir,     max(min_len_dir,    len(self.inp_dst_dir_dec.get()))), font='TkFixedFont', validate='key')
         self.entry_marker_enc ['validatecommand'] = (self.register(lambda value: validate_expand(value, self.entry_marker_enc,  min_len_marker, max_len_marker)),  '%P')
         self.entry_marker_dec ['validatecommand'] = (self.register(lambda value: validate_expand(value, self.entry_marker_dec,  min_len_marker, max_len_marker)),  '%P')
         self.entry_src_dir_enc['validatecommand'] = (self.register(lambda value: validate_expand(value, self.entry_src_dir_enc, min_len_dir,    max_len_dir)), '%P')
@@ -1098,15 +1099,15 @@ class SettingsW(tk.Toplevel):
         self.lbl_note_marker_dec = tk.Label(self.frameMarkerDec, text='(if the prefix/postfix name processing mode is selected)', bg=ST_BG[st], fg=ST_TEXT[st])
         try:
             self.img_search  = tk.PhotoImage(file=os.path.join(RESOURCES_DIR, 'search.png'))
-            self.btn_src_enc = tk.Button(self.frameSrcDirEnc, image=self.img_search, command=self.choose_source_enc, bg=ST_BTN[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
-            self.btn_dst_enc = tk.Button(self.frameDstDirEnc, image=self.img_search, command=self.choose_dest_enc,   bg=ST_BTN[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
-            self.btn_src_dec = tk.Button(self.frameSrcDirDec, image=self.img_search, command=self.choose_source_dec, bg=ST_BTN[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
-            self.btn_dst_dec = tk.Button(self.frameDstDirDec, image=self.img_search, command=self.choose_dest_dec,   bg=ST_BTN[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
+            self.btn_src_enc = tk.Button(self.frame_src_dir_enc, image=self.img_search, command=self.choose_source_enc, bg=ST_BTN[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
+            self.btn_dst_enc = tk.Button(self.frame_dst_dir_enc, image=self.img_search, command=self.choose_dest_enc,   bg=ST_BTN[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
+            self.btn_src_dec = tk.Button(self.frame_src_dir_dec, image=self.img_search, command=self.choose_source_dec, bg=ST_BTN[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
+            self.btn_dst_dec = tk.Button(self.frame_dst_dir_dec, image=self.img_search, command=self.choose_dest_dec,   bg=ST_BTN[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
         except:
-            self.btn_src_enc = tk.Button(self.frameSrcDirEnc, text='Search', command=self.choose_source_enc, bg=ST_BTN[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
-            self.btn_dst_enc = tk.Button(self.frameDstDirEnc, text='Search', command=self.choose_dest_enc,   bg=ST_BTN[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
-            self.btn_src_dec = tk.Button(self.frameSrcDirDec, text='Search', command=self.choose_source_dec, bg=ST_BTN[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
-            self.btn_dst_dec = tk.Button(self.frameDstDirDec, text='Search', command=self.choose_dest_dec,   bg=ST_BTN[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
+            self.btn_src_enc = tk.Button(self.frame_src_dir_enc, text='Search', command=self.choose_source_enc, bg=ST_BTN[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
+            self.btn_dst_enc = tk.Button(self.frame_dst_dir_enc, text='Search', command=self.choose_dest_enc,   bg=ST_BTN[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
+            self.btn_src_dec = tk.Button(self.frame_src_dir_dec, text='Search', command=self.choose_source_dec, bg=ST_BTN[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
+            self.btn_dst_dec = tk.Button(self.frame_dst_dir_dec, text='Search', command=self.choose_dest_dec,   bg=ST_BTN[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
         self.lbl_note_count_from.grid(row=0, column=1)
         self.lbl_note_format.grid(    row=0, column=1)
         self.lbl_note_marker_enc.grid(row=0, column=1)
@@ -1347,8 +1348,8 @@ class SettingsW(tk.Toplevel):
         st = settings['style']
 
         self.configure(                  bg=ST_BG[st])
-        self.frame_all.configure(        bg=ST_BG[st], highlightbackground=ST_BORDER[st])
-        self.frameFields.configure(      bg=ST_BG[st], highlightbackground=ST_BORDER[st])
+        self.frame_all.configure(        bg=ST_BG[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
+        self.frame_fields.configure(     bg=ST_BG[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
         self.lbl_style.configure(        bg=ST_BG[st], fg=ST_TEXT[st])
         self.lbl_naming_mode.configure(  bg=ST_BG[st], fg=ST_TEXT[st])
         self.lbl_count_from.configure(   bg=ST_BG[st], fg=ST_TEXT[st])
@@ -1375,10 +1376,10 @@ class SettingsW(tk.Toplevel):
         self.frameMarkerDec.configure(     bg=ST_BG[st])
         self.check_support_ru.configure(   style='.TCheckbutton')
         self.combo_processing_ru.configure(style='.TCombobox')
-        self.frameSrcDirEnc.configure(     bg=ST_BG[st])
-        self.frameDstDirEnc.configure(     bg=ST_BG[st])
-        self.frameSrcDirDec.configure(     bg=ST_BG[st])
-        self.frameDstDirDec.configure(     bg=ST_BG[st])
+        self.frame_src_dir_enc.configure(  bg=ST_BG[st])
+        self.frame_dst_dir_enc.configure(  bg=ST_BG[st])
+        self.frame_src_dir_dec.configure(  bg=ST_BG[st])
+        self.frame_dst_dir_dec.configure(  bg=ST_BG[st])
         self.entry_example_key.configure(  bg=ST_ENTRY[st],  fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st])
         self.combo_print_info.configure(   style='.TCombobox')
         self.entry_count_from.configure(   bg=ST_ENTRY[st],  fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st])
@@ -1405,7 +1406,7 @@ class SettingsW(tk.Toplevel):
         self.btn_close.configure(          bg=ST_CLOSE[st],  fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_CLS_SELECT[st])
 
         self.parent.configure(             bg=ST_BG[st])
-        self.parent.frame_head.configure(  bg=ST_BG[st], highlightbackground=ST_BORDER[st])
+        self.parent.frame_head.configure(  bg=ST_BG[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
         self.parent.lbl_header1.configure( bg=ST_BG[st],    fg=ST_TEXT[st])
         self.parent.lbl_header2.configure( bg=ST_BG[st],    fg=ST_LOGO[st])
         self.parent.btn_settings.configure(bg=ST_BTN[st],   fg=ST_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
@@ -1469,8 +1470,8 @@ class ManualW(tk.Toplevel):
 
         self.vcmd = (self.register(validate_natural), '%P')
 
-        self.frame_all = tk.LabelFrame(self,           bg=ST_BG[st],     highlightbackground=ST_BORDER[st])
-        self.frame_rgb = tk.LabelFrame(self.frame_all, bg=ST_BG_RGB[st], highlightbackground=ST_BORDER[st])
+        self.frame_all = tk.LabelFrame(self,           bg=ST_BG[st],     highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
+        self.frame_rgb = tk.LabelFrame(self.frame_all, bg=ST_BG_RGB[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
         self.frame_all.grid(row=0, column=0, columnspan=2, padx=4, pady=4)
         self.frame_rgb.grid(row=0, column=0, columnspan=4, padx=4, pady=4)
 
@@ -1633,7 +1634,7 @@ class MainW(tk.Tk):
         self.resizable(width=False, height=False)
         self.configure(bg=ST_BG[st])
 
-        self.frame_head = tk.LabelFrame(self, bg=ST_BG[st], highlightbackground=ST_BORDER[st])
+        self.frame_head = tk.LabelFrame(self, bg=ST_BG[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
         self.frame_head.grid(row=0, padx=6, pady=4)
 
         self.lbl_header1 = tk.Label(self.frame_head, text='Anenokil development presents', font='StdFont 15', bg=ST_BG[st], fg=ST_TEXT[st])
@@ -1642,10 +1643,10 @@ class MainW(tk.Tk):
         self.lbl_header2.grid(row=1, padx=7, pady=(0, 7))
 
         self.btn_settings = tk.Button(self, text='Settings',    font='StdFont 12', command=self.open_settings, bg=ST_BTN[st],   fg=ST_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
-        self.btn_encode = tk.Button(  self, text='Encode',      font='StdFont 12', command=self.encode,        bg=ST_BTN[st],   fg=ST_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
-        self.btn_decode = tk.Button(  self, text='Decode',      font='StdFont 12', command=self.decode,        bg=ST_BTN[st],   fg=ST_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
-        self.btn_mcm = tk.Button(     self, text='Debug (MCM)', font='StdFont 12', command=self.mcm,           bg=ST_MCM[st],   fg=ST_TEXT[st], activebackground=ST_MCM_SELECT[st], highlightbackground=ST_BORDER[st])
-        self.btn_close = tk.Button(   self, text='Close',       font='StdFont 12', command=self.quit,          bg=ST_CLOSE[st], fg=ST_TEXT[st], activebackground=ST_CLS_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.btn_encode   = tk.Button(self, text='Encode',      font='StdFont 12', command=self.encode,        bg=ST_BTN[st],   fg=ST_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.btn_decode   = tk.Button(self, text='Decode',      font='StdFont 12', command=self.decode,        bg=ST_BTN[st],   fg=ST_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.btn_mcm      = tk.Button(self, text='Debug (MCM)', font='StdFont 12', command=self.mcm,           bg=ST_MCM[st],   fg=ST_TEXT[st], activebackground=ST_MCM_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.btn_close    = tk.Button(self, text='Close',       font='StdFont 12', command=self.quit,          bg=ST_CLOSE[st], fg=ST_TEXT[st], activebackground=ST_CLS_SELECT[st], highlightbackground=ST_BORDER[st])
         self.btn_settings.grid(row=2, pady=5)
         self.btn_encode.grid(  row=3, pady=5)
         self.btn_decode.grid(  row=4, pady=5)
