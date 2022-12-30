@@ -26,7 +26,7 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
 
 PROGRAM_NAME = 'Media encrypter'
 PROGRAM_VERSION = 'v6.0.17'
-PROGRAM_DATE = '30.12.2022 13:33'
+PROGRAM_DATE = '30.12.2022 16:38'
 
 """ Пути и файлы """
 
