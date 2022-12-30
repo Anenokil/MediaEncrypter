@@ -25,8 +25,8 @@ if sys.platform == 'win32':
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.5'
-PROGRAM_DATE = '30.12.2022  6:26'
+PROGRAM_VERSION = 'v6.0.6'
+PROGRAM_DATE = '30.12.2022  7:23'
 
 """ Цвета """
 
@@ -887,99 +887,120 @@ class SettingsW(tk.Toplevel):
         self.resizable(width=False, height=False)
         self.key = tk.StringVar()
 
-        self.frameAll    = tk.LabelFrame(self)
-        self.frameFields = tk.LabelFrame(self.frameAll)
-        self.frameAll.grid(   row=0, column=0, columnspan=2, padx=4, pady=4)
-        self.frameFields.grid(row=0, column=0, columnspan=4, padx=4, pady=4)
-
-        self.frameCountFrom  = tk.LabelFrame(self.frameFields, borderwidth=0)
-        self.frameFormat     = tk.LabelFrame(self.frameFields, borderwidth=0)
-        self.frameMarkerEnc  = tk.LabelFrame(self.frameFields, borderwidth=0)
-        self.frameMarkerDec  = tk.LabelFrame(self.frameFields, borderwidth=0)
-        self.frameCountFrom.grid( row=1,  column=1, padx=(0, 6), pady=1, sticky='W')
-        self.frameFormat.grid(    row=2,  column=1, padx=(0, 6), pady=1, sticky='W')
-        self.frameMarkerEnc.grid( row=3,  column=1, padx=(0, 6), pady=1, sticky='W')
-        self.frameMarkerDec.grid( row=4,  column=1, padx=(0, 6), pady=1, sticky='W')
-        self.frameDirEncFrom = tk.LabelFrame(self.frameFields, borderwidth=0)
-        self.frameDirEncTo   = tk.LabelFrame(self.frameFields, borderwidth=0)
-        self.frameDirDecFrom = tk.LabelFrame(self.frameFields, borderwidth=0)
-        self.frameDirDecTo   = tk.LabelFrame(self.frameFields, borderwidth=0)
-        self.frameDirEncFrom.grid(row=7,  column=1, padx=(0, 6), pady=1, sticky='W')
-        self.frameDirEncTo.grid(  row=8,  column=1, padx=(0, 6), pady=1, sticky='W')
-        self.frameDirDecFrom.grid(row=9,  column=1, padx=(0, 6), pady=1, sticky='W')
-        self.frameDirDecTo.grid(  row=10, column=1, padx=(0, 6), pady=1, sticky='W')
-
-        tk.Label(self.frameFields, text='File names conversion mode').grid(      row=0,  column=0, padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self.frameFields, text='Start numbering files from').grid(      row=1,  column=0, padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self.frameFields, text='Number of characters in number').grid(  row=2,  column=0, padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self.frameFields, text='Marker for encoded files').grid(        row=3,  column=0, padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self.frameFields, text='Marker for decoded files').grid(        row=4,  column=0, padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self.frameFields, text='Russian letters support').grid(         row=5,  column=0, padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self.frameFields, text='Russian letters processing mode').grid( row=6,  column=0, padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self.frameFields, text='Source folder when encoding').grid(     row=7,  column=0, padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self.frameFields, text='Destination folder when encoding').grid(row=8,  column=0, padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self.frameFields, text='Source folder when decoding').grid(     row=9,  column=0, padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self.frameFields, text='Destination folder when decoding').grid(row=10, column=0, padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self.frameFields, text='Example of a key').grid(                row=11, column=0, padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self.frameFields, text='Whether to print info').grid(           row=12, column=0, padx=(6, 1), pady=1, sticky='E')
-
+        # Переменные, к которым привязаны настройки
+        self.inp_naming_mode   = tk.StringVar(value=settings['naming_mode'])
         self.inp_count_from    = tk.StringVar(value=str(settings['count_from']))
         self.inp_format        = tk.StringVar(value=str(settings['format']))
+        self.inp_marker_enc    = tk.StringVar(value=settings['marker_enc'])
+        self.inp_marker_dec    = tk.StringVar(value=settings['marker_dec'])
         if settings['support_ru'] == 'yes':
             self.inp_support_ru = tk.BooleanVar(value=True)
         else:
             self.inp_support_ru = tk.BooleanVar(value=False)
         self.inp_processing_ru = tk.StringVar(value=settings['processing_ru'])
-        self.inp_naming_mode   = tk.StringVar(value=settings['naming_mode'])
-        self.inp_print_info    = tk.StringVar(value=settings['print_info'])
-        self.inp_marker_enc    = tk.StringVar(value=settings['marker_enc'])
-        self.inp_marker_dec    = tk.StringVar(value=settings['marker_dec'])
         self.inp_dir_enc_from  = tk.StringVar(value=settings['dir_enc_from'])
         self.inp_dir_enc_to    = tk.StringVar(value=settings['dir_enc_to'])
         self.inp_dir_dec_from  = tk.StringVar(value=settings['dir_dec_from'])
         self.inp_dir_dec_to    = tk.StringVar(value=settings['dir_dec_to'])
         self.inp_example_key   = tk.StringVar(value=settings['example_key'])
+        self.inp_print_info    = tk.StringVar(value=settings['print_info'])
 
+        # Функции для валидации
         self.vcmd_natural = (self.register(lambda value: validate_natural_and_len(value, 3)), '%P')
         self.vcmd_num     = (self.register(validate_num), '%P')
         self.vcmd_key     = (self.register(validate_key), '%P')
 
-        self.combo_naming_mode   = Combobox(   self.frameFields,     textvariable=self.inp_naming_mode,   values=NAMING_MODES, state='readonly')
-        self.entry_count_from    = tk.Entry(   self.frameCountFrom, textvariable=self.inp_count_from, relief='solid', width=10, validate='key', validatecommand=self.vcmd_num)
-        self.entry_format        = tk.Entry(   self.frameFormat,    textvariable=self.inp_format,     relief='solid', width=10, validate='key', validatecommand=self.vcmd_natural)
-        self.entry_marker_enc    = tk.Entry(   self.frameMarkerEnc, textvariable=self.inp_marker_enc, relief='solid')
-        self.entry_marker_dec    = tk.Entry(   self.frameMarkerDec, textvariable=self.inp_marker_dec, relief='solid')
-        self.check_support_ru    = Checkbutton(self.frameFields,         variable=self.inp_support_ru,    command=self.processing_ru_state)
-        self.combo_processing_ru = Combobox(   self.frameFields,     textvariable=self.inp_processing_ru, values=PROCESSING_RU_MODES, state='readonly')
-        self.entry_dir_enc_from  = tk.Entry(   self.frameDirEncFrom, textvariable=self.inp_dir_enc_from,  relief='solid', width=45)
-        self.entry_dir_enc_to    = tk.Entry(   self.frameDirEncTo,   textvariable=self.inp_dir_enc_to,    relief='solid', width=45)
-        self.entry_dir_dec_from  = tk.Entry(   self.frameDirDecFrom, textvariable=self.inp_dir_dec_from,  relief='solid', width=45)
-        self.entry_dir_dec_to    = tk.Entry(   self.frameDirDecTo,   textvariable=self.inp_dir_dec_to,    relief='solid', width=45)
-        self.entry_example_key   = tk.Entry(   self.frameFields,     textvariable=self.inp_example_key,   relief='solid', width=KEY_LEN, font='TkFixedFont', validate='key', validatecommand=self.vcmd_key)
-        self.combo_print_info    = Combobox(   self.frameFields,     textvariable=self.inp_print_info,    values=PRINT_INFO_MODES, state='readonly')
+        """
+        *---TOPLEVEL-------------------------------------------------*
+        |  *---FRAME-ALL------------------------------------------*  |
+        |  |  *---FRAME-FIELDS---------------------------------*  |  |
+        |  |  |  <Label> <Combobox>                            |  |  |
+        |  |  |  <Label> <Entry>                               |  |  |
+        |  |  |  <Label> <LabelFrame (внутренние фреймы)>      |  |  |
+        |  |  |  ...                                           |  |  |
+        |  |  *------------------------------------------------*  |  |
+        |  |    [Set defaults]    [Save]    [Load]    [Remove]    |  |
+        |  *------------------------------------------------------*  |
+        |                [Accept]             [Close]                |
+        *------------------------------------------------------------*
+        """
+
+        # Внешние фреймы
+        self.frameAll    = tk.LabelFrame(self)
+        self.frameFields = tk.LabelFrame(self.frameAll)
+        self.frameAll.grid(   row=0, column=0, columnspan=2, padx=4, pady=4)
+        self.frameFields.grid(row=0, column=0, columnspan=4, padx=4, pady=4)
+
+        # Названия настроек
+        tk.Label(self.frameFields, text='File names conversion mode').grid(      row=0,  column=0, padx=(6, 1), pady=(4, 1), sticky='E')
+        tk.Label(self.frameFields, text='Start numbering files from').grid(      row=1,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        tk.Label(self.frameFields, text='Number of characters in number').grid(  row=2,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        tk.Label(self.frameFields, text='Marker for encoded files').grid(        row=3,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        tk.Label(self.frameFields, text='Marker for decoded files').grid(        row=4,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        tk.Label(self.frameFields, text='Russian letters support').grid(         row=5,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        tk.Label(self.frameFields, text='Russian letters processing mode').grid( row=6,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        tk.Label(self.frameFields, text='Source folder when encoding').grid(     row=7,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        tk.Label(self.frameFields, text='Destination folder when encoding').grid(row=8,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        tk.Label(self.frameFields, text='Source folder when decoding').grid(     row=9,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        tk.Label(self.frameFields, text='Destination folder when decoding').grid(row=10, column=0, padx=(6, 1), pady=1,      sticky='E')
+        tk.Label(self.frameFields, text='Example of a key').grid(                row=11, column=0, padx=(6, 1), pady=1,      sticky='E')
+        tk.Label(self.frameFields, text='Whether to print info').grid(           row=12, column=0, padx=(6, 1), pady=(1, 4), sticky='E')
+
+        # Сами настройки
+        self.combo_naming_mode   = Combobox(     self.frameFields, textvariable=self.inp_naming_mode, values=NAMING_MODES, state='readonly')
+        self.frameCountFrom      = tk.LabelFrame(self.frameFields, borderwidth=0)
+        self.frameFormat         = tk.LabelFrame(self.frameFields, borderwidth=0)
+        self.frameMarkerEnc      = tk.LabelFrame(self.frameFields, borderwidth=0)
+        self.frameMarkerDec      = tk.LabelFrame(self.frameFields, borderwidth=0)
+        self.check_support_ru    = Checkbutton(  self.frameFields,     variable=self.inp_support_ru, command=self.processing_ru_state)
+        self.combo_processing_ru = Combobox(     self.frameFields, textvariable=self.inp_processing_ru, values=PROCESSING_RU_MODES, state='readonly')
+        self.frameDirEncFrom     = tk.LabelFrame(self.frameFields, borderwidth=0)
+        self.frameDirEncTo       = tk.LabelFrame(self.frameFields, borderwidth=0)
+        self.frameDirDecFrom     = tk.LabelFrame(self.frameFields, borderwidth=0)
+        self.frameDirDecTo       = tk.LabelFrame(self.frameFields, borderwidth=0)
+        self.entry_example_key   = tk.Entry(     self.frameFields, textvariable=self.inp_example_key, relief='solid', width=KEY_LEN, font='TkFixedFont', validate='key', validatecommand=self.vcmd_key)
+        self.combo_print_info    = Combobox(     self.frameFields, textvariable=self.inp_print_info, values=PRINT_INFO_MODES, state='readonly')
 
         if not self.inp_support_ru.get():
             self.combo_processing_ru['state'] = 'disabled'
 
-        self.combo_naming_mode.grid(  row=0,  column=1, pady=(4, 1), sticky='W')
-        self.entry_count_from.grid(   row=0,  column=0, pady=(0, 1))
-        self.entry_format.grid(       row=0,  column=0, pady=(0, 1))
-        self.entry_marker_enc.grid(   row=0,  column=0, pady=(0, 1))
-        self.entry_marker_dec.grid(   row=0,  column=0, pady=(0, 1))
-        self.check_support_ru.grid(   row=5,  column=1, pady=1,      sticky='W')
-        self.combo_processing_ru.grid(row=6,  column=1, pady=1,      sticky='W')
-        self.entry_dir_enc_from.grid( row=0,  column=0, pady=(0, 1))
-        self.entry_dir_enc_to.grid(   row=0,  column=0, pady=(0, 1))
-        self.entry_dir_dec_from.grid( row=0,  column=0, pady=(0, 1))
-        self.entry_dir_dec_to.grid(   row=0,  column=0, pady=(0, 1))
-        self.entry_example_key.grid(  row=11, column=1, pady=1,      sticky='W')
-        self.combo_print_info.grid(   row=12, column=1, pady=(1, 4), sticky='W')
+        # Расположение настроек
+        self.combo_naming_mode.grid(  row=0,  column=1, padx=(0, 6), pady=(4, 1), sticky='W')
+        self.frameCountFrom.grid(     row=1,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frameFormat.grid(        row=2,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frameMarkerEnc.grid(     row=3,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frameMarkerDec.grid(     row=4,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.check_support_ru.grid(   row=5,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.combo_processing_ru.grid(row=6,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frameDirEncFrom.grid(    row=7,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frameDirEncTo.grid(      row=8,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frameDirDecFrom.grid(    row=9,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frameDirDecTo.grid(      row=10, column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.entry_example_key.grid(  row=11, column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.combo_print_info.grid(   row=12, column=1, padx=(0, 6), pady=(1, 4), sticky='W')
+
+        # Содержимое и расположение настроек с фреймами
+        self.entry_count_from    = tk.Entry(self.frameCountFrom,  textvariable=self.inp_count_from,   relief='solid', width=10, validate='key', validatecommand=self.vcmd_num)
+        self.entry_format        = tk.Entry(self.frameFormat,     textvariable=self.inp_format,       relief='solid', width=10, validate='key', validatecommand=self.vcmd_natural)
+        self.entry_marker_enc    = tk.Entry(self.frameMarkerEnc,  textvariable=self.inp_marker_enc,   relief='solid')
+        self.entry_marker_dec    = tk.Entry(self.frameMarkerDec,  textvariable=self.inp_marker_dec,   relief='solid')
+        self.entry_dir_enc_from  = tk.Entry(self.frameDirEncFrom, textvariable=self.inp_dir_enc_from, relief='solid', width=65)
+        self.entry_dir_enc_to    = tk.Entry(self.frameDirEncTo,   textvariable=self.inp_dir_enc_to,   relief='solid', width=65)
+        self.entry_dir_dec_from  = tk.Entry(self.frameDirDecFrom, textvariable=self.inp_dir_dec_from, relief='solid', width=65)
+        self.entry_dir_dec_to    = tk.Entry(self.frameDirDecTo,   textvariable=self.inp_dir_dec_to,   relief='solid', width=65)
+        self.entry_count_from.grid(  row=0, column=0, padx=(0, 1))
+        self.entry_format.grid(      row=0, column=0, padx=(0, 1))
+        self.entry_marker_enc.grid(  row=0, column=0, padx=(0, 1))
+        self.entry_marker_dec.grid(  row=0, column=0, padx=(0, 1))
+        self.entry_dir_enc_from.grid(row=0, column=0, padx=(0, 1))
+        self.entry_dir_enc_to.grid(  row=0, column=0, padx=(0, 1))
+        self.entry_dir_dec_from.grid(row=0, column=0, padx=(0, 1))
+        self.entry_dir_dec_to.grid(  row=0, column=0, padx=(0, 1))
 
         tk.Label(self.frameCountFrom, text='(if the numbering name processing mode is selected)').grid(     row=0, column=1)
         tk.Label(self.frameFormat,    text='(if the numbering name processing mode is selected)').grid(     row=0, column=1)
         tk.Label(self.frameMarkerEnc, text='(if the prefix/postfix name processing mode is selected)').grid(row=0, column=1)
         tk.Label(self.frameMarkerDec, text='(if the prefix/postfix name processing mode is selected)').grid(row=0, column=1)
-
         try:
             self.img_search = tk.PhotoImage(file=os.path.join(RESOURCES_DIR, 'search.png'))
             self.btn_source_enc = tk.Button(self.frameDirEncFrom, image=self.img_search, command=self.choose_source_enc)
@@ -996,6 +1017,7 @@ class SettingsW(tk.Toplevel):
         self.btn_source_dec.grid(row=0, column=1)
         self.btn_dest_dec.grid(  row=0, column=1)
 
+        # Кнопки общего фрейма
         self.btn_def           = tk.Button(self.frameAll, text='Set default settings',                          command=self.set_default_settings)
         self.btn_save_custom   = tk.Button(self.frameAll, text='Save current settings as your custom settings', command=self.save_custom_settings)
         self.btn_load_custom   = tk.Button(self.frameAll, text='Load your custom settings',                     command=self.load_custom_settings)
@@ -1005,6 +1027,7 @@ class SettingsW(tk.Toplevel):
         self.btn_load_custom.grid(  row=1, column=2, padx=(0, 4), pady=(0, 4))
         self.btn_remove_custom.grid(row=1, column=3, padx=(0, 4), pady=(0, 4))
 
+        # Кнопки окна
         self.btn_save  = tk.Button(self, text='Accept', command=self.save,  bg=COLOR_ACCEPT)
         self.btn_close = tk.Button(self, text='Close',  command=self.close, bg=COLOR_CLOSE)
         self.btn_save.grid( row=2, column=0, pady=(0, 4))
