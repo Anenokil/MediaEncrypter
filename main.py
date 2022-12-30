@@ -25,8 +25,8 @@ if sys.platform == 'win32':
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.13'
-PROGRAM_DATE = '30.12.2022 14:05'
+PROGRAM_VERSION = 'v6.0.14'
+PROGRAM_DATE = '30.12.2022 15:15'
 
 """ Пути и файлы """
 
@@ -98,29 +98,31 @@ DEFAULT_SETTINGS = {'count_from': 1,
 # Кнопки: activebackground
 # Entry: selectbackground, highlightcolor
 
-ST_BG         = {'light': '#EEEEEE', 'dark': '#555555', 'infernal': '#DD2222'}  # bg или background
-ST_BORDER     = {'light': '#222222', 'dark': '#DDDDDD', 'infernal': '#000000'}  # highlightbackground
+ST_BG         = {'light': '#EEEEEE', 'dark': '#222222', 'infernal': '#DD1515'}  # bg или background
+ST_BG_RGB     = {'light': '#EEEEEE', 'dark': '#222222', 'infernal': '#993333'}  # bg
 
-ST_SELECT     = {'light': '#CCCCCC', 'dark': '#333333', 'infernal': '#FF1111'}  # selectbackground
-ST_HIGHLIGHT  = {'light': '#00DD00', 'dark': '#77DD77', 'infernal': '#FF0000'}  # highlightcolor
+ST_BORDER     = {'light': '#222222', 'dark': '#111111', 'infernal': '#330000'}  # highlightbackground
 
-ST_TEXT       = {'light': '#222222', 'dark': '#CCCCCC', 'infernal': '#000000'}  # fg или foreground
-ST_LOGO       = {'light': '#FF7200', 'dark': '#FF7200', 'infernal': '#FF7200'}  # fg
-ST_FOOTER     = {'light': '#666666', 'dark': '#666666', 'infernal': '#330000'}  # fg
-ST_EXAMPLE    = {'light': '#44AABB', 'dark': '#44AABB', 'infernal': '#44AABB'}  # fg
+ST_SELECT     = {'light': '#BBBBBB', 'dark': '#444444', 'infernal': '#FF5500'}  # selectbackground
+ST_HIGHLIGHT  = {'light': '#00DD00', 'dark': '#007700', 'infernal': '#EEEEEE'}  # highlightcolor
 
-ST_ENTRY      = {'light': '#FFFFFF', 'dark': '#333333', 'infernal': '#333333'}  # bg
-ST_ENTRY_ERR  = {'light': '#EE3333', 'dark': '#EE3333', 'infernal': '#EE3333'}  # bg
-ST_KEY        = {'light': '#EE0000', 'dark': '#EE0000', 'infernal': '#EE0000'}  # fg
+ST_TEXT       = {'light': '#222222', 'dark': '#979797', 'infernal': '#000000'}  # fg или foreground
+ST_LOGO       = {'light': '#FF7200', 'dark': '#803600', 'infernal': '#FF7200'}  # fg
+ST_FOOTER     = {'light': '#666666', 'dark': '#666666', 'infernal': '#222222'}  # fg
+ST_EXAMPLE    = {'light': '#448899', 'dark': '#448899', 'infernal': '#010101'}  # fg
 
-ST_BTN        = {'light': '#CCCCCC', 'dark': '#222222', 'infernal': '#CC2222'}  # bg
-ST_BTN_SELECT = {'light': '#999999', 'dark': '#555555', 'infernal': '#993333'}  # activebackground
-ST_MCM        = {'light': '#DCDCDC', 'dark': '#DCDCDC', 'infernal': '#CC4444'}  # bg
-ST_MCM_SELECT = {'light': '#999999', 'dark': '#555555', 'infernal': '#993333'}  # activebackground
-ST_ACCEPT     = {'light': '#88DD88', 'dark': '#88DD88', 'infernal': '#CC3333'}  # bg
-ST_ACC_SELECT = {'light': '#999999', 'dark': '#555555', 'infernal': '#993333'}  # activebackground
-ST_CLOSE      = {'light': '#FF6666', 'dark': '#FF6666', 'infernal': '#AA0000'}  # bg
-ST_CLS_SELECT = {'light': '#999999', 'dark': '#555555', 'infernal': '#993333'}  # activebackground
+ST_ENTRY      = {'light': '#FFFFFF', 'dark': '#171717', 'infernal': '#CCCCCC'}  # bg
+ST_ENTRY_ERR  = {'light': '#EE6666', 'dark': '#773333', 'infernal': '#FF0000'}  # bg
+ST_KEY        = {'light': '#EE0000', 'dark': '#BC4040', 'infernal': '#FF0000'}  # fg
+
+ST_BTN        = {'light': '#D0D0D0', 'dark': '#303030', 'infernal': '#DD2020'}  # bg
+ST_BTN_SELECT = {'light': '#C0C0C0', 'dark': '#404040', 'infernal': '#DD5020'}  # activebackground
+ST_MCM        = {'light': '#B0B0B0', 'dark': '#505050', 'infernal': '#CC3333'}  # bg
+ST_MCM_SELECT = {'light': '#A0A0A0', 'dark': '#606060', 'infernal': '#CC6333'}  # activebackground
+ST_ACCEPT     = {'light': '#88DD88', 'dark': '#446F44', 'infernal': '#CC6633'}  # bg
+ST_ACC_SELECT = {'light': '#77CC77', 'dark': '#558055', 'infernal': '#CC9633'}  # activebackground
+ST_CLOSE      = {'light': '#FF6666', 'dark': '#803333', 'infernal': '#CD0000'}  # bg
+ST_CLS_SELECT = {'light': '#EE5555', 'dark': '#904444', 'infernal': '#CD3000'}  # activebackground
 
 """ Ключ """
 
@@ -1468,21 +1470,21 @@ class ManualW(tk.Toplevel):
         self.vcmd = (self.register(validate_natural), '%P')
 
         self.frame_all = tk.LabelFrame(self,          bg=ST_BG[st], highlightbackground=ST_BORDER[st])
-        self.frame_rgb = tk.LabelFrame(self.frame_all, bg=ST_BG[st], highlightbackground=ST_BORDER[st])
+        self.frame_rgb = tk.LabelFrame(self.frame_all, bg=ST_BG_RGB[st], highlightbackground=ST_BORDER[st])
         self.frame_all.grid(row=0, column=0, columnspan=2, padx=4, pady=4)
         self.frame_rgb.grid(row=0, column=0, columnspan=4, padx=4, pady=4)
 
-        tk.Label(self.frame_rgb, text='RED',   bg=ST_BG[st], fg='RED').grid(  row=0, column=1, pady=(4, 1))
-        tk.Label(self.frame_rgb, text='GREEN', bg=ST_BG[st], fg='GREEN').grid(row=0, column=2, pady=(4, 1))
-        tk.Label(self.frame_rgb, text='BLUE',  bg=ST_BG[st], fg='BLUE').grid( row=0, column=3, pady=(4, 1))
+        tk.Label(self.frame_rgb, text='RED',   bg=ST_BG_RGB[st], fg='RED').grid(  row=0, column=1, pady=(4, 1))
+        tk.Label(self.frame_rgb, text='GREEN', bg=ST_BG_RGB[st], fg='GREEN').grid(row=0, column=2, pady=(4, 1))
+        tk.Label(self.frame_rgb, text='BLUE',  bg=ST_BG_RGB[st], fg='BLUE').grid( row=0, column=3, pady=(4, 1))
 
-        tk.Label(self.frame_rgb, text='H multiplier',          bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=1, column=0, sticky='E', padx=(6, 1), pady=1)
-        tk.Label(self.frame_rgb, text='W multiplier',          bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=2, column=0, sticky='E', padx=(6, 1), pady=1)
-        tk.Label(self.frame_rgb, text='H shift',               bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=3, column=0, sticky='E', padx=(6, 1), pady=1)
-        tk.Label(self.frame_rgb, text='W shift',               bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=4, column=0, sticky='E', padx=(6, 1), pady=1)
-        tk.Label(self.frame_rgb, text='Primary color shift',   bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=6, column=0, sticky='E', padx=(6, 1), pady=1)
-        tk.Label(self.frame_rgb, text='Color multiplier',      bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=7, column=0, sticky='E', padx=(6, 1), pady=1)
-        tk.Label(self.frame_rgb, text='Secondary color shift', bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=8, column=0, sticky='E', padx=(6, 1), pady=(1, 4))
+        tk.Label(self.frame_rgb, text='H multiplier',          bg=ST_BG_RGB[st], fg=ST_TEXT[st]).grid(row=1, column=0, sticky='E', padx=(6, 1), pady=1)
+        tk.Label(self.frame_rgb, text='W multiplier',          bg=ST_BG_RGB[st], fg=ST_TEXT[st]).grid(row=2, column=0, sticky='E', padx=(6, 1), pady=1)
+        tk.Label(self.frame_rgb, text='H shift',               bg=ST_BG_RGB[st], fg=ST_TEXT[st]).grid(row=3, column=0, sticky='E', padx=(6, 1), pady=1)
+        tk.Label(self.frame_rgb, text='W shift',               bg=ST_BG_RGB[st], fg=ST_TEXT[st]).grid(row=4, column=0, sticky='E', padx=(6, 1), pady=1)
+        tk.Label(self.frame_rgb, text='Primary color shift',   bg=ST_BG_RGB[st], fg=ST_TEXT[st]).grid(row=6, column=0, sticky='E', padx=(6, 1), pady=1)
+        tk.Label(self.frame_rgb, text='Color multiplier',      bg=ST_BG_RGB[st], fg=ST_TEXT[st]).grid(row=7, column=0, sticky='E', padx=(6, 1), pady=1)
+        tk.Label(self.frame_rgb, text='Secondary color shift', bg=ST_BG_RGB[st], fg=ST_TEXT[st]).grid(row=8, column=0, sticky='E', padx=(6, 1), pady=(1, 4))
 
         self.entry_mult_blocks_h_r = tk.Entry(self.frame_rgb, width=10, textvariable=self.inp_mult_blocks_h_r, bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], validate='key', validatecommand=self.vcmd)
         self.entry_mult_blocks_h_g = tk.Entry(self.frame_rgb, width=10, textvariable=self.inp_mult_blocks_h_g, bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], validate='key', validatecommand=self.vcmd)
@@ -1506,27 +1508,27 @@ class ManualW(tk.Toplevel):
         self.entry_shift2_g =        tk.Entry(self.frame_rgb, width=10, textvariable=self.inp_shift2_g,        bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], validate='key', validatecommand=self.vcmd)
         self.entry_shift2_b =        tk.Entry(self.frame_rgb, width=10, textvariable=self.inp_shift2_b,        bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], validate='key', validatecommand=self.vcmd)
 
-        self.entry_mult_blocks_h_r.grid(row=1, column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.entry_mult_blocks_h_g.grid(row=1, column=2, padx=(0, 6), pady=1,      sticky='W')
-        self.entry_mult_blocks_h_b.grid(row=1, column=3, padx=(0, 6), pady=1,      sticky='W')
-        self.entry_mult_blocks_w_r.grid(row=2, column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.entry_mult_blocks_w_g.grid(row=2, column=2, padx=(0, 6), pady=1,      sticky='W')
-        self.entry_mult_blocks_w_b.grid(row=2, column=3, padx=(0, 6), pady=1,      sticky='W')
-        self.entry_shift_h_r.grid(      row=3, column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.entry_shift_h_g.grid(      row=3, column=2, padx=(0, 6), pady=1,      sticky='W')
-        self.entry_shift_h_b.grid(      row=3, column=3, padx=(0, 6), pady=1,      sticky='W')
-        self.entry_shift_w_r.grid(      row=4, column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.entry_shift_w_g.grid(      row=4, column=2, padx=(0, 6), pady=1,      sticky='W')
-        self.entry_shift_w_b.grid(      row=4, column=3, padx=(0, 6), pady=1,      sticky='W')
-        self.entry_shift_r.grid(        row=6, column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.entry_shift_g.grid(        row=6, column=2, padx=(0, 6), pady=1,      sticky='W')
-        self.entry_shift_b.grid(        row=6, column=3, padx=(0, 6), pady=1,      sticky='W')
-        self.entry_mult_r.grid(         row=7, column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.entry_mult_g.grid(         row=7, column=2, padx=(0, 6), pady=1,      sticky='W')
-        self.entry_mult_b.grid(         row=7, column=3, padx=(0, 6), pady=1,      sticky='W')
-        self.entry_shift2_r.grid(       row=8, column=1, padx=(0, 6), pady=(1, 4), sticky='W')
-        self.entry_shift2_g.grid(       row=8, column=2, padx=(0, 6), pady=(1, 4), sticky='W')
-        self.entry_shift2_b.grid(       row=8, column=3, padx=(0, 6), pady=(1, 4), sticky='W')
+        self.entry_mult_blocks_h_r.grid(row=1, column=1, padx=(0, 6), pady=1)
+        self.entry_mult_blocks_h_g.grid(row=1, column=2, padx=(0, 6), pady=1)
+        self.entry_mult_blocks_h_b.grid(row=1, column=3, padx=(0, 6), pady=1)
+        self.entry_mult_blocks_w_r.grid(row=2, column=1, padx=(0, 6), pady=1)
+        self.entry_mult_blocks_w_g.grid(row=2, column=2, padx=(0, 6), pady=1)
+        self.entry_mult_blocks_w_b.grid(row=2, column=3, padx=(0, 6), pady=1)
+        self.entry_shift_h_r.grid(      row=3, column=1, padx=(0, 6), pady=1)
+        self.entry_shift_h_g.grid(      row=3, column=2, padx=(0, 6), pady=1)
+        self.entry_shift_h_b.grid(      row=3, column=3, padx=(0, 6), pady=1)
+        self.entry_shift_w_r.grid(      row=4, column=1, padx=(0, 6), pady=1)
+        self.entry_shift_w_g.grid(      row=4, column=2, padx=(0, 6), pady=1)
+        self.entry_shift_w_b.grid(      row=4, column=3, padx=(0, 6), pady=1)
+        self.entry_shift_r.grid(        row=6, column=1, padx=(0, 6), pady=1)
+        self.entry_shift_g.grid(        row=6, column=2, padx=(0, 6), pady=1)
+        self.entry_shift_b.grid(        row=6, column=3, padx=(0, 6), pady=1)
+        self.entry_mult_r.grid(         row=7, column=1, padx=(0, 6), pady=1)
+        self.entry_mult_g.grid(         row=7, column=2, padx=(0, 6), pady=1)
+        self.entry_mult_b.grid(         row=7, column=3, padx=(0, 6), pady=1)
+        self.entry_shift2_r.grid(       row=8, column=1, padx=(0, 6), pady=(1, 4))
+        self.entry_shift2_g.grid(       row=8, column=2, padx=(0, 6), pady=(1, 4))
+        self.entry_shift2_b.grid(       row=8, column=3, padx=(0, 6), pady=(1, 4))
 
         tk.Label(self.frame_all, text='Multiplier for filenames', bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=1, column=0, sticky='E', padx=(6, 1), pady=(0, 4))
         tk.Label(self.frame_all, text='Channels order',           bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=1, column=2, sticky='E', padx=(6, 1), pady=(0, 4))
