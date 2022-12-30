@@ -25,8 +25,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.15'
-PROGRAM_DATE = '30.12.2022 15:40'
+PROGRAM_VERSION = 'v6.0.16'
+PROGRAM_DATE = '30.12.2022 12:47'
 
 """ Пути и файлы """
 
