@@ -1,4 +1,5 @@
 import os
+import sys
 from skimage.io import imread, imsave
 from numpy import dstack, uint8, arange
 from math import gcd  # НОД
@@ -8,19 +9,24 @@ from PIL import Image  # Разбиение gif-изображений на ка
 import imageio.v2 as io  # Составление gif-изображений из кадров
 from moviepy.editor import VideoFileClip  # Разбиение видео на кадры
 import cv2  # Составление видео из кадров
-import tkinter as tk
-from tkinter.ttk import Combobox, Checkbutton
-from tkinter.filedialog import askdirectory
+if sys.version_info[0] == 3:
+    import tkinter as tk
+    from tkinter.ttk import Combobox, Checkbutton
+    from tkinter.filedialog import askdirectory
+else:
+    import Tkinter as tk
+    from Tkinter.ttk import Combobox, Checkbutton
+    from Tkinter.filedialog import askdirectory
 from time import perf_counter
 from colorama import Fore, Style  # Цвета в консоли
-import ctypes  # Для цветного текста в консоли Windows
-
-kernel32 = ctypes.windll.kernel32
-kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+if sys.platform == 'win32':
+    import ctypes  # Для цветного текста в консоли Windows
+    kernel32 = ctypes.windll.kernel32
+    kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.0'
-PROGRAM_DATE = '27.12.2022 15:46'
+PROGRAM_VERSION = 'v6.0.1'
+PROGRAM_DATE = '30.12.2022  5:01'
 
 """ Цвета """
 
