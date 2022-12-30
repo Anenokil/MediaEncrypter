@@ -25,8 +25,8 @@ if sys.platform == 'win32':
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.3'
-PROGRAM_DATE = '30.12.2022  6:05'
+PROGRAM_VERSION = 'v6.0.4'
+PROGRAM_DATE = '30.12.2022  6:06'
 
 """ Цвета """
 
@@ -89,7 +89,7 @@ PRINT_INFO_MODES = ['don`t print', 'print']  # Варианты печати и�
 DEFAULT_SETTINGS = {'count_from': 1, 'format': 1,
                     'support_ru': 'no', 'processing_ru': 'transliterate to latin',
                     'naming_mode': 'encryption', 'print_info': 'don`t print',
-                    'marker_enc': '_ENC_', 'marker_dec': '_DEC',
+                    'marker_enc': '_ENC_', 'marker_dec': '_DEC_',
                     'dir_enc_from': 'f_src', 'dir_enc_to': 'f_enc', 'dir_dec_from': 'f_enc', 'dir_dec_to': 'f_dec',
                     'example_key': '_123456789_123456789_123456789_123456789'}
 
