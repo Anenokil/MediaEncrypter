@@ -25,8 +25,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.17'
-PROGRAM_DATE = '30.12.2022 16:38'
+PROGRAM_VERSION = 'v6.0.18'
+PROGRAM_DATE = '30.12.2022 16:48'
 
 """ Пути и файлы """
 
@@ -1143,8 +1143,8 @@ class SettingsW(tk.Toplevel):
 
     # Были ли изменены настройки
     def has_changes(self):
-        return settings['count_from'] != int(self.inp_count_from.get()) or\
-            settings['format'] != int(self.inp_format.get()) or \
+        return str(settings['count_from']) != self.inp_count_from.get() or\
+            str(settings['format']) != self.inp_format.get() or \
             (settings['support_ru'] == 'yes') != self.inp_support_ru.get() or\
             settings['processing_ru'] != self.inp_processing_ru.get() or\
             settings['naming_mode'] != self.inp_naming_mode.get() or\
