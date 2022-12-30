@@ -25,8 +25,8 @@ if sys.platform == 'win32':
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.10'
-PROGRAM_DATE = '30.12.2022 12:43'
+PROGRAM_VERSION = 'v6.0.11'
+PROGRAM_DATE = '30.12.2022 12:55'
 
 """ Пути и файлы """
 
@@ -93,9 +93,11 @@ DEFAULT_SETTINGS = {'count_from': 1,
 
 """ Стили """
 
-# все: bg, fg, border
-# кнопки: activebackground
-# entry: select, highlight
+# Все: bg
+# Все, кроме frame: fg
+# Все, кроме текста: border
+# Кнопки: activebackground
+# Entry: selectbackground, highlightcolor
 
 ST_BG         = {'light': '#EEEEEE', 'dark': '#555555', 'infernal': '#DD2222'}  # bg или background
 ST_BORDER     = {'light': '#222222', 'dark': '#DDDDDD', 'infernal': '#000000'}  # highlightbackground
@@ -951,10 +953,7 @@ class SettingsW(tk.Toplevel):
         self.inp_format        = tk.StringVar(value=str(settings['format']))
         self.inp_marker_enc    = tk.StringVar(value=settings['marker_enc'])
         self.inp_marker_dec    = tk.StringVar(value=settings['marker_dec'])
-        if settings['support_ru'] == 'yes':
-            self.inp_support_ru = tk.BooleanVar(value=True)
-        else:
-            self.inp_support_ru = tk.BooleanVar(value=False)
+        self.inp_support_ru    = tk.BooleanVar(value=(settings['support_ru'] == 'yes'))
         self.inp_processing_ru = tk.StringVar(value=settings['processing_ru'])
         self.inp_src_dir_enc   = tk.StringVar(value=settings['src_dir_enc'])
         self.inp_dst_dir_enc   = tk.StringVar(value=settings['dst_dir_enc'])
@@ -1120,8 +1119,7 @@ class SettingsW(tk.Toplevel):
     def has_changes(self):
         return settings['count_from'] != int(self.inp_count_from.get()) or\
             settings['format'] != int(self.inp_format.get()) or \
-            (settings['support_ru'] == 'no'  and     self.inp_support_ru.get()) or\
-            (settings['support_ru'] == 'yes' and not self.inp_support_ru.get()) or\
+            (settings['support_ru'] == 'yes') != self.inp_support_ru.get() or\
             settings['processing_ru'] != self.inp_processing_ru.get() or\
             settings['naming_mode'] != self.inp_naming_mode.get() or\
             settings['print_info'] != self.inp_print_info.get() or\
@@ -1223,10 +1221,7 @@ class SettingsW(tk.Toplevel):
             tmp_ = file.readline().strip()
             if tmp_ not in SUPPORT_RU_MODES:
                 tmp_ = DEFAULT_SETTINGS['support_ru']
-            if tmp_ == 'yes':
-                self.inp_support_ru.set(True)
-            else:
-                self.inp_support_ru.set(False)
+            self.inp_support_ru.set(tmp_ == 'yes')
 
             tmp = file.readline().strip()
             if tmp_ == DEFAULT_SETTINGS['support_ru']:
