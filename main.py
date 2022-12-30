@@ -25,8 +25,8 @@ if sys.platform == 'win32':
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.11'
-PROGRAM_DATE = '30.12.2022 12:55'
+PROGRAM_VERSION = 'v6.0.12'
+PROGRAM_DATE = '30.12.2022 13:10'
 
 """ Пути и файлы """
 
@@ -64,9 +64,8 @@ INT_SETTINGS_NUM = 2  # Количество числовых настроек
 SETTINGS_NUM = 14  # Количество всех настроек
 
 # Названия настроек
-SETTINGS_NAMES = ['count_from', 'format', 'support_ru', 'processing_ru', 'naming_mode', 'print_info',
-                  'marker_enc', 'marker_dec', 'src_dir_enc', 'dst_dir_enc', 'src_dir_dec', 'dst_dir_dec',
-                  'example_key', 'style']
+SETTINGS_NAMES = ['count_from', 'format', 'support_ru', 'processing_ru', 'naming_mode', 'print_info', 'style',
+                  'marker_enc', 'marker_dec', 'src_dir_enc', 'dst_dir_enc', 'src_dir_dec', 'dst_dir_dec', 'example_key']
 
 # Варианты значений настроек с перечислимым типом
 SUPPORT_RU_MODES = ['yes', 'no']  # Варианты поддержки кириллических букв
@@ -82,14 +81,14 @@ DEFAULT_SETTINGS = {'count_from': 1,
                     'processing_ru': 'transliterate to latin',
                     'naming_mode': 'encryption',
                     'print_info': 'don`t print',
+                    'style': 'light',
                     'marker_enc': '_ENC_',
                     'marker_dec': '_DEC_',
                     'src_dir_enc': 'f_src',
                     'dst_dir_enc': 'f_enc',
                     'src_dir_dec': 'f_enc',
                     'dst_dir_dec': 'f_dec',
-                    'example_key': '_123456789_123456789_123456789_123456789',
-                    'style': 'light'}
+                    'example_key': '_123456789_123456789_123456789_123456789'}
 
 """ Стили """
 
@@ -173,10 +172,10 @@ def correct_settings():
         settings['print_info'] = DEFAULT_SETTINGS['print_info']
     if settings['naming_mode'] not in NAMING_MODES:
         settings['naming_mode'] = DEFAULT_SETTINGS['naming_mode']
-    if check_key(settings['example_key'])[0] != '+':
-        settings['example_key'] = DEFAULT_SETTINGS['example_key']
     if settings['style'] not in STYLE_MODES:
         settings['style'] = DEFAULT_SETTINGS['style']
+    if check_key(settings['example_key'])[0] != '+':
+        settings['example_key'] = DEFAULT_SETTINGS['example_key']
 
     if settings['support_ru'] == DEFAULT_SETTINGS['support_ru']:
         settings['processing_ru'] = DEFAULT_SETTINGS['processing_ru']
@@ -948,6 +947,7 @@ class SettingsW(tk.Toplevel):
         self.key = tk.StringVar()
 
         # Переменные, к которым привязаны настройки
+        self.inp_style         = tk.StringVar(value=settings['style'])
         self.inp_naming_mode   = tk.StringVar(value=settings['naming_mode'])
         self.inp_count_from    = tk.StringVar(value=str(settings['count_from']))
         self.inp_format        = tk.StringVar(value=str(settings['format']))
@@ -989,19 +989,20 @@ class SettingsW(tk.Toplevel):
         self.frameFields.grid(row=0, column=0, columnspan=4, padx=4, pady=4)
 
         # Названия настроек
-        tk.Label(self.frameFields, text='File names conversion mode',       bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=0,  column=0, padx=(6, 1), pady=(4, 1), sticky='E')
-        tk.Label(self.frameFields, text='Start numbering files from',       bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=1,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        tk.Label(self.frameFields, text='Number of characters in number',   bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=2,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        tk.Label(self.frameFields, text='Marker for encoded files',         bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=3,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        tk.Label(self.frameFields, text='Marker for decoded files',         bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=4,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        tk.Label(self.frameFields, text='Russian letters support',          bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=5,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        tk.Label(self.frameFields, text='Russian letters processing mode',  bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=6,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        tk.Label(self.frameFields, text='Source folder when encoding',      bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=7,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        tk.Label(self.frameFields, text='Destination folder when encoding', bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=8,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        tk.Label(self.frameFields, text='Source folder when decoding',      bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=9,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        tk.Label(self.frameFields, text='Destination folder when decoding', bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=10, column=0, padx=(6, 1), pady=1,      sticky='E')
-        tk.Label(self.frameFields, text='Example of a key',                 bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=11, column=0, padx=(6, 1), pady=1,      sticky='E')
-        tk.Label(self.frameFields, text='Whether to print info',            bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=12, column=0, padx=(6, 1), pady=(1, 4), sticky='E')
+        tk.Label(self.frameFields, text='Style',                            bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=0,  column=0, padx=(6, 1), pady=(4, 1), sticky='E')
+        tk.Label(self.frameFields, text='File names conversion mode',       bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=1,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        tk.Label(self.frameFields, text='Start numbering files from',       bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=2,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        tk.Label(self.frameFields, text='Number of characters in number',   bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=3,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        tk.Label(self.frameFields, text='Marker for encoded files',         bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=4,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        tk.Label(self.frameFields, text='Marker for decoded files',         bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=5,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        tk.Label(self.frameFields, text='Russian letters support',          bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=6,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        tk.Label(self.frameFields, text='Russian letters processing mode',  bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=7,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        tk.Label(self.frameFields, text='Source folder when encoding',      bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=8,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        tk.Label(self.frameFields, text='Destination folder when encoding', bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=9,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        tk.Label(self.frameFields, text='Source folder when decoding',      bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=10, column=0, padx=(6, 1), pady=1,      sticky='E')
+        tk.Label(self.frameFields, text='Destination folder when decoding', bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=11, column=0, padx=(6, 1), pady=1,      sticky='E')
+        tk.Label(self.frameFields, text='Example of a key',                 bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=12, column=0, padx=(6, 1), pady=1,      sticky='E')
+        tk.Label(self.frameFields, text='Whether to print info',            bg=ST_BG[st], fg=ST_TEXT[st]).grid(row=13, column=0, padx=(6, 1), pady=(1, 4), sticky='E')
 
         self.st_combo = ttk.Style()
         self.st_combo.configure(style='.TCombobox', background=ST_BG[st], foreground=ST_TEXT[st], highlightbackground=ST_BORDER[st])
@@ -1011,6 +1012,7 @@ class SettingsW(tk.Toplevel):
         self.st_check.map('.TCheckbutton', background=[('active', ST_SELECT[st])])
 
         # Сами настройки
+        self.combo_style         = ttk.Combobox(   self.frameFields, textvariable=self.inp_style,       style='.TCombobox', values=STYLE_MODES,  state='readonly')
         self.combo_naming_mode   = ttk.Combobox(   self.frameFields, textvariable=self.inp_naming_mode, style='.TCombobox', values=NAMING_MODES, state='readonly')
         self.frameCountFrom      = tk.LabelFrame(  self.frameFields, borderwidth=0, bg=ST_BG[st])
         self.frameFormat         = tk.LabelFrame(  self.frameFields, borderwidth=0, bg=ST_BG[st])
@@ -1029,19 +1031,20 @@ class SettingsW(tk.Toplevel):
             self.combo_processing_ru['state'] = 'disabled'
 
         # Расположение настроек
-        self.combo_naming_mode.grid(  row=0,  column=1, padx=(0, 6), pady=(4, 1), sticky='W')
-        self.frameCountFrom.grid(     row=1,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frameFormat.grid(        row=2,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frameMarkerEnc.grid(     row=3,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frameMarkerDec.grid(     row=4,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.check_support_ru.grid(   row=5,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.combo_processing_ru.grid(row=6,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frameSrcDirEnc.grid(     row=7,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frameDstDirEnc.grid(     row=8,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frameSrcDirDec.grid(     row=9,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frameDstDirDec.grid(     row=10, column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.entry_example_key.grid(  row=11, column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.combo_print_info.grid(   row=12, column=1, padx=(0, 6), pady=(1, 4), sticky='W')
+        self.combo_style.grid(        row=0,  column=1, padx=(0, 6), pady=(4, 1), sticky='W')
+        self.combo_naming_mode.grid(  row=1,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frameCountFrom.grid(     row=2,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frameFormat.grid(        row=3,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frameMarkerEnc.grid(     row=4,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frameMarkerDec.grid(     row=5,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.check_support_ru.grid(   row=6,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.combo_processing_ru.grid(row=7,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frameSrcDirEnc.grid(     row=8,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frameDstDirEnc.grid(     row=9,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frameSrcDirDec.grid(     row=10, column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frameDstDirDec.grid(     row=11, column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.entry_example_key.grid(  row=12, column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.combo_print_info.grid(   row=13, column=1, padx=(0, 6), pady=(1, 4), sticky='W')
 
         # Содержимое и расположение настроек с фреймами
         min_len_marker = 10
@@ -1123,6 +1126,7 @@ class SettingsW(tk.Toplevel):
             settings['processing_ru'] != self.inp_processing_ru.get() or\
             settings['naming_mode'] != self.inp_naming_mode.get() or\
             settings['print_info'] != self.inp_print_info.get() or\
+            settings['style'] != self.inp_style.get() or\
             settings['marker_enc'] != self.inp_marker_enc.get() or\
             settings['marker_dec'] != self.inp_marker_dec.get() or\
             settings['src_dir_enc'] != self.inp_src_dir_enc.get() or\
@@ -1159,6 +1163,7 @@ class SettingsW(tk.Toplevel):
         self.inp_processing_ru.set(DEFAULT_SETTINGS['processing_ru'])
         self.inp_naming_mode.set(DEFAULT_SETTINGS['naming_mode'])
         self.inp_print_info.set(DEFAULT_SETTINGS['print_info'])
+        self.inp_style.set(DEFAULT_SETTINGS['style'])
         self.inp_marker_enc.set(DEFAULT_SETTINGS['marker_enc'])
         self.inp_marker_dec.set(DEFAULT_SETTINGS['marker_dec'])
         self.inp_src_dir_enc.set(DEFAULT_SETTINGS['src_dir_enc'])
@@ -1243,6 +1248,11 @@ class SettingsW(tk.Toplevel):
                 tmp = DEFAULT_SETTINGS['print_info']
             self.inp_print_info.set(tmp)
 
+            tmp = file.readline().strip()
+            if tmp not in STYLE_MODES:
+                tmp = DEFAULT_SETTINGS['style']
+            self.inp_style.set(tmp)
+
             self.inp_marker_enc.set( file.readline().strip())
             self.inp_marker_dec.set( file.readline().strip())
             self.inp_src_dir_enc.set(file.readline().strip())
@@ -1266,6 +1276,8 @@ class SettingsW(tk.Toplevel):
 
     # Сохранить изменения
     def save(self):
+        global st
+
         has_errors = False
 
         if self.inp_count_from.get() in ['', '-']:
@@ -1301,6 +1313,7 @@ class SettingsW(tk.Toplevel):
         settings['processing_ru'] = self.inp_processing_ru.get()
         settings['naming_mode']   = self.inp_naming_mode.get()
         settings['print_info']    = self.inp_print_info.get()
+        settings['style']         = self.inp_style.get()
         settings['marker_enc']    = self.inp_marker_enc.get()
         settings['marker_dec']    = self.inp_marker_dec.get()
         settings['src_dir_enc']   = self.inp_src_dir_enc.get()
@@ -1308,6 +1321,8 @@ class SettingsW(tk.Toplevel):
         settings['src_dir_dec']   = self.inp_src_dir_dec.get()
         settings['dst_dir_dec']   = self.inp_dst_dir_dec.get()
         settings['example_key']   = self.inp_example_key.get()
+
+        st = settings['style']
 
         save_settings_to_file()
 
