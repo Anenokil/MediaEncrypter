@@ -25,8 +25,8 @@ if sys.platform == 'win32':
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.1'
-PROGRAM_DATE = '30.12.2022  5:01'
+PROGRAM_VERSION = 'v6.0.2'
+PROGRAM_DATE = '30.12.2022  5:33'
 
 """ Цвета """
 
@@ -1026,17 +1026,17 @@ class SettingsW(tk.Toplevel):
     # Выбор папки назначения при шифровке
     def choose_dest_enc(self):
         directory = askdirectory()
-        self.inp_dir_enc_to = directory
+        self.inp_dir_enc_to.set(directory)
 
     # Выбор папки источника при дешифровке
     def choose_source_dec(self):
         directory = askdirectory()
-        self.inp_dir_dec_from = directory
+        self.inp_dir_dec_from.set(directory)
 
     # Выбор папки назначения при дешифровке
     def choose_dest_dec(self):
         directory = askdirectory()
-        self.inp_dir_dec_to = directory
+        self.inp_dir_dec_to.set(directory)
 
     # Сохранить изменения
     def save(self):
