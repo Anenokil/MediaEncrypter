@@ -25,8 +25,8 @@ if sys.platform == 'win32':
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.8'
-PROGRAM_DATE = '30.12.2022  8:03'
+PROGRAM_VERSION = 'v6.0.9'
+PROGRAM_DATE = '30.12.2022  9:22'
 
 """ Цвета """
 
@@ -741,6 +741,18 @@ def validate_key(value):
     return validate_symbols(value, KEY_SYMBOLS) and validate_len(value, KEY_LEN)
 
 
+# Расширение поля ввода для длинных строк
+def validate_expand(value, entry, min_len, max_len):
+    len_value = len(value)
+    if len_value <= min_len:
+        entry['width'] = min_len
+    elif len_value >= max_len:
+        entry['width'] = max_len
+    else:
+        entry['width'] = len_value
+    return True
+
+
 # Всплывающее окно с сообщением
 class PopupMsgW(tk.Toplevel):
     def __init__(self, parent, msg, btn_text='OK', title='Media encrypter'):
@@ -980,14 +992,24 @@ class SettingsW(tk.Toplevel):
         self.combo_print_info.grid(   row=12, column=1, padx=(0, 6), pady=(1, 4), sticky='W')
 
         # Содержимое и расположение настроек с фреймами
+        min_len_marker = 10
+        max_len_marker = 70
+        min_len_dir = 50
+        max_len_dir = 120
         self.entry_count_from  = tk.Entry(self.frameCountFrom, textvariable=self.inp_count_from,  relief='solid', width=10, validate='key', validatecommand=self.vcmd_num)
-        self.entry_format      = tk.Entry(self.frameFormat,    textvariable=self.inp_format,      relief='solid', width=10, validate='key', validatecommand=self.vcmd_natural)
-        self.entry_marker_enc  = tk.Entry(self.frameMarkerEnc, textvariable=self.inp_marker_enc,  relief='solid')
-        self.entry_marker_dec  = tk.Entry(self.frameMarkerDec, textvariable=self.inp_marker_dec,  relief='solid')
-        self.entry_src_dir_enc = tk.Entry(self.frameSrcDirEnc, textvariable=self.inp_src_dir_enc, relief='solid', width=65)
-        self.entry_dst_dir_enc = tk.Entry(self.frameDstDirEnc, textvariable=self.inp_dst_dir_enc, relief='solid', width=65)
-        self.entry_src_dir_dec = tk.Entry(self.frameSrcDirDec, textvariable=self.inp_src_dir_dec, relief='solid', width=65)
-        self.entry_dst_dir_dec = tk.Entry(self.frameDstDirDec, textvariable=self.inp_dst_dir_dec, relief='solid', width=65)
+        self.entry_format      = tk.Entry(self.frameFormat,    textvariable=self.inp_format,      relief='solid', width=5, validate='key', validatecommand=self.vcmd_natural)
+        self.entry_marker_enc  = tk.Entry(self.frameMarkerEnc, textvariable=self.inp_marker_enc,  relief='solid', width=min(max_len_marker,  max(min_len_marker, len(self.inp_marker_enc.get()))),  font='TkFixedFont', validate='key')
+        self.entry_marker_dec  = tk.Entry(self.frameMarkerDec, textvariable=self.inp_marker_dec,  relief='solid', width=min(max_len_marker,  max(min_len_marker, len(self.inp_marker_dec.get()))),  font='TkFixedFont', validate='key')
+        self.entry_src_dir_enc = tk.Entry(self.frameSrcDirEnc, textvariable=self.inp_src_dir_enc, relief='solid', width=min(max_len_dir,     max(min_len_dir,    len(self.inp_src_dir_enc.get()))), font='TkFixedFont', validate='key')
+        self.entry_dst_dir_enc = tk.Entry(self.frameDstDirEnc, textvariable=self.inp_dst_dir_enc, relief='solid', width=min(max_len_dir,     max(min_len_dir,    len(self.inp_dst_dir_enc.get()))), font='TkFixedFont', validate='key')
+        self.entry_src_dir_dec = tk.Entry(self.frameSrcDirDec, textvariable=self.inp_src_dir_dec, relief='solid', width=min(max_len_dir,     max(min_len_dir,    len(self.inp_src_dir_dec.get()))), font='TkFixedFont', validate='key')
+        self.entry_dst_dir_dec = tk.Entry(self.frameDstDirDec, textvariable=self.inp_dst_dir_dec, relief='solid', width=min(max_len_dir,     max(min_len_dir,    len(self.inp_dst_dir_dec.get()))), font='TkFixedFont', validate='key')
+        self.entry_marker_enc ['validatecommand'] = (self.register(lambda value: validate_expand(value, self.entry_marker_enc,  min_len_marker, max_len_marker)),  '%P')
+        self.entry_marker_dec ['validatecommand'] = (self.register(lambda value: validate_expand(value, self.entry_marker_dec,  min_len_marker, max_len_marker)),  '%P')
+        self.entry_src_dir_enc['validatecommand'] = (self.register(lambda value: validate_expand(value, self.entry_src_dir_enc, min_len_dir,    max_len_dir)), '%P')
+        self.entry_dst_dir_enc['validatecommand'] = (self.register(lambda value: validate_expand(value, self.entry_dst_dir_enc, min_len_dir,    max_len_dir)), '%P')
+        self.entry_src_dir_dec['validatecommand'] = (self.register(lambda value: validate_expand(value, self.entry_src_dir_dec, min_len_dir,    max_len_dir)), '%P')
+        self.entry_dst_dir_dec['validatecommand'] = (self.register(lambda value: validate_expand(value, self.entry_dst_dir_dec, min_len_dir,    max_len_dir)), '%P')
         self.entry_count_from.grid( row=0, column=0, padx=(0, 1))
         self.entry_format.grid(     row=0, column=0, padx=(0, 1))
         self.entry_marker_enc.grid( row=0, column=0, padx=(0, 1))
