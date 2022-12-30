@@ -25,8 +25,8 @@ if sys.platform == 'win32':
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.6'
-PROGRAM_DATE = '30.12.2022  7:23'
+PROGRAM_VERSION = 'v6.0.7'
+PROGRAM_DATE = '30.12.2022  7:51'
 
 """ Цвета """
 
@@ -1265,21 +1265,6 @@ class ManualW(tk.Toplevel):
         self.resizable(width=False, height=False)
         self.mode = ''
 
-        self.frameAll = tk.LabelFrame(self)
-        self.frameRGB = tk.LabelFrame(self.frameAll)
-        self.frameAll.grid(row=0, column=0, columnspan=2, padx=4, pady=4)
-        self.frameRGB.grid(row=0, column=0, columnspan=4, padx=4, pady=4)
-
-        tk.Label(self.frameRGB, text='RED', fg='RED').grid(  row=0, column=1, pady=(4, 1))
-        tk.Label(self.frameRGB, text='GREEN', fg='GREEN').grid(row=0, column=2, pady=(4, 1))
-        tk.Label(self.frameRGB, text='BLUE', fg='BLUE').grid( row=0, column=3, pady=(4, 1))
-        tk.Label(self.frameRGB, text='H multiplier').grid(         row=1, column=0, sticky='E', padx=(6, 1), pady=1)
-        tk.Label(self.frameRGB, text='W multiplier').grid(         row=2, column=0, sticky='E', padx=(6, 1), pady=1)
-        tk.Label(self.frameRGB, text='H shift').grid(              row=3, column=0, sticky='E', padx=(6, 1), pady=1)
-        tk.Label(self.frameRGB, text='W shift').grid(              row=4, column=0, sticky='E', padx=(6, 1), pady=1)
-        tk.Label(self.frameRGB, text='Primary color shift').grid(  row=6, column=0, sticky='E', padx=(6, 1), pady=1)
-        tk.Label(self.frameRGB, text='Color multiplier').grid(     row=7, column=0, sticky='E', padx=(6, 1), pady=1)
-        tk.Label(self.frameRGB, text='Secondary color shift').grid(row=8, column=0, sticky='E', padx=(6, 1), pady=(1, 4))
         self.inp_mult_blocks_h_r = tk.StringVar()  # Множитель блоков по горизонтали для красного канала
         self.inp_mult_blocks_h_g = tk.StringVar()  # Множитель блоков по горизонтали для зелёного канала
         self.inp_mult_blocks_h_b = tk.StringVar()  # Множитель блоков по горизонтали для синего канала
@@ -1301,28 +1286,50 @@ class ManualW(tk.Toplevel):
         self.inp_shift2_r = tk.StringVar()  # Вторичное смещение цвета для красного канала
         self.inp_shift2_g = tk.StringVar()  # Вторичное смещение цвета для зелёного канала
         self.inp_shift2_b = tk.StringVar()  # Вторичное смещение цвета для синего канала
+        self.inp_order = tk.StringVar()  # Порядок следования каналов после перемешивания
+        self.inp_mult_name = tk.StringVar()  # Сдвиг букв в имени файла
+
         self.vcmd = (self.register(validate_natural), '%P')
-        self.entry_mult_blocks_h_r = tk.Entry(self.frameRGB, textvariable=self.inp_mult_blocks_h_r, validate='key', validatecommand=self.vcmd)
-        self.entry_mult_blocks_h_g = tk.Entry(self.frameRGB, textvariable=self.inp_mult_blocks_h_g, validate='key', validatecommand=self.vcmd)
-        self.entry_mult_blocks_h_b = tk.Entry(self.frameRGB, textvariable=self.inp_mult_blocks_h_b, validate='key', validatecommand=self.vcmd)
-        self.entry_mult_blocks_w_r = tk.Entry(self.frameRGB, textvariable=self.inp_mult_blocks_w_r, validate='key', validatecommand=self.vcmd)
-        self.entry_mult_blocks_w_g = tk.Entry(self.frameRGB, textvariable=self.inp_mult_blocks_w_g, validate='key', validatecommand=self.vcmd)
-        self.entry_mult_blocks_w_b = tk.Entry(self.frameRGB, textvariable=self.inp_mult_blocks_w_b, validate='key', validatecommand=self.vcmd)
-        self.entry_shift_h_r =       tk.Entry(self.frameRGB, textvariable=self.inp_shift_h_r,       validate='key', validatecommand=self.vcmd)
-        self.entry_shift_h_g =       tk.Entry(self.frameRGB, textvariable=self.inp_shift_h_g,       validate='key', validatecommand=self.vcmd)
-        self.entry_shift_h_b =       tk.Entry(self.frameRGB, textvariable=self.inp_shift_h_b,       validate='key', validatecommand=self.vcmd)
-        self.entry_shift_w_r =       tk.Entry(self.frameRGB, textvariable=self.inp_shift_w_r,       validate='key', validatecommand=self.vcmd)
-        self.entry_shift_w_g =       tk.Entry(self.frameRGB, textvariable=self.inp_shift_w_g,       validate='key', validatecommand=self.vcmd)
-        self.entry_shift_w_b =       tk.Entry(self.frameRGB, textvariable=self.inp_shift_w_b,       validate='key', validatecommand=self.vcmd)
-        self.entry_shift_r =         tk.Entry(self.frameRGB, textvariable=self.inp_shift_r,         validate='key', validatecommand=self.vcmd)
-        self.entry_shift_g =         tk.Entry(self.frameRGB, textvariable=self.inp_shift_g,         validate='key', validatecommand=self.vcmd)
-        self.entry_shift_b =         tk.Entry(self.frameRGB, textvariable=self.inp_shift_b,         validate='key', validatecommand=self.vcmd)
-        self.entry_mult_r =          tk.Entry(self.frameRGB, textvariable=self.inp_mult_r,          validate='key', validatecommand=self.vcmd)
-        self.entry_mult_g =          tk.Entry(self.frameRGB, textvariable=self.inp_mult_g,          validate='key', validatecommand=self.vcmd)
-        self.entry_mult_b =          tk.Entry(self.frameRGB, textvariable=self.inp_mult_b,          validate='key', validatecommand=self.vcmd)
-        self.entry_shift2_r =        tk.Entry(self.frameRGB, textvariable=self.inp_shift2_r,        validate='key', validatecommand=self.vcmd)
-        self.entry_shift2_g =        tk.Entry(self.frameRGB, textvariable=self.inp_shift2_g,        validate='key', validatecommand=self.vcmd)
-        self.entry_shift2_b =        tk.Entry(self.frameRGB, textvariable=self.inp_shift2_b,        validate='key', validatecommand=self.vcmd)
+
+        self.frameAll = tk.LabelFrame(self)
+        self.frameRGB = tk.LabelFrame(self.frameAll)
+        self.frameAll.grid(row=0, column=0, columnspan=2, padx=4, pady=4)
+        self.frameRGB.grid(row=0, column=0, columnspan=4, padx=4, pady=4)
+
+        tk.Label(self.frameRGB, text='RED', fg='RED').grid(  row=0, column=1, pady=(4, 1))
+        tk.Label(self.frameRGB, text='GREEN', fg='GREEN').grid(row=0, column=2, pady=(4, 1))
+        tk.Label(self.frameRGB, text='BLUE', fg='BLUE').grid( row=0, column=3, pady=(4, 1))
+
+        tk.Label(self.frameRGB, text='H multiplier').grid(         row=1, column=0, sticky='E', padx=(6, 1), pady=1)
+        tk.Label(self.frameRGB, text='W multiplier').grid(         row=2, column=0, sticky='E', padx=(6, 1), pady=1)
+        tk.Label(self.frameRGB, text='H shift').grid(              row=3, column=0, sticky='E', padx=(6, 1), pady=1)
+        tk.Label(self.frameRGB, text='W shift').grid(              row=4, column=0, sticky='E', padx=(6, 1), pady=1)
+        tk.Label(self.frameRGB, text='Primary color shift').grid(  row=6, column=0, sticky='E', padx=(6, 1), pady=1)
+        tk.Label(self.frameRGB, text='Color multiplier').grid(     row=7, column=0, sticky='E', padx=(6, 1), pady=1)
+        tk.Label(self.frameRGB, text='Secondary color shift').grid(row=8, column=0, sticky='E', padx=(6, 1), pady=(1, 4))
+
+        self.entry_mult_blocks_h_r = tk.Entry(self.frameRGB, width=10, textvariable=self.inp_mult_blocks_h_r, validate='key', validatecommand=self.vcmd)
+        self.entry_mult_blocks_h_g = tk.Entry(self.frameRGB, width=10, textvariable=self.inp_mult_blocks_h_g, validate='key', validatecommand=self.vcmd)
+        self.entry_mult_blocks_h_b = tk.Entry(self.frameRGB, width=10, textvariable=self.inp_mult_blocks_h_b, validate='key', validatecommand=self.vcmd)
+        self.entry_mult_blocks_w_r = tk.Entry(self.frameRGB, width=10, textvariable=self.inp_mult_blocks_w_r, validate='key', validatecommand=self.vcmd)
+        self.entry_mult_blocks_w_g = tk.Entry(self.frameRGB, width=10, textvariable=self.inp_mult_blocks_w_g, validate='key', validatecommand=self.vcmd)
+        self.entry_mult_blocks_w_b = tk.Entry(self.frameRGB, width=10, textvariable=self.inp_mult_blocks_w_b, validate='key', validatecommand=self.vcmd)
+        self.entry_shift_h_r =       tk.Entry(self.frameRGB, width=10, textvariable=self.inp_shift_h_r,       validate='key', validatecommand=self.vcmd)
+        self.entry_shift_h_g =       tk.Entry(self.frameRGB, width=10, textvariable=self.inp_shift_h_g,       validate='key', validatecommand=self.vcmd)
+        self.entry_shift_h_b =       tk.Entry(self.frameRGB, width=10, textvariable=self.inp_shift_h_b,       validate='key', validatecommand=self.vcmd)
+        self.entry_shift_w_r =       tk.Entry(self.frameRGB, width=10, textvariable=self.inp_shift_w_r,       validate='key', validatecommand=self.vcmd)
+        self.entry_shift_w_g =       tk.Entry(self.frameRGB, width=10, textvariable=self.inp_shift_w_g,       validate='key', validatecommand=self.vcmd)
+        self.entry_shift_w_b =       tk.Entry(self.frameRGB, width=10, textvariable=self.inp_shift_w_b,       validate='key', validatecommand=self.vcmd)
+        self.entry_shift_r =         tk.Entry(self.frameRGB, width=10, textvariable=self.inp_shift_r,         validate='key', validatecommand=self.vcmd)
+        self.entry_shift_g =         tk.Entry(self.frameRGB, width=10, textvariable=self.inp_shift_g,         validate='key', validatecommand=self.vcmd)
+        self.entry_shift_b =         tk.Entry(self.frameRGB, width=10, textvariable=self.inp_shift_b,         validate='key', validatecommand=self.vcmd)
+        self.entry_mult_r =          tk.Entry(self.frameRGB, width=10, textvariable=self.inp_mult_r,          validate='key', validatecommand=self.vcmd)
+        self.entry_mult_g =          tk.Entry(self.frameRGB, width=10, textvariable=self.inp_mult_g,          validate='key', validatecommand=self.vcmd)
+        self.entry_mult_b =          tk.Entry(self.frameRGB, width=10, textvariable=self.inp_mult_b,          validate='key', validatecommand=self.vcmd)
+        self.entry_shift2_r =        tk.Entry(self.frameRGB, width=10, textvariable=self.inp_shift2_r,        validate='key', validatecommand=self.vcmd)
+        self.entry_shift2_g =        tk.Entry(self.frameRGB, width=10, textvariable=self.inp_shift2_g,        validate='key', validatecommand=self.vcmd)
+        self.entry_shift2_b =        tk.Entry(self.frameRGB, width=10, textvariable=self.inp_shift2_b,        validate='key', validatecommand=self.vcmd)
+
         self.entry_mult_blocks_h_r.grid(row=1, column=1, padx=(0, 6), pady=1,      sticky='W')
         self.entry_mult_blocks_h_g.grid(row=1, column=2, padx=(0, 6), pady=1,      sticky='W')
         self.entry_mult_blocks_h_b.grid(row=1, column=3, padx=(0, 6), pady=1,      sticky='W')
@@ -1347,16 +1354,16 @@ class ManualW(tk.Toplevel):
 
         tk.Label(self.frameAll, text='Multiplier for filenames').grid(row=1, column=0, sticky='E', padx=(6, 1), pady=(0, 4))
         tk.Label(self.frameAll, text='Channels order').grid(          row=1, column=2, sticky='E', padx=(6, 1), pady=(0, 4))
-        self.inp_order = tk.StringVar()  # Порядок следования каналов после перемешивания
-        self.inp_mult_name = tk.StringVar()  # Сдвиг букв в имени файла
-        self.spin_order = tk.Spinbox(self.frameAll, textvariable=self.inp_order, values=[str(i) for i in range(6)],
-                                     state='readonly', validate='key', validatecommand=self.vcmd)
-        self.entry_mult_name = tk.Entry(self.frameAll, textvariable=self.inp_mult_name, validate='key', validatecommand=self.vcmd)
+
+        self.entry_mult_name = tk.Entry(  self.frameAll, width=10, textvariable=self.inp_mult_name, validate='key', validatecommand=self.vcmd)
+        self.spin_order =      tk.Spinbox(self.frameAll, width=3,  textvariable=self.inp_order, values=[str(i) for i in range(6)], state='readonly', validate='key', validatecommand=self.vcmd)
+
         self.entry_mult_name.grid(row=1, column=1, padx=(0, 6), pady=4, sticky='W')
         self.spin_order.grid(     row=1, column=3, padx=(0, 6), pady=4, sticky='W')
 
         self.btn_encode = tk.Button(self, text='Encode', command=self.pre_encode)
         self.btn_decode = tk.Button(self, text='Decode', command=self.pre_decode)
+
         self.btn_encode.grid(row=1, column=0, pady=(0, 4))
         self.btn_decode.grid(row=1, column=1, pady=(0, 4))
 
