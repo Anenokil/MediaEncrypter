@@ -25,8 +25,8 @@ if sys.platform == 'win32':
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.2'
-PROGRAM_DATE = '30.12.2022  5:33'
+PROGRAM_VERSION = 'v6.0.3'
+PROGRAM_DATE = '30.12.2022  6:05'
 
 """ Цвета """
 
@@ -889,12 +889,20 @@ class SettingsW(tk.Toplevel):
 
         self.frameAll = tk.LabelFrame(self)
         self.frameFields = tk.LabelFrame(self.frameAll)
-        self.frameAll.grid(   row=0, column=0, columnspan=2, padx=4, pady=4)
-        self.frameFields.grid(row=0, column=0, columnspan=4, padx=4, pady=4)
+        self.frameCountFrom = tk.LabelFrame(self.frameFields, borderwidth=0)
+        self.frameFormat    = tk.LabelFrame(self.frameFields, borderwidth=0)
+        self.frameMarkerEnc = tk.LabelFrame(self.frameFields, borderwidth=0)
+        self.frameMarkerDec = tk.LabelFrame(self.frameFields, borderwidth=0)
+        self.frameAll.grid(      row=0, column=0, columnspan=2, padx=4, pady=4)
+        self.frameFields.grid(   row=0, column=0, columnspan=4, padx=4, pady=4)
+        self.frameCountFrom.grid(row=1, column=1, columnspan=4, padx=(0, 6), pady=1, sticky='W')
+        self.frameFormat.grid(   row=2, column=1, columnspan=4, padx=(0, 6), pady=1, sticky='W')
+        self.frameMarkerEnc.grid(row=3, column=1, columnspan=4, padx=(0, 6), pady=1, sticky='W')
+        self.frameMarkerDec.grid(row=4, column=1, columnspan=4, padx=(0, 6), pady=1, sticky='W')
 
         tk.Label(self.frameFields, text='File names conversion mode').grid(      row=0,  column=0, padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self.frameFields, text='Start numbering files from').grid(       row=1,  column=0, padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self.frameFields, text='Number of characters in number').grid(     row=2,  column=0, padx=(6, 1), pady=1, sticky='E')
+        tk.Label(self.frameFields, text='Start numbering files from').grid(      row=1,  column=0, padx=(6, 1), pady=1, sticky='E')
+        tk.Label(self.frameFields, text='Number of characters in number').grid(  row=2,  column=0, padx=(6, 1), pady=1, sticky='E')
         tk.Label(self.frameFields, text='Marker for encoded files').grid(        row=3,  column=0, padx=(6, 1), pady=1, sticky='E')
         tk.Label(self.frameFields, text='Marker for decoded files').grid(        row=4,  column=0, padx=(6, 1), pady=1, sticky='E')
         tk.Label(self.frameFields, text='Russian letters support').grid(         row=5,  column=0, padx=(6, 1), pady=1, sticky='E')
@@ -927,28 +935,28 @@ class SettingsW(tk.Toplevel):
         self.vcmd_num     = (self.register(validate_num), '%P')
         self.vcmd_key     = (self.register(validate_key), '%P')
 
-        self.combo_naming_mode   = Combobox(   self.frameFields, textvariable=self.inp_naming_mode, values=NAMING_MODES, state='readonly')
-        self.entry_count_from    = tk.Entry(   self.frameFields, textvariable=self.inp_count_from, relief='solid', width=10, validate='key', validatecommand=self.vcmd_num)
-        self.entry_format        = tk.Entry(   self.frameFields, textvariable=self.inp_format,     relief='solid', width=10, validate='key', validatecommand=self.vcmd_natural)
-        self.entry_marker_enc    = tk.Entry(   self.frameFields, textvariable=self.inp_marker_enc, relief='solid')
-        self.entry_marker_dec    = tk.Entry(   self.frameFields, textvariable=self.inp_marker_dec, relief='solid')
-        self.check_support_ru    = Checkbutton(self.frameFields,     variable=self.inp_support_ru, command=self.processing_ru_state)
+        self.combo_naming_mode   = Combobox(   self.frameFields, textvariable=self.inp_naming_mode,   values=NAMING_MODES, state='readonly')
+        self.entry_count_from    = tk.Entry(   self.frameCountFrom, textvariable=self.inp_count_from, relief='solid', width=10, validate='key', validatecommand=self.vcmd_num)
+        self.entry_format        = tk.Entry(   self.frameFormat,    textvariable=self.inp_format,     relief='solid', width=10, validate='key', validatecommand=self.vcmd_natural)
+        self.entry_marker_enc    = tk.Entry(   self.frameMarkerEnc, textvariable=self.inp_marker_enc, relief='solid')
+        self.entry_marker_dec    = tk.Entry(   self.frameMarkerDec, textvariable=self.inp_marker_dec, relief='solid')
+        self.check_support_ru    = Checkbutton(self.frameFields,     variable=self.inp_support_ru,    command=self.processing_ru_state)
         self.combo_processing_ru = Combobox(   self.frameFields, textvariable=self.inp_processing_ru, values=PROCESSING_RU_MODES, state='readonly')
-        self.entry_dir_enc_from  = tk.Entry(   self.frameFields, textvariable=self.inp_dir_enc_from, relief='solid', width=45)
-        self.entry_dir_enc_to    = tk.Entry(   self.frameFields, textvariable=self.inp_dir_enc_to,   relief='solid', width=45)
-        self.entry_dir_dec_from  = tk.Entry(   self.frameFields, textvariable=self.inp_dir_dec_from, relief='solid', width=45)
-        self.entry_dir_dec_to    = tk.Entry(   self.frameFields, textvariable=self.inp_dir_dec_to,   relief='solid', width=45)
-        self.entry_example_key   = tk.Entry(   self.frameFields, textvariable=self.inp_example_key,  relief='solid', width=KEY_LEN, font='TkFixedFont', validate='key', validatecommand=self.vcmd_key)
-        self.combo_print_info    = Combobox(   self.frameFields, textvariable=self.inp_print_info,   values=PRINT_INFO_MODES, state='readonly')
+        self.entry_dir_enc_from  = tk.Entry(   self.frameFields, textvariable=self.inp_dir_enc_from,  relief='solid', width=45)
+        self.entry_dir_enc_to    = tk.Entry(   self.frameFields, textvariable=self.inp_dir_enc_to,    relief='solid', width=45)
+        self.entry_dir_dec_from  = tk.Entry(   self.frameFields, textvariable=self.inp_dir_dec_from,  relief='solid', width=45)
+        self.entry_dir_dec_to    = tk.Entry(   self.frameFields, textvariable=self.inp_dir_dec_to,    relief='solid', width=45)
+        self.entry_example_key   = tk.Entry(   self.frameFields, textvariable=self.inp_example_key,   relief='solid', width=KEY_LEN, font='TkFixedFont', validate='key', validatecommand=self.vcmd_key)
+        self.combo_print_info    = Combobox(   self.frameFields, textvariable=self.inp_print_info,    values=PRINT_INFO_MODES, state='readonly')
 
         if not self.inp_support_ru.get():
             self.combo_processing_ru['state'] = 'disabled'
 
         self.combo_naming_mode.grid(  row=0,  column=1, columnspan=4, pady=(4, 1), sticky='W')
-        self.entry_count_from.grid(   row=1,  column=1, columnspan=1, pady=1,      sticky='W')
-        self.entry_format.grid(       row=2,  column=1, columnspan=1, pady=1,      sticky='W')
-        self.entry_marker_enc.grid(   row=3,  column=1, columnspan=2, pady=1,      sticky='W')
-        self.entry_marker_dec.grid(   row=4,  column=1, columnspan=2, pady=1,      sticky='W')
+        self.entry_count_from.grid(   row=0,  column=0)
+        self.entry_format.grid(       row=1,  column=0)
+        self.entry_marker_enc.grid(   row=2,  column=0)
+        self.entry_marker_dec.grid(   row=3,  column=0)
         self.check_support_ru.grid(   row=5,  column=1, columnspan=4, pady=1,      sticky='W')
         self.combo_processing_ru.grid(row=6,  column=1, columnspan=4, pady=1,      sticky='W')
         self.entry_dir_enc_from.grid( row=7,  column=1, columnspan=3, pady=1,      sticky='W')
@@ -958,10 +966,10 @@ class SettingsW(tk.Toplevel):
         self.entry_example_key.grid(  row=11, column=1, columnspan=4, pady=1,      sticky='W')
         self.combo_print_info.grid(   row=12, column=1, columnspan=4, pady=(1, 4), sticky='W')
 
-        tk.Label(self.frameFields, text='(if the numbering name processing mode is selected)').grid(     row=1, column=2, columnspan=3, padx=(0, 6), pady=1, sticky='W')
-        tk.Label(self.frameFields, text='(if the numbering name processing mode is selected)').grid(     row=2, column=2, columnspan=3, padx=(0, 6), pady=1, sticky='W')
-        tk.Label(self.frameFields, text='(if the prefix/postfix name processing mode is selected)').grid(row=3, column=3, columnspan=2, padx=(0, 6), pady=1, sticky='W')
-        tk.Label(self.frameFields, text='(if the prefix/postfix name processing mode is selected)').grid(row=4, column=3, columnspan=2, padx=(0, 6), pady=1, sticky='W')
+        tk.Label(self.frameCountFrom, text='(if the numbering name processing mode is selected)').grid(     row=0, column=1)
+        tk.Label(self.frameFormat,    text='(if the numbering name processing mode is selected)').grid(     row=1, column=1)
+        tk.Label(self.frameMarkerEnc, text='(if the prefix/postfix name processing mode is selected)').grid(row=2, column=1)
+        tk.Label(self.frameMarkerDec, text='(if the prefix/postfix name processing mode is selected)').grid(row=3, column=1)
 
         try:
             self.img_search = tk.PhotoImage(file=os.path.join(RESOURCES_DIR, 'search.png'))
