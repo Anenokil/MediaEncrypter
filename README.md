@@ -8,10 +8,12 @@ Supported file extensions: <b>.png</b>, <b>.jpg</b>, <b>.jpeg</b>, <b>.bmp</b>, 
 ---
 
 The program has settings
-* The default source folder when encrypting: f_src
-* The default destination folder when encrypting: f_enc
-* The default source folder when decrypting: f_enc
-* The default destination folder when decrypting: f_dec
+<pre>
+* The default source      folder when encrypting: <b>f_src</b>
+* The default destination folder when encrypting: <b>f_enc</b>
+* The default source      folder when decrypting: <b>f_enc</b>
+* The default destination folder when decrypting: <b>f_dec</b>
+</pre>
 
 ---
 
