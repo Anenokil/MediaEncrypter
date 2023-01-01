@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v7.0.0-PRE_1'
-PROGRAM_DATE = '1.1.2023 20:18'
+PROGRAM_VERSION = 'v7.0.0-PRE_2'
+PROGRAM_DATE = '1.1.2023 23:17'
 
 """ Пути и файлы """
 
@@ -1001,16 +1001,28 @@ class EnterKeyW(tk.Toplevel):
         self.txt_example_key.configure(state='disabled')
         self.txt_example_key.bind('<Button-1>', focus_text)
 
-        self.entry_key = tk.Entry(self, textvariable=self.key, width=KEY_LEN, font='TkFixedFont', validate='key', validatecommand=self.vcmd, bg=ST_BG_FIELDS[st],  fg=ST_FG_KEY[st], highlightbackground=ST_BORDER[st], selectbackground=ST_SELECT[st], highlightcolor=ST_HIGHLIGHT[st])
-        self.btn_copy_example = tk.Button(self, text='COPY',   command=self.copy_example_key,     bg=ST_BTN[st],    fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
-        self.btn_submit       = tk.Button(self, text='Submit', command=self.check_key_and_return, bg=ST_ACCEPT[st], fg=ST_FG_TEXT[st], activebackground=ST_ACC_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.entry_key = tk.Entry(self, textvariable=self.key, width=KEY_LEN, font='TkFixedFont', show='*', validate='key', validatecommand=self.vcmd, bg=ST_BG_FIELDS[st],  fg=ST_FG_KEY[st], highlightbackground=ST_BORDER[st], selectbackground=ST_SELECT[st], highlightcolor=ST_HIGHLIGHT[st])
+        self.btn_copy_example  = tk.Button(self, text='Copy',   command=self.copy_example_key,     bg=ST_BTN[st],    fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.btn_show_hide_key = tk.Button(self, text='Show',   command=self.show_hide_key,        bg=ST_BTN[st],    fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.btn_submit        = tk.Button(self, text='Submit', command=self.check_key_and_return, bg=ST_ACCEPT[st], fg=ST_FG_TEXT[st], activebackground=ST_ACC_SELECT[st], highlightbackground=ST_BORDER[st])
 
-        self.entry_key.grid(row=2, column=1, padx=(0, 4), pady=1, sticky='W')
-        self.btn_copy_example.grid(row=1, column=2, padx=(0, 6), pady=1)
-        self.btn_submit.grid(row=3, columnspan=3, pady=4)
+        self.btn_copy_example.grid( row=1, column=2, padx=(0, 6), pady=1)
+        self.entry_key.grid(        row=2, column=1, padx=(0, 4), pady=1, sticky='W')
+        self.btn_show_hide_key.grid(row=2, column=2, padx=(0, 6), pady=1)
+        self.btn_submit.grid(       row=3, columnspan=3, pady=4)
 
+    # Подставить ключ-пример
     def copy_example_key(self):
         self.key.set(settings['example_key'])
+
+    # Показать/скрыть ключ
+    def show_hide_key(self):
+        if self.entry_key['show'] == '*':
+            self.entry_key['show'] = ''
+            self.entry_key['text'] = 'Hide'
+        else:
+            self.entry_key['show'] = '*'
+            self.entry_key['text'] = 'Show'
 
     # Проверить корректность ключа и, если корректен, сохранить
     def check_key_and_return(self):
@@ -1915,9 +1927,13 @@ gui.mainloop()
 # v6.0.0 - добавлен графический интерфейс
 # v7.0.0 - добавлен журнал
 
-# progressbar для гифок
+# добавить надпись оценка объёма работы...
 # кнопка show при вводе ключа
-# цвета в журнале
-# контроль версий
+# добавить варианты фпс
+# progressbar для гифок
 # выбор расширений
+# контроль версий
+# всплывающие подсказки
 # больше картинок
+# добавить папку для tmp.png и для иконок
+# цвета в журнале
