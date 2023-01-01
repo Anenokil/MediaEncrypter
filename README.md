@@ -19,6 +19,13 @@ The program has settings
 
 ---
 
+The program has GUI and 3 styles:
+- light
+- dark
+- infernal
+
+---
+
 Before starting encryption/decryption you must enter a key that you came up with<br>
 The key can include latin letters, numbers, - and _<br>
 The key must have a certain length (it is specified in the program)<br>
