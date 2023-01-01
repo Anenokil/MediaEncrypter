@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v7.0.0-PRE_5'
-PROGRAM_DATE = '2.1.2023  1:24'
+PROGRAM_VERSION = 'v7.0.0-PRE_6'
+PROGRAM_DATE = '2.1.2023  2:50'
 
 """ Пути и файлы """
 
@@ -147,10 +147,19 @@ def add_log(msg='', end='\n'):
         abort_process = True
 
 
-# Обновить прогресс обработки
-def set_progress(num, den):
+# Обновить прогресс обработки (файлы и папки)
+def set_progress_f_d(num, den):
     try:
-        gui.logger.set_progress(num, den)
+        gui.logger.set_progress_f_d(num, den)
+    except:
+        global abort_process
+        abort_process = True
+
+
+# Обновить прогресс обработки (кадры)
+def set_progress_fr(num, den):
+    try:
+        gui.logger.set_progress_fr(num, den)
     except:
         global abort_process
         abort_process = True
@@ -550,40 +559,59 @@ def filename_processing(op_mode, naming_mode, base_name, ext, output_dir, marker
     return new_name
 
 
-# Подсчёт файлов
-def count_f_and_d(op_mode, inp_dir, count_all):
+# Подсчёт всех кадров
+def count_f_and_d(op_mode, inp_dir, count_f_d, count_fr):
     for filename in os.listdir(inp_dir):  # Проход по файлам
-        count_all += 1
-
+        base_name, ext = os.path.splitext(filename)
         pth = os.path.join(inp_dir, filename)
         isdir = os.path.isdir(pth)
 
-        if isdir:
-            if '_gif' not in os.listdir(pth) and\
-               '_vid' not in os.listdir(pth) or\
-               op_mode == 'E':
-                count_all = count_f_and_d(op_mode, pth, count_all)
+        try:
+            count_f_d += 1
+            if ext == '.gif':
+                im = Image.open(pth)
+                count_fr += im.n_frames
+            elif ext in ['.avi', '.mp4', '.webm']:
+                vid = VideoFileClip(pth)
+                fps = min(vid.fps, 24)
+                step = 1 / fps
+                count_fr += int(vid.duration // step + 1)
+            elif isdir:
+                count_fr += 1
+                if '_gif' not in os.listdir(pth) and\
+                   '_vid' not in os.listdir(pth) or\
+                   op_mode == 'E':
+                    count_f_d, count_fr = count_f_and_d(op_mode, pth, count_f_d, count_fr)
+            else:
+                count_fr += 1
+        except Exception as err:
+            print_warn('Couldn`t process the file')
+            print(f'{Fore.YELLOW}{err}{Style.RESET_ALL}\n')
+            add_log(f'{err}\n')
 
         if abort_process:
-            return count_all
-    return count_all
+            break
+    return count_f_d, count_fr
 
 
 # Обработка папки с файлами
-def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
+def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files, count_all_frames):
     count_correct = settings['count_from'] - 1  # Счётчик количества обработанных файлов
     for filename in os.listdir(inp_dir):  # Проход по файлам
         base_name, ext = os.path.splitext(filename)
-        count_all += 1
+        count_all_files += 1
 
         pth = os.path.join(inp_dir, filename)
         isdir = os.path.isdir(pth)
         if ext.lower() not in formats and not isdir:  # Проверка формата
-            print(f'({count_all}) <{filename}>')
-            add_log(f'({count_all}) <{filename}>')
+            print(f'({count_all_files}) <{filename}>')
+            add_log(f'({count_all_files}) <{filename}>')
             print_warn('Unsupported file extension')
             print()
             add_log()
+            count_all_frames += 1
+            set_progress_fr(count_all_frames, count_all_fr)
+            set_progress_f_d(count_all_files, count_all_f_d)
             continue
         count_correct += 1
 
@@ -592,10 +620,10 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
             if ext in ['.png', '.jpg', '.jpeg', '.bmp']:
                 res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '.png', output_dir, marker, count_correct)  # Преобразование имени файла
 
-                print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-                add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
+                print(f'({count_all_files}) <{filename}>  ->  <{res_name}>')  # Вывод информации
+                add_log(f'({count_all_files}) <{filename}>  ->  <{res_name}>')
 
-                img = imread(os.path.join(inp_dir, filename))  # Считывание изображения
+                img = imread(pth)  # Считывание изображения
                 if settings['print_info'] == 'print':
                     print(img.shape)
                     add_log(img.shape)
@@ -609,24 +637,27 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                     imsave(outp_path, img.astype(uint8))
                 print()
                 add_log()
+
+                count_all_frames += 1
+                set_progress_fr(count_all_frames, count_all_fr)
             elif ext == '.gif':
                 res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', output_dir, marker, count_correct)  # Преобразование имени файла
 
-                print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-                add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
+                print(f'({count_all_files}) <{filename}>  ->  <{res_name}>')  # Вывод информации
+                add_log(f'({count_all_files}) <{filename}>  ->  <{res_name}>')
 
                 res = os.path.join(output_dir, res_name)
                 if res_name not in os.listdir(output_dir):
                     os.mkdir(res)
                 open(os.path.join(res, '_gif'), 'w')
 
-                with Image.open(os.path.join(inp_dir, filename)) as im:
+                with Image.open(pth) as im:
                     for i in range(im.n_frames):
-                        print(f'frame {i + 1}')
-                        add_log(f'frame {i + 1}')
+                        print(f'frame {i + 1}/{im.n_frames}')
+                        add_log(f'frame {i + 1}/{im.n_frames}')
+
                         im.seek(i)
                         im.save(TMP_PATH)
-
                         fr = imread(TMP_PATH)
                         if settings['print_info'] == 'print':  # Вывод информации о считывании
                             print(fr.shape)
@@ -636,6 +667,9 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                         print()
                         add_log()
 
+                        count_all_frames += 1
+                        set_progress_fr(count_all_frames, count_all_fr)
+
                         if abort_process:
                             break
                     imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
@@ -643,10 +677,10 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
             elif isdir and '_gif' in os.listdir(pth) and op_mode == 'D':
                 res_name = filename_processing(op_mode, settings['naming_mode'], filename, '.gif', output_dir, marker, count_correct)  # Преобразование имени файла
 
-                print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-                add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
+                print(f'({count_all_files}) <{filename}>  ->  <{res_name}>')  # Вывод информации
+                add_log(f'({count_all_files}) <{filename}>  ->  <{res_name}>')
 
-                inp_dir_tmp = os.path.join(inp_dir, filename)
+                inp_dir_tmp = pth
                 frames = sorted((fr for fr in os.listdir(inp_dir_tmp) if fr.endswith('.png')))
                 res = os.path.join(output_dir, res_name)
 
@@ -657,6 +691,7 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                     for i in range(len(frames)):
                         print(f'frame {i + 1}')
                         add_log(f'frame {i + 1}')
+
                         fr = imread(os.path.join(inp_dir_tmp, frames[i]))
                         if settings['print_info'] == 'print':  # Вывод информации о считывании
                             print(fr.shape)
@@ -667,6 +702,9 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                         print()
                         add_log()
 
+                        count_all_frames += 1
+                        set_progress_fr(count_all_frames, count_all_fr)
+
                         if abort_process:
                             break
                     imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
@@ -676,24 +714,25 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 tmp_name = filename_processing(op_mode, 'numbering', base_name, '', output_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
                 res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', output_dir, marker, count_correct)
 
-                print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-                add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
+                print(f'({count_all_files}) <{filename}>  ->  <{res_name}>')  # Вывод информации
+                add_log(f'({count_all_files}) <{filename}>  ->  <{res_name}>')
 
                 res = os.path.join(output_dir, tmp_name)
                 if tmp_name not in os.listdir(output_dir):
                     os.mkdir(res)
                 open(os.path.join(res, '_vid'), 'w')
 
-                vid = VideoFileClip(os.path.join(inp_dir, filename))
+                vid = VideoFileClip(pth)
                 fps = min(vid.fps, 24)
                 step = 1 / fps
                 count = 0
+                count_frames = int(vid.duration // step + 1)
                 for current_duration in arange(0, vid.duration, step):
+                    print(f'frame {count + 1}/{count_frames}')
+                    add_log(f'frame {count + 1}/{count_frames}')
+
                     frame_filename = os.path.join(res, '{:06}.png'.format(count))
                     vid.save_frame(TMP_PATH, current_duration)
-                    print(f'frame {count + 1}')
-                    add_log(f'frame {count + 1}')
-
                     fr = imread(TMP_PATH)
                     if settings['print_info'] == 'print':  # Вывод информации о считывании
                         print(fr.shape)
@@ -702,6 +741,9 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                     count += 1
                     print()
                     add_log()
+
+                    count_all_frames += 1
+                    set_progress_fr(count_all_frames, count_all_fr)
 
                     if abort_process:
                         break
@@ -713,10 +755,10 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 tmp_name = filename_processing(op_mode, 'numbering', filename, '.mp4', output_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
                 res_name = filename_processing(op_mode, settings['naming_mode'], filename, '.mp4', output_dir, marker, count_correct)
 
-                print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-                add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
+                print(f'({count_all_files}) <{filename}>  ->  <{res_name}>')  # Вывод информации
+                add_log(f'({count_all_files}) <{filename}>  ->  <{res_name}>')
 
-                inp_dir_tmp = os.path.join(inp_dir, filename)
+                inp_dir_tmp = pth
                 res = os.path.join(output_dir, tmp_name)
 
                 img = imread(os.path.join(inp_dir_tmp, '000000.png'))
@@ -732,6 +774,7 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                     if f.endswith('.png'):
                         print(f'frame {count + 1}')
                         add_log(f'frame {count + 1}')
+
                         img = imread(os.path.join(inp_dir_tmp, f))
                         if settings['print_info'] == 'print':  # Вывод информации о считывании
                             print(img.shape)
@@ -743,6 +786,9 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                         print()
                         add_log()
 
+                        count_all_frames += 1
+                        set_progress_fr(count_all_frames, count_all_fr)
+
                         if abort_process:
                             break
                 imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
@@ -753,10 +799,10 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
             elif isdir:
                 res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', output_dir, marker, count_correct)  # Преобразование имени файла
 
-                print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-                add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
+                print(f'({count_all_files}) <{filename}>  ->  <{res_name}>')  # Вывод информации
+                add_log(f'({count_all_files}) <{filename}>  ->  <{res_name}>')
 
-                new_inp_dir = os.path.join(inp_dir, filename)
+                new_inp_dir = pth
                 new_outp_dir = os.path.join(output_dir, res_name)
 
                 if res_name not in os.listdir(output_dir):
@@ -765,20 +811,29 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 print()
                 add_log()
 
-                count_all = converse_dir(op_mode, marker, formats, new_inp_dir, new_outp_dir, count_all)
+                count_all_frames += 1
+                set_progress_fr(count_all_frames, count_all_fr)
+                set_progress_f_d(count_all_files, count_all_f_d)
+
+                count_all_files, count_all_frames = converse_dir(op_mode, marker, formats, new_inp_dir, new_outp_dir, count_all_files, count_all_frames)
                 print(f'{Fore.GREEN}*[DIR] ', end='')
                 add_log('*[DIR] ', end='')
+            else:
+                count_all_frames += 1
+                set_progress_fr(count_all_frames, count_all_fr)
         except Exception as err:
             print_warn('Couldn`t process the file')
             print(f'{Fore.YELLOW}{err}{Style.RESET_ALL}\n')
             add_log(f'{err}\n')
         print(f'{Fore.GREEN}Time: {perf_counter() - start}{Style.RESET_ALL}\n')
         add_log(f'Time: {perf_counter() - start}\n')
-        set_progress(count_all, count_all_f_d)
+
+        set_progress_f_d(count_all_files, count_all_f_d)
+
         if abort_process:
             add_log(' >> Aborted <<\n')
-            return count_all
-    return count_all
+            break
+    return count_all_files, count_all_frames
 
 
 # Шифровка
@@ -791,9 +846,9 @@ def encode():
     count_all = 0
 
     print('                                   START ENCRYPTING\n')
-    global count_all_f_d
-    count_all_f_d = count_f_and_d(op_mode, input_dir, count_all)
-    converse_dir(op_mode, marker, formats, input_dir, output_dir, count_all)
+    global count_all_f_d, count_all_fr
+    count_all_f_d, count_all_fr = count_f_and_d(op_mode, input_dir, count_all, count_all)
+    converse_dir(op_mode, marker, formats, input_dir, output_dir, count_all, count_all)
     print('=============================== PROCESSING IS FINISHED ===============================')
 
 
@@ -816,9 +871,9 @@ def decode():
     count_all = 0
 
     print('                                   START DECRYPTING\n')
-    global count_all_f_d
-    count_all_f_d = count_f_and_d(op_mode, input_dir, count_all)
-    converse_dir(op_mode, marker, formats, input_dir, output_dir, count_all)
+    global count_all_f_d, count_all_fr
+    count_all_f_d, count_all_fr = count_f_and_d(op_mode, input_dir, count_all, count_all)
+    converse_dir(op_mode, marker, formats, input_dir, output_dir, count_all, count_all)
     print('=============================== PROCESSING IS FINISHED ===============================')
 
 
@@ -1736,7 +1791,8 @@ class LoggerW(tk.Toplevel):
         self.resizable(width=False, height=False)
         self.configure(bg=ST_BG[st])
 
-        self.str_progress = tk.StringVar(value='Calculation...')
+        self.str_progress_f_d = tk.StringVar(value='Calculation...')
+        self.str_progress_fr = tk.StringVar(value='Calculation...')
 
         self.st_progress = ttk.Style()
         self.st_progress.theme_use('winnative')
@@ -1748,28 +1804,36 @@ class LoggerW(tk.Toplevel):
         self.frame_progress = tk.LabelFrame(self, bg=ST_BG[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
         self.frame_progress.grid(row=0, columnspan=2, padx=6, pady=(6, 4))
 
-        tk.Label(self.frame_progress, text='Progress:', bg=ST_BG[st], fg=ST_FG_TEXT[st]).grid(row=0, column=0, padx=(6, 0), pady=4)
-        self.progressbar = ttk.Progressbar(self.frame_progress, value=0, length=450, style='normal.Horizontal.TProgressbar', orient='horizontal')
-        self.lbl_progress = tk.Label(self.frame_progress, textvariable=self.str_progress, bg=ST_BG[st], fg=ST_FG_TEXT[st])
+        tk.Label(self.frame_progress, text='Progress (files and dirs):', bg=ST_BG[st], fg=ST_FG_TEXT[st]).grid(row=0, column=0, padx=(6, 0), pady=4, sticky='E')
+        tk.Label(self.frame_progress, text='Progress (with frames):',    bg=ST_BG[st], fg=ST_FG_TEXT[st]).grid(row=1, column=0, padx=(6, 0), pady=4, sticky='E')
+        self.progressbar_f_d = ttk.Progressbar(self.frame_progress, value=0, length=450, style='normal.Horizontal.TProgressbar', orient='horizontal')
+        self.progressbar_fr  = ttk.Progressbar(self.frame_progress, value=0, length=450, style='normal.Horizontal.TProgressbar', orient='horizontal')
+        self.lbl_progress_f_d = tk.Label(self.frame_progress, textvariable=self.str_progress_f_d, bg=ST_BG[st], fg=ST_FG_TEXT[st])
+        self.lbl_progress_fr  = tk.Label(self.frame_progress, textvariable=self.str_progress_fr,  bg=ST_BG[st], fg=ST_FG_TEXT[st])
 
-        self.progressbar.grid( row=0, column=1, padx=4,      pady=4)
-        self.lbl_progress.grid(row=0, column=2, padx=(0, 6), pady=4)
+        self.progressbar_f_d.grid( row=0, column=1, padx=4,      pady=4)
+        self.progressbar_fr.grid(  row=1, column=1, padx=4,      pady=4)
+        self.lbl_progress_f_d.grid(row=0, column=2, padx=(0, 6), pady=4)
+        self.lbl_progress_fr.grid( row=1, column=2, padx=(0, 6), pady=4)
 
         self.scrollbar = tk.Scrollbar(self, bg=ST_BG[st])
-        self.log = tk.Text(self, width=70, height=30, state='disabled', yscrollcommand=self.scrollbar.set, bg=ST_BG_FIELDS[st],  fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
-        self.btn_abort = tk.Button(self, text='Abort', command=self.stop_process,                          bg=ST_CLOSE[st], fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_CLS_SELECT[st])
+        self.log = tk.Text(self, width=70, height=30, state='disabled', yscrollcommand=self.scrollbar.set, bg=ST_BG_FIELDS[st], fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
+        self.btn_abort = tk.Button(self, text='Abort', command=self.stop_process,                          bg=ST_CLOSE[st],     fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_CLS_SELECT[st])
 
         self.log.grid(         row=1, column=0, sticky='NSEW', padx=(6, 0), pady=0)
-        self.scrollbar.grid(   row=1, column=1, sticky='NSE',  padx=(0, 6), pady=0)
+        self.scrollbar.grid(   row=1, column=1, sticky='NSW',  padx=(0, 6), pady=0)
         self.scrollbar.config( command=self.log.yview)
         self.btn_abort.grid(   row=2, columnspan=2, padx=6, pady=(4, 6))
 
+    # Завершить обработку
     def stop_process(self):
         global abort_process
         abort_process = True
         self.btn_abort['state'] = 'disabled'
-        self.progressbar['style'] = 'abort.Horizontal.TProgressbar'
+        self.progressbar_f_d['style'] = 'abort.Horizontal.TProgressbar'
+        self.progressbar_fr['style'] = 'abort.Horizontal.TProgressbar'
 
+    # Добавить запись в журнал
     def add_log(self, msg='', end='\n'):
         self.log['state'] = 'normal'
         if self.log.yview()[1] == 1.0:
@@ -1779,9 +1843,15 @@ class LoggerW(tk.Toplevel):
             self.log.insert(tk.END, str(msg) + end)
         self.log['state'] = 'disabled'
 
-    def set_progress(self, num, den):
-        self.progressbar['value'] = 100 * num / den
-        self.str_progress.set(f'{num}/{den}')
+    # Установить прогресс (файлы и папки)
+    def set_progress_f_d(self, num, den):
+        self.progressbar_f_d['value'] = 100 * num / den
+        self.str_progress_f_d.set(f'{num}/{den}')
+
+    # Установить прогресс (кадры)
+    def set_progress_fr(self, num, den):
+        self.progressbar_fr['value'] = 100 * num / den
+        self.str_progress_fr.set(f'{num}/{den}')
 
     def open(self):
         self.grab_set()
@@ -1928,12 +1998,12 @@ gui.mainloop()
 # v6.0.0 - добавлен графический интерфейс
 # v7.0.0 - добавлен журнал
 
-# при окончании работы выводить сообщение и делать кнопку
-# progressbar для гифок
+# при окончании работы выводить сообщение и делать кнопку (end_process = 'no', 'end', 'abort', 'error')
+# [] -> ()
 # заменить abort на pause
 # выбор расширений
 # добавить варианты фпс
 # контроль версий
-# всплывающие подсказки
+# - всплывающие подсказки
 # - больше картинок
 # цвета в журнале
