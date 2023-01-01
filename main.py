@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v7.0.0-PRE_2'
-PROGRAM_DATE = '1.1.2023 23:17'
+PROGRAM_VERSION = 'v7.0.0-PRE_3'
+PROGRAM_DATE = '1.1.2023  0:39'
 
 """ Пути и файлы """
 
@@ -1019,10 +1019,10 @@ class EnterKeyW(tk.Toplevel):
     def show_hide_key(self):
         if self.entry_key['show'] == '*':
             self.entry_key['show'] = ''
-            self.entry_key['text'] = 'Hide'
+            self.btn_show_hide_key['text'] = 'Hide'
         else:
             self.entry_key['show'] = '*'
-            self.entry_key['text'] = 'Show'
+            self.btn_show_hide_key['text'] = 'Show'
 
     # Проверить корректность ключа и, если корректен, сохранить
     def check_key_and_return(self):
@@ -1928,7 +1928,6 @@ gui.mainloop()
 # v7.0.0 - добавлен журнал
 
 # добавить надпись оценка объёма работы...
-# кнопка show при вводе ключа
 # добавить варианты фпс
 # progressbar для гифок
 # выбор расширений
@@ -1937,3 +1936,4 @@ gui.mainloop()
 # больше картинок
 # добавить папку для tmp.png и для иконок
 # цвета в журнале
+# при окончании работы выводить сообщение и делать кнопку
