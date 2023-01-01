@@ -25,8 +25,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.19'
-PROGRAM_DATE = '1.1.2023 4:18'
+PROGRAM_VERSION = 'v6.0.20'
+PROGRAM_DATE = '1.1.2023  4:41'
 
 """ Пути и файлы """
 
@@ -952,13 +952,13 @@ class SettingsW(tk.Toplevel):
 
         # Переменные, к которым привязаны настройки
         self.inp_style         = tk.StringVar(value=settings['style'])
+        self.inp_support_ru    = tk.BooleanVar(value=(settings['support_ru'] == 'yes'))
+        self.inp_processing_ru = tk.StringVar(value=settings['processing_ru'])
         self.inp_naming_mode   = tk.StringVar(value=settings['naming_mode'])
         self.inp_count_from    = tk.StringVar(value=str(settings['count_from']))
         self.inp_format        = tk.StringVar(value=str(settings['format']))
         self.inp_marker_enc    = tk.StringVar(value=settings['marker_enc'])
         self.inp_marker_dec    = tk.StringVar(value=settings['marker_dec'])
-        self.inp_support_ru    = tk.BooleanVar(value=(settings['support_ru'] == 'yes'))
-        self.inp_processing_ru = tk.StringVar(value=settings['processing_ru'])
         self.inp_src_dir_enc   = tk.StringVar(value=settings['src_dir_enc'])
         self.inp_dst_dir_enc   = tk.StringVar(value=settings['dst_dir_enc'])
         self.inp_src_dir_dec   = tk.StringVar(value=settings['src_dir_dec'])
@@ -994,13 +994,13 @@ class SettingsW(tk.Toplevel):
 
         # Названия настроек
         self.lbl_style =         tk.Label(self.frame_fields, text='Style',                            bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_support_ru =    tk.Label(self.frame_fields, text='Russian letters in filenames support',          bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_processing_ru = tk.Label(self.frame_fields, text='Russian letters in filenames processing mode',  bg=ST_BG[st], fg=ST_TEXT[st])
         self.lbl_naming_mode =   tk.Label(self.frame_fields, text='File names conversion mode',       bg=ST_BG[st], fg=ST_TEXT[st])
         self.lbl_count_from =    tk.Label(self.frame_fields, text='Start numbering files from',       bg=ST_BG[st], fg=ST_TEXT[st])
         self.lbl_format =        tk.Label(self.frame_fields, text='Number of characters in number',   bg=ST_BG[st], fg=ST_TEXT[st])
         self.lbl_marker_enc =    tk.Label(self.frame_fields, text='Marker for encoded files',         bg=ST_BG[st], fg=ST_TEXT[st])
         self.lbl_marker_dec =    tk.Label(self.frame_fields, text='Marker for decoded files',         bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_support_ru =    tk.Label(self.frame_fields, text='Russian letters support',          bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_processing_ru = tk.Label(self.frame_fields, text='Russian letters processing mode',  bg=ST_BG[st], fg=ST_TEXT[st])
         self.lbl_src_dir_enc =   tk.Label(self.frame_fields, text='Source folder when encoding',      bg=ST_BG[st], fg=ST_TEXT[st])
         self.lbl_dst_dir_enc =   tk.Label(self.frame_fields, text='Destination folder when encoding', bg=ST_BG[st], fg=ST_TEXT[st])
         self.lbl_src_dir_dec =   tk.Label(self.frame_fields, text='Source folder when decoding',      bg=ST_BG[st], fg=ST_TEXT[st])
@@ -1008,13 +1008,13 @@ class SettingsW(tk.Toplevel):
         self.lbl_example_key =   tk.Label(self.frame_fields, text='Example of a key',                 bg=ST_BG[st], fg=ST_TEXT[st])
         self.lbl_print_info =    tk.Label(self.frame_fields, text='Whether to print info',            bg=ST_BG[st], fg=ST_TEXT[st])
         self.lbl_style.grid(        row=0,  column=0, padx=(6, 1), pady=(4, 1), sticky='E')
-        self.lbl_naming_mode.grid(  row=1,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_count_from.grid(   row=2,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_format.grid(       row=3,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_marker_enc.grid(   row=4,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_marker_dec.grid(   row=5,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_support_ru.grid(   row=6,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_processing_ru.grid(row=7,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_support_ru.grid(   row=1,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_processing_ru.grid(row=2,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_naming_mode.grid(  row=3,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_count_from.grid(   row=4,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_format.grid(       row=5,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_marker_enc.grid(   row=6,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_marker_dec.grid(   row=7,  column=0, padx=(6, 1), pady=1,      sticky='E')
         self.lbl_src_dir_enc.grid(  row=8,  column=0, padx=(6, 1), pady=1,      sticky='E')
         self.lbl_dst_dir_enc.grid(  row=9,  column=0, padx=(6, 1), pady=1,      sticky='E')
         self.lbl_src_dir_dec.grid(  row=10, column=0, padx=(6, 1), pady=1,      sticky='E')
@@ -1031,14 +1031,14 @@ class SettingsW(tk.Toplevel):
         self.st_check.map('.TCheckbutton', background=[('active', ST_SELECT[st])])
 
         # Сами настройки
-        self.combo_style         = ttk.Combobox(   self.frame_fields, textvariable=self.inp_style,       values=STYLE_MODES,  state='readonly', style='.TCombobox')
-        self.combo_naming_mode   = ttk.Combobox(   self.frame_fields, textvariable=self.inp_naming_mode, values=NAMING_MODES, state='readonly', style='.TCombobox')
+        self.combo_style         = ttk.Combobox(   self.frame_fields, textvariable=self.inp_style,         values=STYLE_MODES,               state='readonly', style='.TCombobox')
+        self.check_support_ru    = ttk.Checkbutton(self.frame_fields,     variable=self.inp_support_ru,    command=self.processing_ru_state,                   style='.TCheckbutton')
+        self.combo_processing_ru = ttk.Combobox(   self.frame_fields, textvariable=self.inp_processing_ru, values=PROCESSING_RU_MODES,       state='readonly', style='.TCombobox')
+        self.combo_naming_mode   = ttk.Combobox(   self.frame_fields, textvariable=self.inp_naming_mode,   values=NAMING_MODES,              state='readonly', style='.TCombobox')
         self.frameCountFrom      = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
         self.frameFormat         = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
         self.frameMarkerEnc      = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
         self.frameMarkerDec      = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
-        self.check_support_ru    = ttk.Checkbutton(self.frame_fields,     variable=self.inp_support_ru, command=self.processing_ru_state, style='.TCheckbutton')
-        self.combo_processing_ru = ttk.Combobox(   self.frame_fields, textvariable=self.inp_processing_ru, values=PROCESSING_RU_MODES, state='readonly', style='.TCombobox')
         self.frame_src_dir_enc   = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
         self.frame_dst_dir_enc   = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
         self.frame_src_dir_dec   = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
@@ -1051,13 +1051,13 @@ class SettingsW(tk.Toplevel):
 
         # Расположение настроек
         self.combo_style.grid(        row=0,  column=1, padx=(0, 6), pady=(4, 1), sticky='W')
-        self.combo_naming_mode.grid(  row=1,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frameCountFrom.grid(     row=2,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frameFormat.grid(        row=3,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frameMarkerEnc.grid(     row=4,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frameMarkerDec.grid(     row=5,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.check_support_ru.grid(   row=6,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.combo_processing_ru.grid(row=7,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.check_support_ru.grid(   row=1,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.combo_processing_ru.grid(row=2,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.combo_naming_mode.grid(  row=3,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frameCountFrom.grid(     row=4,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frameFormat.grid(        row=5,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frameMarkerEnc.grid(     row=6,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frameMarkerDec.grid(     row=7,  column=1, padx=(0, 6), pady=1,      sticky='W')
         self.frame_src_dir_enc.grid(  row=8,  column=1, padx=(0, 6), pady=1,      sticky='W')
         self.frame_dst_dir_enc.grid(  row=9,  column=1, padx=(0, 6), pady=1,      sticky='W')
         self.frame_src_dir_dec.grid(  row=10, column=1, padx=(0, 6), pady=1,      sticky='W')
