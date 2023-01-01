@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.2.1'
-PROGRAM_DATE = '1.1.2023 19:18'
+PROGRAM_VERSION = 'v6.2.2'
+PROGRAM_DATE = '1.1.2023 19:34'
 
 """ Пути и файлы """
 
@@ -550,14 +550,18 @@ def filename_processing(op_mode, naming_mode, base_name, ext, output_dir, marker
 
 
 # Подсчёт файлов
-def count_files(inp_dir, count_all):
+def count_f_and_d(op_mode, inp_dir, count_all):
     for filename in os.listdir(inp_dir):  # Проход по файлам
         count_all += 1
 
         pth = os.path.join(inp_dir, filename)
         isdir = os.path.isdir(pth)
+
         if isdir:
-            count_all = count_files(pth, count_all)
+            if '_gif' not in os.listdir(pth) and\
+               '_vid' not in os.listdir(pth) or\
+               op_mode == 'E':
+                count_all = count_f_and_d(op_mode, pth, count_all)
 
         if abort_process:
             return count_all
@@ -769,7 +773,7 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
             add_log(f'{err}\n')
         print(f'{Fore.GREEN}Time: {perf_counter() - start}{Style.RESET_ALL}\n')
         add_log(f'Time: {perf_counter() - start}\n')
-        set_progress(count_all, count_all_files)
+        set_progress(count_all, count_all_f_d)
         if abort_process:
             add_log(' >> Aborted <<\n')
             return count_all
@@ -786,9 +790,8 @@ def encode():
     count_all = 0
 
     print('                                   START ENCRYPTING\n')
-    global count_all_files
-    count_all_files = count_files(input_dir, count_all)
-    print(count_all_files)
+    global count_all_f_d
+    count_all_f_d = count_f_and_d(op_mode, input_dir, count_all)
     converse_dir(op_mode, marker, formats, input_dir, output_dir, count_all)
     print('=============================== PROCESSING IS FINISHED ===============================')
 
@@ -812,8 +815,8 @@ def decode():
     count_all = 0
 
     print('                                   START DECRYPTING\n')
-    global count_all_files
-    count_all_files = count_files(input_dir, count_all)
+    global count_all_f_d
+    count_all_f_d = count_f_and_d(op_mode, input_dir, count_all)
     converse_dir(op_mode, marker, formats, input_dir, output_dir, count_all)
     print('=============================== PROCESSING IS FINISHED ===============================')
 
@@ -1910,3 +1913,5 @@ gui.mainloop()
 # v4.0.0 - добавлена обработка видео
 # v5.0.0 - добавлена обработка вложенных папок
 # v6.0.0 - добавлен графический интерфейс
+
+# progressbar для гифок
