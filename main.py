@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.1.4'
-PROGRAM_DATE = '1.1.2023 15:03'
+PROGRAM_VERSION = 'v6.1.5'
+PROGRAM_DATE = '1.1.2023 15:07'
 
 """ Пути и файлы """
 
@@ -1757,10 +1757,16 @@ class MainW(tk.Tk):
             fn_symbols = FN_SYMBOLS_WITH_RU
             fn_symbols_num = FN_SYMBOLS_WITH_RU_NUM
 
+        self.logger = LoggerW(self)
+        t1 = Thread(target=self.logger.open)
+        t1.start()
+
         if action == 'E':
-            encode()
+            t2 = Thread(target=encode)
+            t2.start()
         elif action == 'D':
-            decode()
+            t2 = Thread(target=decode)
+            t2.start()
 
 
 # Вывод информации о программе
