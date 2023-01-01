@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v7.0.0-PRE_3'
-PROGRAM_DATE = '1.1.2023  0:39'
+PROGRAM_VERSION = 'v7.0.0-PRE_4'
+PROGRAM_DATE = '2.1.2023  1:05'
 
 """ Пути и файлы """
 
@@ -38,6 +38,7 @@ SETTINGS_FILENAME = 'settings.txt'  # Файл с настройками
 SETTINGS_PATH = os.path.join(RESOURCES_DIR, SETTINGS_FILENAME)
 TMP_FILENAME = 'tmp.png'  # Временный файл для обработки gif-изображений и видео
 TMP_PATH = os.path.join(RESOURCES_DIR, TMP_FILENAME)
+IMAGES_DIR = 'img'  # Папка с изображениями
 
 # Если нет папки с ресурсами
 if RESOURCES_DIR not in os.listdir(os.curdir):
@@ -1200,7 +1201,7 @@ class SettingsW(tk.Toplevel):
         self.lbl_note_marker_enc = tk.Label(self.frame_marker_enc, text='(if the prefix/postfix name processing mode is selected)', bg=ST_BG[st], fg=ST_FG_TEXT[st])
         self.lbl_note_marker_dec = tk.Label(self.frame_marker_dec, text='(if the prefix/postfix name processing mode is selected)', bg=ST_BG[st], fg=ST_FG_TEXT[st])
         try:
-            self.img_search  = tk.PhotoImage(file=os.path.join(RESOURCES_DIR, 'search.png'))
+            self.img_search  = tk.PhotoImage(file=os.path.join(RESOURCES_DIR, IMAGES_DIR, 'search.png'))
             self.btn_src_enc = tk.Button(self.frame_src_dir_enc, image=self.img_search, command=self.choose_source_enc, bg=ST_BTN[st], fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
             self.btn_dst_enc = tk.Button(self.frame_dst_dir_enc, image=self.img_search, command=self.choose_dest_enc,   bg=ST_BTN[st], fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
             self.btn_src_dec = tk.Button(self.frame_src_dir_dec, image=self.img_search, command=self.choose_source_dec, bg=ST_BTN[st], fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
@@ -1929,11 +1930,11 @@ gui.mainloop()
 
 # добавить надпись оценка объёма работы...
 # добавить варианты фпс
+# при окончании работы выводить сообщение и делать кнопку
 # progressbar для гифок
+# заменить abort на pause
 # выбор расширений
 # контроль версий
 # всплывающие подсказки
 # больше картинок
-# добавить папку для tmp.png и для иконок
 # цвета в журнале
-# при окончании работы выводить сообщение и делать кнопку
