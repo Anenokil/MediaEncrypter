@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.1.0'
-PROGRAM_DATE = '1.1.2023  7:29'
+PROGRAM_VERSION = 'v6.1.1'
+PROGRAM_DATE = '1.1.2023  7:31'
 
 """ Пути и файлы """
 
@@ -716,7 +716,7 @@ def encode():
     formats = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.avi', '.mp4', '.webm']
     count_all = 0
 
-    print('                                   START PROCESSING\n')
+    print('                                   START ENCRYPTING\n')
     t = Thread(target=encrypt_dir, args=(op_mode, marker, formats, input_dir, output_dir, count_all))
     t.start()
     print('=============================== PROCESSING IS FINISHED ===============================')
@@ -740,7 +740,7 @@ def decode():
     formats = ['.png']
     count_all = 0
 
-    print('                                   START PROCESSING\n')
+    print('                                   START DECRYPTING\n')
     t = Thread(target=encrypt_dir, args=(op_mode, marker, formats, input_dir, output_dir, count_all))
     t.start()
     print('=============================== PROCESSING IS FINISHED ===============================')
@@ -1657,11 +1657,11 @@ class MainW(tk.Tk):
         self.lbl_header1.grid(row=0, padx=7, pady=(7, 0))
         self.lbl_header2.grid(row=1, padx=7, pady=(0, 7))
 
-        self.btn_settings = tk.Button(self, text='Settings',    font='StdFont 12', command=self.open_settings, bg=ST_BTN[st],   fg=ST_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
-        self.btn_encode   = tk.Button(self, text='Encode',      font='StdFont 12', command=self.encode,        bg=ST_BTN[st],   fg=ST_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
-        self.btn_decode   = tk.Button(self, text='Decode',      font='StdFont 12', command=self.decode,        bg=ST_BTN[st],   fg=ST_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
-        self.btn_mcm      = tk.Button(self, text='Debug (MCM)', font='StdFont 12', command=self.mcm,           bg=ST_MCM[st],   fg=ST_TEXT[st], activebackground=ST_MCM_SELECT[st], highlightbackground=ST_BORDER[st])
-        self.btn_close    = tk.Button(self, text='Close',       font='StdFont 12', command=self.quit,          bg=ST_CLOSE[st], fg=ST_TEXT[st], activebackground=ST_CLS_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.btn_settings = tk.Button(self, text='Settings',    font='StdFont 12', command=self.settings, bg=ST_BTN[st],   fg=ST_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.btn_encode   = tk.Button(self, text='Encode',      font='StdFont 12', command=self.encode,   bg=ST_BTN[st],   fg=ST_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.btn_decode   = tk.Button(self, text='Decode',      font='StdFont 12', command=self.decode,   bg=ST_BTN[st],   fg=ST_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.btn_mcm      = tk.Button(self, text='Debug (MCM)', font='StdFont 12', command=self.mcm,      bg=ST_MCM[st],   fg=ST_TEXT[st], activebackground=ST_MCM_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.btn_close    = tk.Button(self, text='Close',       font='StdFont 12', command=self.quit,     bg=ST_CLOSE[st], fg=ST_TEXT[st], activebackground=ST_CLS_SELECT[st], highlightbackground=ST_BORDER[st])
         self.btn_settings.grid(row=2, pady=5)
         self.btn_encode.grid(  row=3, pady=5)
         self.btn_decode.grid(  row=4, pady=5)
@@ -1682,7 +1682,7 @@ class MainW(tk.Tk):
         self.log.yview(tk.END)
 
     # Перейти в настройки
-    def open_settings(self):
+    def settings(self):
         SettingsW(self).open()
 
     # Отправить на шифровку
@@ -1763,6 +1763,3 @@ gui.mainloop()
 # v4.0.0 - добавлена обработка видео
 # v5.0.0 - добавлена обработка вложенных папок
 # v6.0.0 - добавлен графический интерфейс
-
-# open_settings
-# start processing
