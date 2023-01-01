@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.2.2'
-PROGRAM_DATE = '1.1.2023 19:34'
+PROGRAM_VERSION = 'v7.0.0-PRE_1'
+PROGRAM_DATE = '1.1.2023 20:18'
 
 """ Пути и файлы """
 
@@ -103,7 +103,7 @@ DEFAULT_SETTINGS = {'count_from': 1,
 ST_BG         = {'light': '#EEEEEE', 'dark': '#222222', 'infernal': '#DD1515'}  # bg или background
 ST_BG_RGB     = {'light': '#EEEEEE', 'dark': '#222222', 'infernal': '#993333'}  # bg
 ST_BG_FIELDS  = {'light': '#FFFFFF', 'dark': '#171717', 'infernal': '#CCCCCC'}  # bg
-ST_BG_ERR   = {'light': '#EE6666', 'dark': '#773333', 'infernal': '#FF0000'}  # bg
+ST_BG_ERR     = {'light': '#EE6666', 'dark': '#773333', 'infernal': '#FF0000'}  # bg
 
 ST_BORDER     = {'light': '#222222', 'dark': '#111111', 'infernal': '#330000'}  # highlightbackground
 ST_RELIEF     = {'light': 'groove',  'dark': 'solid',   'infernal': 'groove' }  # relief
@@ -765,8 +765,8 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 add_log()
 
                 count_all = converse_dir(op_mode, marker, formats, new_inp_dir, new_outp_dir, count_all)
-                print(f'{Fore.GREEN}(DIR) ', end='')
-                add_log('(DIR) ', end='')
+                print(f'{Fore.GREEN}*[DIR] ', end='')
+                add_log('*[DIR] ', end='')
         except Exception as err:
             print_warn('Couldn`t process the file')
             print(f'{Fore.YELLOW}{err}{Style.RESET_ALL}\n')
@@ -1088,7 +1088,7 @@ class SettingsW(tk.Toplevel):
         self.lbl_processing_ru = tk.Label(self.frame_fields, text='Russian letters in filenames processing mode', bg=ST_BG[st], fg=ST_FG_TEXT[st])
         self.lbl_naming_mode =   tk.Label(self.frame_fields, text='File names conversion mode',                   bg=ST_BG[st], fg=ST_FG_TEXT[st])
         self.lbl_count_from =    tk.Label(self.frame_fields, text='Start numbering files from',                   bg=ST_BG[st], fg=ST_FG_TEXT[st])
-        self.lbl_format =        tk.Label(self.frame_fields, text='Number of characters in number',               bg=ST_BG[st], fg=ST_FG_TEXT[st])
+        self.lbl_format =        tk.Label(self.frame_fields, text='Minimal number of characters in number',       bg=ST_BG[st], fg=ST_FG_TEXT[st])
         self.lbl_marker_enc =    tk.Label(self.frame_fields, text='Marker for encoded files',                     bg=ST_BG[st], fg=ST_FG_TEXT[st])
         self.lbl_marker_dec =    tk.Label(self.frame_fields, text='Marker for decoded files',                     bg=ST_BG[st], fg=ST_FG_TEXT[st])
         self.lbl_src_dir_enc =   tk.Label(self.frame_fields, text='Source folder when encoding',                  bg=ST_BG[st], fg=ST_FG_TEXT[st])
@@ -1913,5 +1913,11 @@ gui.mainloop()
 # v4.0.0 - добавлена обработка видео
 # v5.0.0 - добавлена обработка вложенных папок
 # v6.0.0 - добавлен графический интерфейс
+# v7.0.0 - добавлен журнал
 
 # progressbar для гифок
+# кнопка show при вводе ключа
+# цвета в журнале
+# контроль версий
+# выбор расширений
+# больше картинок

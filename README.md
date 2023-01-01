@@ -7,9 +7,9 @@ Supported file extensions: <b>.png</b>, <b>.jpg</b>, <b>.jpeg</b>, <b>.bmp</b>, 
 - Gifs   obtained as result of program are saved with <b>.gif</b> extension
 - Videos obtained as result of program are saved with <b>.mp4</b> extension
 </pre>
+
 ---
 
-The program has settings
 <pre>
 - The default source      folder when encrypting: <b>f_src</b>
 - The default destination folder when encrypting: <b>f_enc</b>
