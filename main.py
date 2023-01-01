@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.1.6'
-PROGRAM_DATE = '1.1.2023 15:08'
+PROGRAM_VERSION = 'v6.1.7'
+PROGRAM_DATE = '1.1.2023 15:34'
 
 """ Пути и файлы """
 
@@ -95,7 +95,8 @@ DEFAULT_SETTINGS = {'count_from': 1,
 
 # Все: bg
 # Все, кроме frame: fg
-# Все, кроме текста: border, relief
+# Все, кроме текста: border
+# Frame: relief
 # Кнопки: activebackground
 # Entry: selectbackground, highlightcolor
 
@@ -704,6 +705,8 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
             gui.logger.add_log(f'{err}')
         print(f'{Fore.GREEN}Time: {perf_counter() - start}{Style.RESET_ALL}\n')
         gui.logger.add_log(f'Time: {perf_counter() - start}\n')
+        if abort_process:
+            return count_all
     return count_all
 
 
@@ -1457,9 +1460,17 @@ class LoggerW(tk.Toplevel):
 
         self.scrollbar = tk.Scrollbar(self)
         self.log = tk.Text(self, width=70, height=30, state='disabled', yscrollcommand=self.scrollbar.set, bg=ST_BG[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
-        self.log.grid(row=4, columnspan=2, sticky='NSEW', padx=(6, 0), pady=6)
-        self.scrollbar.grid(row=4, column=2, sticky='NSE', padx=(0, 6), pady=6)
+        self.btn_abort = tk.Button(self, text='Abort', command=self.stop_process, bg=ST_BTN[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
+
+        self.log.grid(      row=0, column=0, sticky='NSEW', padx=(6, 0), pady=(6, 0))
+        self.scrollbar.grid(row=0, column=1, sticky='NSE',  padx=(0, 6), pady=(6, 0))
         self.scrollbar.config(command=self.log.yview)
+        self.btn_abort.grid(row=1, columnspan=2, padx=6, pady=(4, 6))
+
+    def stop_process(self):
+        global abort_process
+        abort_process = True
+        self.btn_abort['state'] = 'disabled'
 
     def add_log(self, msg):
         self.log['state'] = 'normal'
@@ -1713,6 +1724,9 @@ class MainW(tk.Tk):
             fn_symbols = FN_SYMBOLS_WITH_RU
             fn_symbols_num = FN_SYMBOLS_WITH_RU_NUM
 
+        global abort_process
+        abort_process = False
+
         self.logger = LoggerW(self)
         t1 = Thread(target=self.logger.open)
         t1.start()
@@ -1736,6 +1750,9 @@ class MainW(tk.Tk):
             fn_symbols = FN_SYMBOLS_WITH_RU
             fn_symbols_num = FN_SYMBOLS_WITH_RU_NUM
 
+        global abort_process
+        abort_process = False
+
         self.logger = LoggerW(self)
         t1 = Thread(target=self.logger.open)
         t1.start()
@@ -1756,6 +1773,9 @@ class MainW(tk.Tk):
         else:
             fn_symbols = FN_SYMBOLS_WITH_RU
             fn_symbols_num = FN_SYMBOLS_WITH_RU_NUM
+
+        global abort_process
+        abort_process = False
 
         self.logger = LoggerW(self)
         t1 = Thread(target=self.logger.open)
