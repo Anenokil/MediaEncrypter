@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.1.14'
-PROGRAM_DATE = '1.1.2023 16:52'
+PROGRAM_VERSION = 'v6.2.0'
+PROGRAM_DATE = '1.1.2023 19:15'
 
 """ Пути и файлы """
 
@@ -126,6 +126,9 @@ ST_FG_FOOTER  = {'light': '#666666', 'dark': '#666666', 'infernal': '#222222'}  
 ST_FG_EXAMPLE = {'light': '#448899', 'dark': '#448899', 'infernal': '#010101'}  # fg
 ST_FG_KEY     = {'light': '#EE0000', 'dark': '#BC4040', 'infernal': '#FF0000'}  # fg
 
+ST_PROG       = {'light': '#06B025', 'dark': '#06B025', 'infernal': '#771111'}  # fg
+ST_PROG_ABORT = {'light': '#FFB050', 'dark': '#FFB040', 'infernal': '#222222'}  # fg
+
 """ Ключ """
 
 KEY_SYMBOLS = '0123456789-abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ'  # Допустимые в ключе символы
@@ -134,6 +137,7 @@ KEY_LEN = 40  # Длина ключа
 """ Общие функции """
 
 
+# Добавить запись в журнал обработки
 def add_log(msg='', end='\n'):
     try:
         gui.logger.add_log(msg, end)
@@ -142,7 +146,16 @@ def add_log(msg='', end='\n'):
         abort_process = True
 
 
-# Вывод предупреждения в консоль
+# Обновить прогресс обработки
+def set_progress(num, den):
+    try:
+        gui.logger.set_progress(num, den)
+    except:
+        global abort_process
+        abort_process = True
+
+
+# Вывод предупреждения в консоль и в журнал
 def print_warn(text):
     print(f'{Fore.RED}[!!!] {text} [!!!]{Style.RESET_ALL}')
     add_log(f'[!!!] {text} [!!!]')
@@ -536,6 +549,21 @@ def filename_processing(op_mode, naming_mode, base_name, ext, output_dir, marker
     return new_name
 
 
+# Подсчёт файлов
+def count_files(inp_dir, count_all):
+    for filename in os.listdir(inp_dir):  # Проход по файлам
+        count_all += 1
+
+        pth = os.path.join(inp_dir, filename)
+        isdir = os.path.isdir(pth)
+        if isdir:
+            count_all = count_files(pth, count_all)
+
+        if abort_process:
+            return count_all
+    return count_all
+
+
 # Обработка папки с файлами
 def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
     count_correct = settings['count_from'] - 1  # Счётчик количества обработанных файлов
@@ -741,7 +769,9 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
             add_log(f'{err}\n')
         print(f'{Fore.GREEN}Time: {perf_counter() - start}{Style.RESET_ALL}\n')
         add_log(f'Time: {perf_counter() - start}\n')
+        set_progress(count_all, count_all_files)
         if abort_process:
+            add_log(' >> Aborted <<\n')
             return count_all
     return count_all
 
@@ -756,6 +786,9 @@ def encode():
     count_all = 0
 
     print('                                   START ENCRYPTING\n')
+    global count_all_files
+    count_all_files = count_files(input_dir, count_all)
+    print(count_all_files)
     converse_dir(op_mode, marker, formats, input_dir, output_dir, count_all)
     print('=============================== PROCESSING IS FINISHED ===============================')
 
@@ -779,6 +812,8 @@ def decode():
     count_all = 0
 
     print('                                   START DECRYPTING\n')
+    global count_all_files
+    count_all_files = count_files(input_dir, count_all)
     converse_dir(op_mode, marker, formats, input_dir, output_dir, count_all)
     print('=============================== PROCESSING IS FINISHED ===============================')
 
@@ -1494,19 +1529,39 @@ class LoggerW(tk.Toplevel):
         self.resizable(width=False, height=False)
         self.configure(bg=ST_BG[st])
 
-        self.scrollbar = tk.Scrollbar(self)
-        self.log = tk.Text(self, width=70, height=30, state='disabled', yscrollcommand=self.scrollbar.set, bg=ST_TEXT[st], fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
-        self.btn_abort = tk.Button(self, text='Abort', command=self.stop_process,                          bg=ST_BTN[st],  fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
+        self.str_progress = tk.StringVar(value='0')
 
-        self.log.grid(      row=0, column=0, sticky='NSEW', padx=(6, 0), pady=(6, 0))
-        self.scrollbar.grid(row=0, column=1, sticky='NSE',  padx=(0, 6), pady=(6, 0))
-        self.scrollbar.config(command=self.log.yview)
-        self.btn_abort.grid(row=1, columnspan=2, padx=6, pady=(4, 6))
+        self.st_progress = ttk.Style()
+        self.st_progress.theme_use('winnative')
+        self.st_progress.configure('normal.Horizontal.TProgressbar', troughcolor=ST_TEXT[st], background=ST_PROG[st])
+        self.st_progress_stopped = ttk.Style()
+        self.st_progress_stopped.theme_use('winnative')
+        self.st_progress_stopped.configure('abort.Horizontal.TProgressbar', troughcolor=ST_TEXT[st], background=ST_PROG_ABORT[st])
+
+        self.frame_progress = tk.LabelFrame(self, bg=ST_BG[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
+        self.frame_progress.grid(row=0, columnspan=2, padx=6, pady=(6, 4))
+
+        tk.Label(self.frame_progress, text='Progress:', bg=ST_BG[st], fg=ST_FG_TEXT[st]).grid(row=0, column=0, padx=(6, 0), pady=4)
+        self.progressbar = ttk.Progressbar(self.frame_progress, value=0, length=450, style='normal.Horizontal.TProgressbar', orient='horizontal')
+        self.lbl_progress = tk.Label(self.frame_progress, textvariable=self.str_progress, bg=ST_BG[st], fg=ST_FG_TEXT[st])
+
+        self.progressbar.grid( row=0, column=1, padx=4,      pady=4)
+        self.lbl_progress.grid(row=0, column=2, padx=(0, 6), pady=4)
+
+        self.scrollbar = tk.Scrollbar(self, bg=ST_BG[st])
+        self.log = tk.Text(self, width=70, height=30, state='disabled', yscrollcommand=self.scrollbar.set, bg=ST_TEXT[st],  fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
+        self.btn_abort = tk.Button(self, text='Abort', command=self.stop_process,                          bg=ST_CLOSE[st], fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_CLS_SELECT[st])
+
+        self.log.grid(         row=1, column=0, sticky='NSEW', padx=(6, 0), pady=0)
+        self.scrollbar.grid(   row=1, column=1, sticky='NSE',  padx=(0, 6), pady=0)
+        self.scrollbar.config( command=self.log.yview)
+        self.btn_abort.grid(   row=2, columnspan=2, padx=6, pady=(4, 6))
 
     def stop_process(self):
         global abort_process
         abort_process = True
         self.btn_abort['state'] = 'disabled'
+        self.progressbar['style'] = 'abort.Horizontal.TProgressbar'
 
     def add_log(self, msg='', end='\n'):
         self.log['state'] = 'normal'
@@ -1516,6 +1571,10 @@ class LoggerW(tk.Toplevel):
         else:
             self.log.insert(tk.END, str(msg) + end)
         self.log['state'] = 'disabled'
+
+    def set_progress(self, num, den):
+        self.progressbar['value'] = 100 * num / den
+        self.str_progress.set(f'{num}/{den}')
 
     def open(self):
         self.grab_set()
