@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.1.10'
-PROGRAM_DATE = '1.1.2023 16:10'
+PROGRAM_VERSION = 'v6.1.12'
+PROGRAM_DATE = '1.1.2023 16:36'
 
 """ Пути и файлы """
 
@@ -135,10 +135,18 @@ KEY_LEN = 40  # Длина ключа
 """ Общие функции """
 
 
+def add_log(msg='', end='\n'):
+    try:
+        gui.logger.add_log(msg, end)
+    except:
+        global abort_process
+        abort_process = True
+
+
 # Вывод предупреждения в консоль
 def print_warn(text):
     print(f'{Fore.RED}[!!!] {text} [!!!]{Style.RESET_ALL}')
-    gui.logger.add_log(f'[!!!] {text} [!!!]')
+    add_log(f'[!!!] {text} [!!!]')
 
 
 # Является ли строка целым числом
@@ -538,10 +546,10 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
         isdir = os.path.isdir(pth)
         if ext.lower() not in formats and not isdir:  # Проверка формата
             print(f'({count_all}) <{filename}>')
-            gui.logger.add_log(f'({count_all}) <{filename}>')
+            add_log(f'({count_all}) <{filename}>')
             print_warn('Unsupported file extension')
             print()
-            gui.logger.add_log()
+            add_log()
             continue
         count_correct += 1
 
@@ -551,12 +559,12 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '.png', output_dir, marker, count_correct)  # Преобразование имени файла
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-                gui.logger.add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
+                add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
 
                 img = imread(os.path.join(inp_dir, filename))  # Считывание изображения
                 if settings['print_info'] == 'print':
                     print(img.shape)
-                    gui.logger.add_log(img.shape)
+                    add_log(img.shape)
 
                 outp_path = os.path.join(output_dir, res_name)
                 if op_mode == 'E':  # Запись результата
@@ -566,12 +574,12 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                     img = decode_file(img, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b)
                     imsave(outp_path, img.astype(uint8))
                 print()
-                gui.logger.add_log()
+                add_log()
             elif ext == '.gif':
                 res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', output_dir, marker, count_correct)  # Преобразование имени файла
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-                gui.logger.add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
+                add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
 
                 res = os.path.join(output_dir, res_name)
                 if res_name not in os.listdir(output_dir):
@@ -581,18 +589,18 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 with Image.open(os.path.join(inp_dir, filename)) as im:
                     for i in range(im.n_frames):
                         print(f'frame {i + 1}')
-                        gui.logger.add_log(f'frame {i + 1}')
+                        add_log(f'frame {i + 1}')
                         im.seek(i)
                         im.save(TMP_PATH)
 
                         fr = imread(TMP_PATH)
                         if settings['print_info'] == 'print':  # Вывод информации о считывании
                             print(fr.shape)
-                            gui.logger.add_log(fr.shape)
+                            add_log(fr.shape)
                         outp_path = os.path.join(res, '{:05}.png'.format(i))
                         imsave(outp_path, encode_file(fr).astype(uint8))
                         print()
-                        gui.logger.add_log()
+                        add_log()
 
                         if abort_process:
                             break
@@ -602,7 +610,7 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 res_name = filename_processing(op_mode, settings['naming_mode'], filename, '.gif', output_dir, marker, count_correct)  # Преобразование имени файла
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-                gui.logger.add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
+                add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
 
                 inp_dir_tmp = os.path.join(inp_dir, filename)
                 frames = sorted((fr for fr in os.listdir(inp_dir_tmp) if fr.endswith('.png')))
@@ -614,16 +622,16 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 with io.get_writer(res, mode='I', duration=1/24) as writer:
                     for i in range(len(frames)):
                         print(f'frame {i + 1}')
-                        gui.logger.add_log(f'frame {i + 1}')
+                        add_log(f'frame {i + 1}')
                         fr = imread(os.path.join(inp_dir_tmp, frames[i]))
                         if settings['print_info'] == 'print':  # Вывод информации о считывании
                             print(fr.shape)
-                            gui.logger.add_log(fr.shape)
+                            add_log(fr.shape)
                         img = decode_file(fr, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b)
                         imsave(TMP_PATH, img.astype(uint8))
                         writer.append_data(io.imread(TMP_PATH))
                         print()
-                        gui.logger.add_log()
+                        add_log()
 
                         if abort_process:
                             break
@@ -635,7 +643,7 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', output_dir, marker, count_correct)
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-                gui.logger.add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
+                add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
 
                 res = os.path.join(output_dir, tmp_name)
                 if tmp_name not in os.listdir(output_dir):
@@ -650,16 +658,16 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                     frame_filename = os.path.join(res, '{:06}.png'.format(count))
                     vid.save_frame(TMP_PATH, current_duration)
                     print(f'frame {count + 1}')
-                    gui.logger.add_log(f'frame {count + 1}')
+                    add_log(f'frame {count + 1}')
 
                     fr = imread(TMP_PATH)
                     if settings['print_info'] == 'print':  # Вывод информации о считывании
                         print(fr.shape)
-                        gui.logger.add_log(fr.shape)
+                        add_log(fr.shape)
                     imsave(frame_filename, encode_file(fr).astype(uint8))
                     count += 1
                     print()
-                    gui.logger.add_log()
+                    add_log()
 
                     if abort_process:
                         break
@@ -672,7 +680,7 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 res_name = filename_processing(op_mode, settings['naming_mode'], filename, '.mp4', output_dir, marker, count_correct)
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-                gui.logger.add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
+                add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
 
                 inp_dir_tmp = os.path.join(inp_dir, filename)
                 res = os.path.join(output_dir, tmp_name)
@@ -689,17 +697,17 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 for f in os.listdir(inp_dir_tmp):
                     if f.endswith('.png'):
                         print(f'frame {count + 1}')
-                        gui.logger.add_log(f'frame {count + 1}')
+                        add_log(f'frame {count + 1}')
                         img = imread(os.path.join(inp_dir_tmp, f))
                         if settings['print_info'] == 'print':  # Вывод информации о считывании
                             print(img.shape)
-                            gui.logger.add_log(img.shape)
+                            add_log(img.shape)
                         fr = decode_file(img, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b)
                         imsave(TMP_PATH, fr.astype(uint8))
                         video.write(cv2.imread(TMP_PATH))
                         count += 1
                         print()
-                        gui.logger.add_log()
+                        add_log()
 
                         if abort_process:
                             break
@@ -712,7 +720,7 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', output_dir, marker, count_correct)  # Преобразование имени файла
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-                gui.logger.add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
+                add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
 
                 new_inp_dir = os.path.join(inp_dir, filename)
                 new_outp_dir = os.path.join(output_dir, res_name)
@@ -721,17 +729,17 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                     os.mkdir(new_outp_dir)
 
                 print()
-                gui.logger.add_log()
+                add_log()
 
                 count_all = converse_dir(op_mode, marker, formats, new_inp_dir, new_outp_dir, count_all)
                 print(f'{Fore.GREEN}(DIR) ', end='')
-                gui.logger.add_log('(DIR) ', end='')
+                add_log('(DIR) ', end='')
         except Exception as err:
             print_warn('Couldn`t process the file')
             print(f'{Fore.YELLOW}{err}{Style.RESET_ALL}\n')
-            gui.logger.add_log(f'{err}\n')
+            add_log(f'{err}\n')
         print(f'{Fore.GREEN}Time: {perf_counter() - start}{Style.RESET_ALL}\n')
-        gui.logger.add_log(f'Time: {perf_counter() - start}\n')
+        add_log(f'Time: {perf_counter() - start}\n')
         if abort_process:
             return count_all
     return count_all
