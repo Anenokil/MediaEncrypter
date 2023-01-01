@@ -2,6 +2,7 @@ import sys
 import os
 from shutil import copyfile  # Копирование файлов
 from time import perf_counter
+from threading import Thread
 from numpy import dstack, uint8, arange
 from math import gcd  # НОД
 from transliterate import translit  # Транслитерация
@@ -25,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.21'
-PROGRAM_DATE = '1.1.2023  4:44'
+PROGRAM_VERSION = 'v6.1.0'
+PROGRAM_DATE = '1.1.2023  7:29'
 
 """ Пути и файлы """
 
@@ -136,6 +137,7 @@ KEY_LEN = 40  # Длина ключа
 # Вывод предупреждения в консоль
 def print_warn(text):
     print(f'{Fore.RED}[!!!] {text} [!!!]{Style.RESET_ALL}')
+    gui.add_log(f'[!!!] {text} [!!!]')
 
 
 # Является ли строка целым числом
@@ -535,8 +537,10 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
         isdir = os.path.isdir(pth)
         if ext.lower() not in formats and not isdir:  # Проверка формата
             print(f'({count_all}) <{filename}>')
+            gui.add_log(f'({count_all}) <{filename}>')
             print_warn('Unsupported file extension')
             print()
+            gui.add_log('')
             continue
         count_correct += 1
 
@@ -546,6 +550,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '.png', output_dir, marker, count_correct)  # Преобразование имени файла
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
+                gui.add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
 
                 img = imread(os.path.join(inp_dir, filename))  # Считывание изображения
                 if settings['print_info'] == 'print':
@@ -563,6 +568,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', output_dir, marker, count_correct)  # Преобразование имени файла
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
+                gui.add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
 
                 res = os.path.join(output_dir, res_name)
                 if res_name not in os.listdir(output_dir):
@@ -587,6 +593,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 res_name = filename_processing(op_mode, settings['naming_mode'], filename, '.gif', output_dir, marker, count_correct)  # Преобразование имени файла
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
+                gui.add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
 
                 inp_dir_tmp = os.path.join(inp_dir, filename)
                 frames = sorted((fr for fr in os.listdir(inp_dir_tmp) if fr.endswith('.png')))
@@ -613,6 +620,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', output_dir, marker, count_correct)
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
+                gui.add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
 
                 res = os.path.join(output_dir, tmp_name)
                 if tmp_name not in os.listdir(output_dir):
@@ -643,6 +651,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 res_name = filename_processing(op_mode, settings['naming_mode'], filename, '.mp4', output_dir, marker, count_correct)
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
+                gui.add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
 
                 inp_dir_tmp = os.path.join(inp_dir, filename)
                 res = os.path.join(output_dir, tmp_name)
@@ -676,6 +685,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', output_dir, marker, count_correct)  # Преобразование имени файла
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
+                gui.add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
 
                 new_inp_dir = os.path.join(inp_dir, filename)
                 new_outp_dir = os.path.join(output_dir, res_name)
@@ -684,13 +694,16 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                     os.mkdir(new_outp_dir)
 
                 print()
+                gui.add_log('')
 
                 count_all = encrypt_dir(op_mode, marker, formats, new_inp_dir, new_outp_dir, count_all)
                 print(f'{Fore.GREEN}(DIR) ', end='')
         except Exception as err:
             print_warn('Couldn`t process the file')
             print(f'{Fore.YELLOW}{err}{Style.RESET_ALL}')
+            gui.add_log(f'{err}')
         print(f'{Fore.GREEN}Time: {perf_counter() - start}{Style.RESET_ALL}\n')
+        gui.add_log(f'Time: {perf_counter() - start}\n')
     return count_all
 
 
@@ -704,7 +717,8 @@ def encode():
     count_all = 0
 
     print('                                   START PROCESSING\n')
-    encrypt_dir(op_mode, marker, formats, input_dir, output_dir, count_all)
+    t = Thread(target=encrypt_dir, args=(op_mode, marker, formats, input_dir, output_dir, count_all))
+    t.start()
     print('=============================== PROCESSING IS FINISHED ===============================')
 
 
@@ -727,7 +741,8 @@ def decode():
     count_all = 0
 
     print('                                   START PROCESSING\n')
-    encrypt_dir(op_mode, marker, formats, input_dir, output_dir, count_all)
+    t = Thread(target=encrypt_dir, args=(op_mode, marker, formats, input_dir, output_dir, count_all))
+    t.start()
     print('=============================== PROCESSING IS FINISHED ===============================')
 
 
@@ -993,20 +1008,20 @@ class SettingsW(tk.Toplevel):
         self.frame_fields.grid(row=0, column=0, columnspan=4, padx=4, pady=4)
 
         # Названия настроек
-        self.lbl_style =         tk.Label(self.frame_fields, text='Style',                            bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_style =         tk.Label(self.frame_fields, text='Style',                                         bg=ST_BG[st], fg=ST_TEXT[st])
         self.lbl_support_ru =    tk.Label(self.frame_fields, text='Russian letters in filenames support',          bg=ST_BG[st], fg=ST_TEXT[st])
         self.lbl_processing_ru = tk.Label(self.frame_fields, text='Russian letters in filenames processing mode',  bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_naming_mode =   tk.Label(self.frame_fields, text='File names conversion mode',       bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_count_from =    tk.Label(self.frame_fields, text='Start numbering files from',       bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_format =        tk.Label(self.frame_fields, text='Number of characters in number',   bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_marker_enc =    tk.Label(self.frame_fields, text='Marker for encoded files',         bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_marker_dec =    tk.Label(self.frame_fields, text='Marker for decoded files',         bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_src_dir_enc =   tk.Label(self.frame_fields, text='Source folder when encoding',      bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_dst_dir_enc =   tk.Label(self.frame_fields, text='Destination folder when encoding', bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_src_dir_dec =   tk.Label(self.frame_fields, text='Source folder when decoding',      bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_dst_dir_dec =   tk.Label(self.frame_fields, text='Destination folder when decoding', bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_example_key =   tk.Label(self.frame_fields, text='Example of a key',                 bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_print_info =    tk.Label(self.frame_fields, text='Whether to print info',            bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_naming_mode =   tk.Label(self.frame_fields, text='File names conversion mode',                    bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_count_from =    tk.Label(self.frame_fields, text='Start numbering files from',                    bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_format =        tk.Label(self.frame_fields, text='Number of characters in number',                bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_marker_enc =    tk.Label(self.frame_fields, text='Marker for encoded files',                      bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_marker_dec =    tk.Label(self.frame_fields, text='Marker for decoded files',                      bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_src_dir_enc =   tk.Label(self.frame_fields, text='Source folder when encoding',                   bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_dst_dir_enc =   tk.Label(self.frame_fields, text='Destination folder when encoding',              bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_src_dir_dec =   tk.Label(self.frame_fields, text='Source folder when decoding',                   bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_dst_dir_dec =   tk.Label(self.frame_fields, text='Destination folder when decoding',              bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_example_key =   tk.Label(self.frame_fields, text='Example of a key',                              bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_print_info =    tk.Label(self.frame_fields, text='Whether to print info',                         bg=ST_BG[st], fg=ST_TEXT[st])
         self.lbl_style.grid(        row=0,  column=0, padx=(6, 1), pady=(4, 1), sticky='E')
         self.lbl_support_ru.grid(   row=1,  column=0, padx=(6, 1), pady=1,      sticky='E')
         self.lbl_processing_ru.grid(row=2,  column=0, padx=(6, 1), pady=1,      sticky='E')
@@ -1656,6 +1671,16 @@ class MainW(tk.Tk):
         self.lbl_footer = tk.Label(self, text=f'{PROGRAM_VERSION} - {PROGRAM_DATE}', font='StdFont 8', bg=ST_BG[st], fg=ST_FOOTER[st])
         self.lbl_footer.grid(row=7, padx=7, pady=(0, 3), sticky='S')
 
+        self.scrollbar = tk.Scrollbar(self)
+        self.log = tk.Text(width=15, height=9, yscrollcommand=self.scrollbar.set)
+        self.log.grid(row=8, column=0, sticky='NSEW')
+        self.scrollbar.grid(row=8, column=1, sticky='NSE')
+        self.scrollbar.config(command=self.log.yview)
+
+    def add_log(self, msg):
+        self.log.insert(tk.END, msg + '\n')
+        self.log.yview(tk.END)
+
     # Перейти в настройки
     def open_settings(self):
         SettingsW(self).open()
@@ -1738,3 +1763,6 @@ gui.mainloop()
 # v4.0.0 - добавлена обработка видео
 # v5.0.0 - добавлена обработка вложенных папок
 # v6.0.0 - добавлен графический интерфейс
+
+# open_settings
+# start processing
