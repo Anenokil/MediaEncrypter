@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.1.9'
-PROGRAM_DATE = '1.1.2023 16:08'
+PROGRAM_VERSION = 'v6.1.10'
+PROGRAM_DATE = '1.1.2023 16:10'
 
 """ Пути и файлы """
 
@@ -728,8 +728,8 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 gui.logger.add_log('(DIR) ', end='')
         except Exception as err:
             print_warn('Couldn`t process the file')
-            print(f'{Fore.YELLOW}{err}{Style.RESET_ALL}')
-            gui.logger.add_log(f'{err}')
+            print(f'{Fore.YELLOW}{err}{Style.RESET_ALL}\n')
+            gui.logger.add_log(f'{err}\n')
         print(f'{Fore.GREEN}Time: {perf_counter() - start}{Style.RESET_ALL}\n')
         gui.logger.add_log(f'Time: {perf_counter() - start}\n')
         if abort_process:
