@@ -25,8 +25,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.20'
-PROGRAM_DATE = '1.1.2023  4:41'
+PROGRAM_VERSION = 'v6.0.21'
+PROGRAM_DATE = '1.1.2023  4:44'
 
 """ Пути и файлы """
 
@@ -1035,10 +1035,10 @@ class SettingsW(tk.Toplevel):
         self.check_support_ru    = ttk.Checkbutton(self.frame_fields,     variable=self.inp_support_ru,    command=self.processing_ru_state,                   style='.TCheckbutton')
         self.combo_processing_ru = ttk.Combobox(   self.frame_fields, textvariable=self.inp_processing_ru, values=PROCESSING_RU_MODES,       state='readonly', style='.TCombobox')
         self.combo_naming_mode   = ttk.Combobox(   self.frame_fields, textvariable=self.inp_naming_mode,   values=NAMING_MODES,              state='readonly', style='.TCombobox')
-        self.frameCountFrom      = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
-        self.frameFormat         = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
-        self.frameMarkerEnc      = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
-        self.frameMarkerDec      = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
+        self.frame_count_from      = tk.LabelFrame(self.frame_fields, borderwidth=0, bg=ST_BG[st])
+        self.frame_format         = tk.LabelFrame( self.frame_fields, borderwidth=0, bg=ST_BG[st])
+        self.frame_marker_enc      = tk.LabelFrame(self.frame_fields, borderwidth=0, bg=ST_BG[st])
+        self.frame_marker_dec      = tk.LabelFrame(self.frame_fields, borderwidth=0, bg=ST_BG[st])
         self.frame_src_dir_enc   = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
         self.frame_dst_dir_enc   = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
         self.frame_src_dir_dec   = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
@@ -1054,10 +1054,10 @@ class SettingsW(tk.Toplevel):
         self.check_support_ru.grid(   row=1,  column=1, padx=(0, 6), pady=1,      sticky='W')
         self.combo_processing_ru.grid(row=2,  column=1, padx=(0, 6), pady=1,      sticky='W')
         self.combo_naming_mode.grid(  row=3,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frameCountFrom.grid(     row=4,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frameFormat.grid(        row=5,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frameMarkerEnc.grid(     row=6,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frameMarkerDec.grid(     row=7,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_count_from.grid(   row=4,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_format.grid(       row=5,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_marker_enc.grid(   row=6,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_marker_dec.grid(   row=7,  column=1, padx=(0, 6), pady=1,      sticky='W')
         self.frame_src_dir_enc.grid(  row=8,  column=1, padx=(0, 6), pady=1,      sticky='W')
         self.frame_dst_dir_enc.grid(  row=9,  column=1, padx=(0, 6), pady=1,      sticky='W')
         self.frame_src_dir_dec.grid(  row=10, column=1, padx=(0, 6), pady=1,      sticky='W')
@@ -1070,10 +1070,10 @@ class SettingsW(tk.Toplevel):
         max_len_marker = 70
         min_len_dir = 50
         max_len_dir = 120
-        self.entry_count_from  = tk.Entry(self.frameCountFrom,    textvariable=self.inp_count_from,  bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=10, validate='key', validatecommand=self.vcmd_num)
-        self.entry_format      = tk.Entry(self.frameFormat,       textvariable=self.inp_format,      bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=5,  validate='key', validatecommand=self.vcmd_natural)
-        self.entry_marker_enc  = tk.Entry(self.frameMarkerEnc,    textvariable=self.inp_marker_enc,  bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=min(max_len_marker,  max(min_len_marker, len(self.inp_marker_enc.get()))),  font='TkFixedFont', validate='key')
-        self.entry_marker_dec  = tk.Entry(self.frameMarkerDec,    textvariable=self.inp_marker_dec,  bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=min(max_len_marker,  max(min_len_marker, len(self.inp_marker_dec.get()))),  font='TkFixedFont', validate='key')
+        self.entry_count_from  = tk.Entry(self.frame_count_from,  textvariable=self.inp_count_from,  bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=10, validate='key', validatecommand=self.vcmd_num)
+        self.entry_format      = tk.Entry(self.frame_format,      textvariable=self.inp_format,      bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=5,  validate='key', validatecommand=self.vcmd_natural)
+        self.entry_marker_enc  = tk.Entry(self.frame_marker_enc,  textvariable=self.inp_marker_enc,  bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=min(max_len_marker,  max(min_len_marker, len(self.inp_marker_enc.get()))),  font='TkFixedFont', validate='key')
+        self.entry_marker_dec  = tk.Entry(self.frame_marker_dec,  textvariable=self.inp_marker_dec,  bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=min(max_len_marker,  max(min_len_marker, len(self.inp_marker_dec.get()))),  font='TkFixedFont', validate='key')
         self.entry_src_dir_enc = tk.Entry(self.frame_src_dir_enc, textvariable=self.inp_src_dir_enc, bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=min(max_len_dir,     max(min_len_dir,    len(self.inp_src_dir_enc.get()))), font='TkFixedFont', validate='key')
         self.entry_dst_dir_enc = tk.Entry(self.frame_dst_dir_enc, textvariable=self.inp_dst_dir_enc, bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=min(max_len_dir,     max(min_len_dir,    len(self.inp_dst_dir_enc.get()))), font='TkFixedFont', validate='key')
         self.entry_src_dir_dec = tk.Entry(self.frame_src_dir_dec, textvariable=self.inp_src_dir_dec, bg=ST_ENTRY[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st], relief='solid', width=min(max_len_dir,     max(min_len_dir,    len(self.inp_src_dir_dec.get()))), font='TkFixedFont', validate='key')
@@ -1093,10 +1093,10 @@ class SettingsW(tk.Toplevel):
         self.entry_src_dir_dec.grid(row=0, column=0, padx=(0, 1))
         self.entry_dst_dir_dec.grid(row=0, column=0, padx=(0, 1))
 
-        self.lbl_note_count_from = tk.Label(self.frameCountFrom, text='(if the numbering name processing mode is selected)',      bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_note_format     = tk.Label(self.frameFormat,    text='(if the numbering name processing mode is selected)',      bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_note_marker_enc = tk.Label(self.frameMarkerEnc, text='(if the prefix/postfix name processing mode is selected)', bg=ST_BG[st], fg=ST_TEXT[st])
-        self.lbl_note_marker_dec = tk.Label(self.frameMarkerDec, text='(if the prefix/postfix name processing mode is selected)', bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_note_count_from = tk.Label(self.frame_count_from, text='(if the numbering name processing mode is selected)',      bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_note_format     = tk.Label(self.frame_format,     text='(if the numbering name processing mode is selected)',      bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_note_marker_enc = tk.Label(self.frame_marker_enc, text='(if the prefix/postfix name processing mode is selected)', bg=ST_BG[st], fg=ST_TEXT[st])
+        self.lbl_note_marker_dec = tk.Label(self.frame_marker_dec, text='(if the prefix/postfix name processing mode is selected)', bg=ST_BG[st], fg=ST_TEXT[st])
         try:
             self.img_search  = tk.PhotoImage(file=os.path.join(RESOURCES_DIR, 'search.png'))
             self.btn_src_enc = tk.Button(self.frame_src_dir_enc, image=self.img_search, command=self.choose_source_enc, bg=ST_BTN[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
@@ -1370,10 +1370,10 @@ class SettingsW(tk.Toplevel):
         self.st_check.map('.TCheckbutton', background=[('active', ST_SELECT[st])])
         self.combo_style.configure(        style='.TCombobox')
         self.combo_naming_mode.configure(  style='.TCombobox')
-        self.frameCountFrom.configure(     bg=ST_BG[st])
-        self.frameFormat.configure(        bg=ST_BG[st])
-        self.frameMarkerEnc.configure(     bg=ST_BG[st])
-        self.frameMarkerDec.configure(     bg=ST_BG[st])
+        self.frame_count_from.configure(   bg=ST_BG[st])
+        self.frame_format.configure(       bg=ST_BG[st])
+        self.frame_marker_enc.configure(   bg=ST_BG[st])
+        self.frame_marker_dec.configure(   bg=ST_BG[st])
         self.check_support_ru.configure(   style='.TCheckbutton')
         self.combo_processing_ru.configure(style='.TCombobox')
         self.frame_src_dir_enc.configure(  bg=ST_BG[st])
