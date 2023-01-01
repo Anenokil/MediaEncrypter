@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.1.1'
-PROGRAM_DATE = '1.1.2023  7:31'
+PROGRAM_VERSION = 'v6.1.2'
+PROGRAM_DATE = '1.1.2023 14:56'
 
 """ Пути и файлы """
 
@@ -95,7 +95,7 @@ DEFAULT_SETTINGS = {'count_from': 1,
 
 # Все: bg
 # Все, кроме frame: fg
-# Все, кроме текста: border
+# Все, кроме текста: border, relief
 # Кнопки: activebackground
 # Entry: selectbackground, highlightcolor
 
@@ -137,7 +137,7 @@ KEY_LEN = 40  # Длина ключа
 # Вывод предупреждения в консоль
 def print_warn(text):
     print(f'{Fore.RED}[!!!] {text} [!!!]{Style.RESET_ALL}')
-    gui.add_log(f'[!!!] {text} [!!!]')
+    gui.logger.add_log(f'[!!!] {text} [!!!]')
 
 
 # Является ли строка целым числом
@@ -537,10 +537,10 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
         isdir = os.path.isdir(pth)
         if ext.lower() not in formats and not isdir:  # Проверка формата
             print(f'({count_all}) <{filename}>')
-            gui.add_log(f'({count_all}) <{filename}>')
+            gui.logger.add_log(f'({count_all}) <{filename}>')
             print_warn('Unsupported file extension')
             print()
-            gui.add_log('')
+            gui.logger.add_log('')
             continue
         count_correct += 1
 
@@ -550,7 +550,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '.png', output_dir, marker, count_correct)  # Преобразование имени файла
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-                gui.add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
+                gui.logger.add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
 
                 img = imread(os.path.join(inp_dir, filename))  # Считывание изображения
                 if settings['print_info'] == 'print':
@@ -568,7 +568,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', output_dir, marker, count_correct)  # Преобразование имени файла
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-                gui.add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
+                gui.logger.add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
 
                 res = os.path.join(output_dir, res_name)
                 if res_name not in os.listdir(output_dir):
@@ -593,7 +593,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 res_name = filename_processing(op_mode, settings['naming_mode'], filename, '.gif', output_dir, marker, count_correct)  # Преобразование имени файла
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-                gui.add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
+                gui.logger.add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
 
                 inp_dir_tmp = os.path.join(inp_dir, filename)
                 frames = sorted((fr for fr in os.listdir(inp_dir_tmp) if fr.endswith('.png')))
@@ -620,7 +620,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', output_dir, marker, count_correct)
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-                gui.add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
+                gui.logger.add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
 
                 res = os.path.join(output_dir, tmp_name)
                 if tmp_name not in os.listdir(output_dir):
@@ -651,7 +651,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 res_name = filename_processing(op_mode, settings['naming_mode'], filename, '.mp4', output_dir, marker, count_correct)
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-                gui.add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
+                gui.logger.add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
 
                 inp_dir_tmp = os.path.join(inp_dir, filename)
                 res = os.path.join(output_dir, tmp_name)
@@ -685,7 +685,7 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', output_dir, marker, count_correct)  # Преобразование имени файла
 
                 print(f'({count_all}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-                gui.add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
+                gui.logger.add_log(f'({count_all}) <{filename}>  ->  <{res_name}>')
 
                 new_inp_dir = os.path.join(inp_dir, filename)
                 new_outp_dir = os.path.join(output_dir, res_name)
@@ -694,16 +694,16 @@ def encrypt_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                     os.mkdir(new_outp_dir)
 
                 print()
-                gui.add_log('')
+                gui.logger.add_log('')
 
                 count_all = encrypt_dir(op_mode, marker, formats, new_inp_dir, new_outp_dir, count_all)
                 print(f'{Fore.GREEN}(DIR) ', end='')
         except Exception as err:
             print_warn('Couldn`t process the file')
             print(f'{Fore.YELLOW}{err}{Style.RESET_ALL}')
-            gui.add_log(f'{err}')
+            gui.logger.add_log(f'{err}')
         print(f'{Fore.GREEN}Time: {perf_counter() - start}{Style.RESET_ALL}\n')
-        gui.add_log(f'Time: {perf_counter() - start}\n')
+        gui.logger.add_log(f'Time: {perf_counter() - start}\n')
     return count_all
 
 
@@ -1449,6 +1449,31 @@ class SettingsW(tk.Toplevel):
         self.wait_window()
 
 
+# Окно журнала
+class LoggerW(tk.Toplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title('Media encrypter - Progress')
+        self.resizable(width=False, height=False)
+        self.configure(bg=ST_BG[st])
+
+        self.scrollbar = tk.Scrollbar(self)
+        self.log = tk.Text(self, width=70, height=30, state='disabled', yscrollcommand=self.scrollbar.set, bg=ST_BG[st], fg=ST_TEXT[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
+        self.log.grid(row=4, columnspan=2, sticky='NSEW', padx=(6, 0), pady=6)
+        self.scrollbar.grid(row=4, column=2, sticky='NSE', padx=(0, 6), pady=6)
+        self.scrollbar.config(command=self.log.yview)
+
+    def add_log(self, msg):
+        self.log['state'] = 'normal'
+        self.log.insert(tk.END, msg + '\n')
+        self.log.yview(tk.END)
+        self.log['state'] = 'disabled'
+
+    def open(self):
+        self.grab_set()
+        self.wait_window()
+
+
 # Окно режима ручного управления
 class ManualW(tk.Toplevel):
     def __init__(self, parent):
@@ -1671,16 +1696,6 @@ class MainW(tk.Tk):
         self.lbl_footer = tk.Label(self, text=f'{PROGRAM_VERSION} - {PROGRAM_DATE}', font='StdFont 8', bg=ST_BG[st], fg=ST_FOOTER[st])
         self.lbl_footer.grid(row=7, padx=7, pady=(0, 3), sticky='S')
 
-        self.scrollbar = tk.Scrollbar(self)
-        self.log = tk.Text(width=15, height=9, yscrollcommand=self.scrollbar.set)
-        self.log.grid(row=8, column=0, sticky='NSEW')
-        self.scrollbar.grid(row=8, column=1, sticky='NSE')
-        self.scrollbar.config(command=self.log.yview)
-
-    def add_log(self, msg):
-        self.log.insert(tk.END, msg + '\n')
-        self.log.yview(tk.END)
-
     # Перейти в настройки
     def settings(self):
         SettingsW(self).open()
@@ -1700,8 +1715,13 @@ class MainW(tk.Tk):
             fn_symbols = FN_SYMBOLS_WITH_RU
             fn_symbols_num = FN_SYMBOLS_WITH_RU_NUM
 
+        self.logger = LoggerW(self)
+        t1 = Thread(target=self.logger.open)
+        t1.start()
+
         extract_key_values(key_to_bites(key))
-        encode()
+        t2 = Thread(target=encode)
+        t2.start()
 
     # Отправить на дешифровку
     def decode(self):
@@ -1718,8 +1738,13 @@ class MainW(tk.Tk):
             fn_symbols = FN_SYMBOLS_WITH_RU
             fn_symbols_num = FN_SYMBOLS_WITH_RU_NUM
 
+        self.logger = LoggerW(self)
+        t1 = Thread(target=self.logger.open)
+        t1.start()
+
         extract_key_values(key_to_bites(key))
-        decode()
+        t2 = Thread(target=decode)
+        t2.start()
 
     # Перейти в режим ручного управления
     def mcm(self):
