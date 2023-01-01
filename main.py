@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v7.0.0-PRE_4'
-PROGRAM_DATE = '2.1.2023  1:05'
+PROGRAM_VERSION = 'v7.0.0-PRE_5'
+PROGRAM_DATE = '2.1.2023  1:24'
 
 """ Пути и файлы """
 
@@ -1537,66 +1537,6 @@ class SettingsW(tk.Toplevel):
         self.wait_window()
 
 
-# Окно журнала
-class LoggerW(tk.Toplevel):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.title('Media encrypter - Progress')
-        self.resizable(width=False, height=False)
-        self.configure(bg=ST_BG[st])
-
-        self.str_progress = tk.StringVar(value='0')
-
-        self.st_progress = ttk.Style()
-        self.st_progress.theme_use('winnative')
-        self.st_progress.configure('normal.Horizontal.TProgressbar', troughcolor=ST_BG_FIELDS[st], background=ST_PROG[st])
-        self.st_progress_stopped = ttk.Style()
-        self.st_progress_stopped.theme_use('winnative')
-        self.st_progress_stopped.configure('abort.Horizontal.TProgressbar', troughcolor=ST_BG_FIELDS[st], background=ST_PROG_ABORT[st])
-
-        self.frame_progress = tk.LabelFrame(self, bg=ST_BG[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
-        self.frame_progress.grid(row=0, columnspan=2, padx=6, pady=(6, 4))
-
-        tk.Label(self.frame_progress, text='Progress:', bg=ST_BG[st], fg=ST_FG_TEXT[st]).grid(row=0, column=0, padx=(6, 0), pady=4)
-        self.progressbar = ttk.Progressbar(self.frame_progress, value=0, length=450, style='normal.Horizontal.TProgressbar', orient='horizontal')
-        self.lbl_progress = tk.Label(self.frame_progress, textvariable=self.str_progress, bg=ST_BG[st], fg=ST_FG_TEXT[st])
-
-        self.progressbar.grid( row=0, column=1, padx=4,      pady=4)
-        self.lbl_progress.grid(row=0, column=2, padx=(0, 6), pady=4)
-
-        self.scrollbar = tk.Scrollbar(self, bg=ST_BG[st])
-        self.log = tk.Text(self, width=70, height=30, state='disabled', yscrollcommand=self.scrollbar.set, bg=ST_BG_FIELDS[st],  fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
-        self.btn_abort = tk.Button(self, text='Abort', command=self.stop_process,                          bg=ST_CLOSE[st], fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_CLS_SELECT[st])
-
-        self.log.grid(         row=1, column=0, sticky='NSEW', padx=(6, 0), pady=0)
-        self.scrollbar.grid(   row=1, column=1, sticky='NSE',  padx=(0, 6), pady=0)
-        self.scrollbar.config( command=self.log.yview)
-        self.btn_abort.grid(   row=2, columnspan=2, padx=6, pady=(4, 6))
-
-    def stop_process(self):
-        global abort_process
-        abort_process = True
-        self.btn_abort['state'] = 'disabled'
-        self.progressbar['style'] = 'abort.Horizontal.TProgressbar'
-
-    def add_log(self, msg='', end='\n'):
-        self.log['state'] = 'normal'
-        if self.log.yview()[1] == 1.0:
-            self.log.insert(tk.END, str(msg) + end)
-            self.log.yview_moveto(1.0)
-        else:
-            self.log.insert(tk.END, str(msg) + end)
-        self.log['state'] = 'disabled'
-
-    def set_progress(self, num, den):
-        self.progressbar['value'] = 100 * num / den
-        self.str_progress.set(f'{num}/{den}')
-
-    def open(self):
-        self.grab_set()
-        self.wait_window()
-
-
 # Окно режима ручного управления
 class ManualW(tk.Toplevel):
     def __init__(self, parent):
@@ -1788,6 +1728,66 @@ class ManualW(tk.Toplevel):
         return self.mode
 
 
+# Окно журнала
+class LoggerW(tk.Toplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title('Media encrypter - Progress')
+        self.resizable(width=False, height=False)
+        self.configure(bg=ST_BG[st])
+
+        self.str_progress = tk.StringVar(value='Calculation...')
+
+        self.st_progress = ttk.Style()
+        self.st_progress.theme_use('winnative')
+        self.st_progress.configure('normal.Horizontal.TProgressbar', troughcolor=ST_BG_FIELDS[st], background=ST_PROG[st])
+        self.st_progress_stopped = ttk.Style()
+        self.st_progress_stopped.theme_use('winnative')
+        self.st_progress_stopped.configure('abort.Horizontal.TProgressbar', troughcolor=ST_BG_FIELDS[st], background=ST_PROG_ABORT[st])
+
+        self.frame_progress = tk.LabelFrame(self, bg=ST_BG[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
+        self.frame_progress.grid(row=0, columnspan=2, padx=6, pady=(6, 4))
+
+        tk.Label(self.frame_progress, text='Progress:', bg=ST_BG[st], fg=ST_FG_TEXT[st]).grid(row=0, column=0, padx=(6, 0), pady=4)
+        self.progressbar = ttk.Progressbar(self.frame_progress, value=0, length=450, style='normal.Horizontal.TProgressbar', orient='horizontal')
+        self.lbl_progress = tk.Label(self.frame_progress, textvariable=self.str_progress, bg=ST_BG[st], fg=ST_FG_TEXT[st])
+
+        self.progressbar.grid( row=0, column=1, padx=4,      pady=4)
+        self.lbl_progress.grid(row=0, column=2, padx=(0, 6), pady=4)
+
+        self.scrollbar = tk.Scrollbar(self, bg=ST_BG[st])
+        self.log = tk.Text(self, width=70, height=30, state='disabled', yscrollcommand=self.scrollbar.set, bg=ST_BG_FIELDS[st],  fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
+        self.btn_abort = tk.Button(self, text='Abort', command=self.stop_process,                          bg=ST_CLOSE[st], fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_CLS_SELECT[st])
+
+        self.log.grid(         row=1, column=0, sticky='NSEW', padx=(6, 0), pady=0)
+        self.scrollbar.grid(   row=1, column=1, sticky='NSE',  padx=(0, 6), pady=0)
+        self.scrollbar.config( command=self.log.yview)
+        self.btn_abort.grid(   row=2, columnspan=2, padx=6, pady=(4, 6))
+
+    def stop_process(self):
+        global abort_process
+        abort_process = True
+        self.btn_abort['state'] = 'disabled'
+        self.progressbar['style'] = 'abort.Horizontal.TProgressbar'
+
+    def add_log(self, msg='', end='\n'):
+        self.log['state'] = 'normal'
+        if self.log.yview()[1] == 1.0:
+            self.log.insert(tk.END, str(msg) + end)
+            self.log.yview_moveto(1.0)
+        else:
+            self.log.insert(tk.END, str(msg) + end)
+        self.log['state'] = 'disabled'
+
+    def set_progress(self, num, den):
+        self.progressbar['value'] = 100 * num / den
+        self.str_progress.set(f'{num}/{den}')
+
+    def open(self):
+        self.grab_set()
+        self.wait_window()
+
+
 # Главное окно
 class MainW(tk.Tk):
     def __init__(self):
@@ -1928,13 +1928,12 @@ gui.mainloop()
 # v6.0.0 - добавлен графический интерфейс
 # v7.0.0 - добавлен журнал
 
-# добавить надпись оценка объёма работы...
-# добавить варианты фпс
 # при окончании работы выводить сообщение и делать кнопку
 # progressbar для гифок
 # заменить abort на pause
 # выбор расширений
+# добавить варианты фпс
 # контроль версий
 # всплывающие подсказки
-# больше картинок
+# - больше картинок
 # цвета в журнале
