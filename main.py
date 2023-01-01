@@ -717,8 +717,7 @@ def encode():
     count_all = 0
 
     print('                                   START ENCRYPTING\n')
-    t = Thread(target=encrypt_dir, args=(op_mode, marker, formats, input_dir, output_dir, count_all))
-    t.start()
+    encrypt_dir(op_mode, marker, formats, input_dir, output_dir, count_all)
     print('=============================== PROCESSING IS FINISHED ===============================')
 
 
@@ -741,8 +740,7 @@ def decode():
     count_all = 0
 
     print('                                   START DECRYPTING\n')
-    t = Thread(target=encrypt_dir, args=(op_mode, marker, formats, input_dir, output_dir, count_all))
-    t.start()
+    encrypt_dir(op_mode, marker, formats, input_dir, output_dir, count_all)
     print('=============================== PROCESSING IS FINISHED ===============================')
 
 
