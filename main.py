@@ -25,8 +25,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.0.18'
-PROGRAM_DATE = '30.12.2022 16:48'
+PROGRAM_VERSION = 'v6.0.19'
+PROGRAM_DATE = '1.1.2023 4:18'
 
 """ Пути и файлы """
 
@@ -116,10 +116,10 @@ ST_ENTRY      = {'light': '#FFFFFF', 'dark': '#171717', 'infernal': '#CCCCCC'}  
 ST_ENTRY_ERR  = {'light': '#EE6666', 'dark': '#773333', 'infernal': '#FF0000'}  # bg
 ST_KEY        = {'light': '#EE0000', 'dark': '#BC4040', 'infernal': '#FF0000'}  # fg
 
-ST_BTN        = {'light': '#D0D0D0', 'dark': '#303030', 'infernal': '#DD2020'}  # bg
-ST_BTN_SELECT = {'light': '#C0C0C0', 'dark': '#404040', 'infernal': '#DD5020'}  # activebackground
-ST_MCM        = {'light': '#B0B0B0', 'dark': '#505050', 'infernal': '#CC3333'}  # bg
-ST_MCM_SELECT = {'light': '#A0A0A0', 'dark': '#606060', 'infernal': '#CC6333'}  # activebackground
+ST_BTN        = {'light': '#D0D0D0', 'dark': '#191919', 'infernal': '#DD2020'}  # bg
+ST_BTN_SELECT = {'light': '#BABABA', 'dark': '#202020', 'infernal': '#DD5020'}  # activebackground
+ST_MCM        = {'light': '#B0B0B0', 'dark': '#0E0E0E', 'infernal': '#CC3333'}  # bg
+ST_MCM_SELECT = {'light': '#9A9A9A', 'dark': '#151515', 'infernal': '#CC6333'}  # activebackground
 ST_ACCEPT     = {'light': '#88DD88', 'dark': '#446F44', 'infernal': '#CC6633'}  # bg
 ST_ACC_SELECT = {'light': '#77CC77', 'dark': '#558055', 'infernal': '#CC9633'}  # activebackground
 ST_CLOSE      = {'light': '#FF6666', 'dark': '#803333', 'infernal': '#CD0000'}  # bg
