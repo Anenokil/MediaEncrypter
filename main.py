@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.1.8'
-PROGRAM_DATE = '1.1.2023 16:02'
+PROGRAM_VERSION = 'v6.1.9'
+PROGRAM_DATE = '1.1.2023 16:08'
 
 """ Пути и файлы """
 
@@ -593,6 +593,9 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                         imsave(outp_path, encode_file(fr).astype(uint8))
                         print()
                         gui.logger.add_log()
+
+                        if abort_process:
+                            break
                     imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
                     os.remove(TMP_PATH)
             elif isdir and '_gif' in os.listdir(pth) and op_mode == 'D':
@@ -621,6 +624,9 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                         writer.append_data(io.imread(TMP_PATH))
                         print()
                         gui.logger.add_log()
+
+                        if abort_process:
+                            break
                     imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
                     os.remove(TMP_PATH)
                 writer.close()
@@ -654,6 +660,9 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                     count += 1
                     print()
                     gui.logger.add_log()
+
+                    if abort_process:
+                        break
                 imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
                 os.remove(TMP_PATH)
 
@@ -691,6 +700,9 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                         count += 1
                         print()
                         gui.logger.add_log()
+
+                        if abort_process:
+                            break
                 imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
                 os.remove(TMP_PATH)
                 video.release()
@@ -713,7 +725,7 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
 
                 count_all = converse_dir(op_mode, marker, formats, new_inp_dir, new_outp_dir, count_all)
                 print(f'{Fore.GREEN}(DIR) ', end='')
-                gui.logger.add_log(f'{Fore.GREEN}(DIR) ', end='')
+                gui.logger.add_log('(DIR) ', end='')
         except Exception as err:
             print_warn('Couldn`t process the file')
             print(f'{Fore.YELLOW}{err}{Style.RESET_ALL}')
@@ -1489,7 +1501,6 @@ class LoggerW(tk.Toplevel):
 
     def add_log(self, msg='', end='\n'):
         self.log['state'] = 'normal'
-        print(self.log.yview())
         if self.log.yview()[1] == 1.0:
             self.log.insert(tk.END, str(msg) + end)
             self.log.yview_moveto(1.0)
