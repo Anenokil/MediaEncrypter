@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.1.5'
-PROGRAM_DATE = '1.1.2023 15:07'
+PROGRAM_VERSION = 'v6.1.6'
+PROGRAM_DATE = '1.1.2023 15:08'
 
 """ Пути и файлы """
 
@@ -527,7 +527,7 @@ def filename_processing(op_mode, naming_mode, base_name, ext, output_dir, marker
 
 
 # Обработка папки с файлами
-def convers_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
+def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
     count_correct = settings['count_from'] - 1  # Счётчик количества обработанных файлов
     for filename in os.listdir(inp_dir):  # Проход по файлам
         base_name, ext = os.path.splitext(filename)
@@ -696,7 +696,7 @@ def convers_dir(op_mode, marker, formats, inp_dir, output_dir, count_all):
                 print()
                 gui.logger.add_log('')
 
-                count_all = convers_dir(op_mode, marker, formats, new_inp_dir, new_outp_dir, count_all)
+                count_all = converse_dir(op_mode, marker, formats, new_inp_dir, new_outp_dir, count_all)
                 print(f'{Fore.GREEN}(DIR) ', end='')
         except Exception as err:
             print_warn('Couldn`t process the file')
@@ -717,7 +717,7 @@ def encode():
     count_all = 0
 
     print('                                   START ENCRYPTING\n')
-    convers_dir(op_mode, marker, formats, input_dir, output_dir, count_all)
+    converse_dir(op_mode, marker, formats, input_dir, output_dir, count_all)
     print('=============================== PROCESSING IS FINISHED ===============================')
 
 
@@ -740,7 +740,7 @@ def decode():
     count_all = 0
 
     print('                                   START DECRYPTING\n')
-    convers_dir(op_mode, marker, formats, input_dir, output_dir, count_all)
+    converse_dir(op_mode, marker, formats, input_dir, output_dir, count_all)
     print('=============================== PROCESSING IS FINISHED ===============================')
 
 
