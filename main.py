@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v6.1.13'
-PROGRAM_DATE = '1.1.2023 16:49'
+PROGRAM_VERSION = 'v6.1.14'
+PROGRAM_DATE = '1.1.2023 16:52'
 
 """ Пути и файлы """
 
@@ -294,6 +294,7 @@ def mix_blocks(img, mult_h, mult_w, shift_h, shift_w):
 
     if settings['print_info'] == 'print':
         print(f'{h}x{w}: {mult_h} {mult_w}')
+        add_log(f'{h}x{w}: {mult_h} {mult_w}')
 
     img_tmp = img.copy()
     for i in range(h):
@@ -364,6 +365,7 @@ def recover_blocks_calc(h, w, mult_h, mult_w):
 
     if settings['print_info'] == 'print':
         print(f'{h}x{w}: {mult_h} {mult_w}')
+        add_log(f'{h}x{w}: {mult_h} {mult_w}')
 
     dec_h = [0] * h  # Составление массива обратных сдвигов по вертикали
     for i in range(h):
