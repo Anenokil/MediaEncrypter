@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = ' v7.0.0-PRE_11'
-PROGRAM_DATE = '2.1.2023  4:28'
+PROGRAM_VERSION = ' v7.0.0-PRE_12'
+PROGRAM_DATE = '2.1.2023  5:59'
 
 """ Пути и файлы """
 
@@ -579,7 +579,7 @@ def count_all(op_mode, inp_dir, count_f_d, count_fr):
                 count_fr += im.n_frames
             elif isdir and '_gif' in os.listdir(pth) and op_mode == 'D':
                 count_fr += len([name for name in os.listdir(pth) if name.endswith('.png')])
-            elif ext in ['.avi', '.mp4', '.webm']:
+            elif ext in ['.avi', '.mp4', '.webm', '.mov']:
                 vid = VideoFileClip(pth)
                 fps = min(vid.fps, 24)
                 step = 1 / fps
@@ -700,11 +700,11 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
                 img = imread(os.path.join(inp_dir_tmp, frames[0]))
                 h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b = decode_file_calc(img, depth)
 
-                length = len(frames)
+                count_frames = len(frames)
                 with io.get_writer(res, mode='I', duration=1/24) as writer:
-                    for i in range(length):
-                        print_tab(f'frame {i + 1}/{length}', depth)
-                        add_log(f'frame {i + 1}/{length}', depth)
+                    for i in range(count_frames):
+                        print_tab(f'frame {i + 1}/{count_frames}', depth)
+                        add_log(f'frame {i + 1}/{count_frames}', depth)
 
                         fr = imread(os.path.join(inp_dir_tmp, frames[i]))
                         if settings['print_info'] == 'print':  # Вывод информации о считывании
@@ -723,8 +723,7 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
                             break
                     imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
                     os.remove(TMP_PATH)
-                writer.close()
-            elif ext in ['.avi', '.mp4', '.webm']:
+            elif ext in ['.avi', '.mp4', '.webm', '.mov']:
                 tmp_name = filename_processing(op_mode, 'numbering', base_name, '', output_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
                 res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', output_dir, marker, count_correct)
 
@@ -783,29 +782,29 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
 
                 h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b = decode_file_calc(img, depth)
 
-                count_frames = len([name for name in os.listdir(inp_dir_tmp) if name.endswith('.png')])
+                frames = sorted([name for name in os.listdir(inp_dir_tmp) if name.endswith('.png')])
+                count_frames = len(frames)
                 count = 0
-                for f in os.listdir(inp_dir_tmp):
-                    if f.endswith('.png'):
-                        print_tab(f'frame {count + 1}/{count_frames}', depth)
-                        add_log(f'frame {count + 1}/{count_frames}', depth)
+                for f in frames:
+                    print_tab(f'frame {count + 1}/{count_frames}', depth)
+                    add_log(f'frame {count + 1}/{count_frames}', depth)
 
-                        img = imread(os.path.join(inp_dir_tmp, f))
-                        if settings['print_info'] == 'print':  # Вывод информации о считывании
-                            print_tab(img.shape, depth)
-                            add_log(img.shape, depth)
-                        fr = decode_file(img, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b)
-                        imsave(TMP_PATH, fr.astype(uint8))
-                        video.write(cv2.imread(TMP_PATH))
-                        count += 1
-                        print()
-                        add_log()
+                    img = imread(os.path.join(inp_dir_tmp, f))
+                    if settings['print_info'] == 'print':  # Вывод информации о считывании
+                        print_tab(img.shape, depth)
+                        add_log(img.shape, depth)
+                    fr = decode_file(img, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b)
+                    imsave(TMP_PATH, fr.astype(uint8))
+                    video.write(cv2.imread(TMP_PATH))
+                    count += 1
+                    print()
+                    add_log()
 
-                        count_all_frames += 1
-                        set_progress_fr(count_all_frames, count_all_fr)
+                    count_all_frames += 1
+                    set_progress_fr(count_all_frames, count_all_fr)
 
-                        if process_status != 'work':
-                            break
+                    if process_status != 'work':
+                        break
                 imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
                 os.remove(TMP_PATH)
                 video.release()
@@ -860,13 +859,198 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
     return count_all_files, count_all_frames
 
 
+# Диагностика папки с файлами
+def converse_dir_test(op_mode, marker, formats, inp_dir, output_dir, count_all_files, count_all_frames, depth):
+    count_correct = settings['count_from'] - 1  # Счётчик количества обработанных файлов
+    for filename in os.listdir(inp_dir):  # Проход по файлам
+        base_name, ext = os.path.splitext(filename)
+        count_all_files += 1
+
+        print_tab(f'({count_all_files}) <{filename}>', depth)  # Вывод информации
+        add_log(f'({count_all_files}) <{filename}>', depth)
+
+        pth = os.path.join(inp_dir, filename)
+        isdir = os.path.isdir(pth)
+        if ext.lower() not in formats and not isdir:  # Проверка формата
+            print_warn('Unsupported file extension')
+            print()
+            add_log()
+            count_all_frames += 1
+            set_progress_fr(count_all_frames, count_all_fr)
+            set_progress_f_d(count_all_files, count_all_f_d)
+            continue
+        count_correct += 1
+
+        start = perf_counter()
+        try:
+            if ext in ['.png', '.jpg', '.jpeg', '.bmp']:
+                img = imread(pth)  # Считывание изображения
+                if settings['print_info'] == 'print':
+                    print_tab(img.shape, depth)
+                    add_log(img.shape, depth)
+                print()
+                add_log()
+
+                imsave(TMP_PATH, img.astype(uint8)[0:1, 0:1] * 0)
+                os.remove(TMP_PATH)
+
+                count_all_frames += 1
+                set_progress_fr(count_all_frames, count_all_fr)
+            elif ext == '.gif':
+                with Image.open(pth) as im:
+                    for i in range(im.n_frames):
+                        print_tab(f'frame {i + 1}/{im.n_frames}', depth)
+                        add_log(f'frame {i + 1}/{im.n_frames}', depth)
+
+                        im.seek(i)
+                        im.save(TMP_PATH)
+                        fr = imread(TMP_PATH)
+                        if settings['print_info'] == 'print':  # Вывод информации о считывании
+                            print_tab(fr.shape, depth)
+                            add_log(fr.shape, depth)
+                        imsave(TMP_PATH, fr.astype(uint8)[0:1, 0:1] * 0)
+
+                        print()
+                        add_log()
+
+                        count_all_frames += 1
+                        set_progress_fr(count_all_frames, count_all_fr)
+
+                        if process_status != 'work':
+                            break
+                    imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
+                    os.remove(TMP_PATH)
+            elif isdir and '_gif' in os.listdir(pth) and op_mode == 'D':
+                inp_dir_tmp = pth
+                frames = sorted([name for name in os.listdir(inp_dir_tmp) if name.endswith('.png')])
+                length = len(frames)
+                with io.get_writer(TMP_PATH, mode='I', duration=1/24) as writer:
+                    for i in range(length):
+                        print_tab(f'frame {i + 1}/{length}', depth)
+                        add_log(f'frame {i + 1}/{length}', depth)
+
+                        fr = imread(os.path.join(inp_dir_tmp, frames[i]))
+                        if settings['print_info'] == 'print':  # Вывод информации о считывании
+                            print_tab(fr.shape, depth)
+                            add_log(fr.shape, depth)
+                        imsave(TMP_PATH, fr.astype(uint8)[0:1, 0:1] * 0)
+                        writer.append_data(io.imread(TMP_PATH))
+                        print()
+                        add_log()
+
+                        count_all_frames += 1
+                        set_progress_fr(count_all_frames, count_all_fr)
+
+                        if process_status != 'work':
+                            break
+                    imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
+                    os.remove(TMP_PATH)
+            elif ext in ['.avi', '.mp4', '.webm', '.mov']:
+                vid = VideoFileClip(pth)
+                fps = min(vid.fps, 24)
+                step = 1 / fps
+                count_frames = int(vid.duration // step + 1)
+                count = 0
+                for current_duration in arange(0, vid.duration, step):
+                    print_tab(f'frame {count + 1}/{count_frames}', depth)
+                    add_log(f'frame {count + 1}/{count_frames}', depth)
+
+                    vid.save_frame(TMP_PATH, current_duration)
+                    fr = imread(TMP_PATH)
+                    if settings['print_info'] == 'print':  # Вывод информации о считывании
+                        print_tab(fr.shape, depth)
+                        add_log(fr.shape, depth)
+                    imsave(TMP_PATH, fr.astype(uint8)[0:1, 0:1] * 0)
+                    count += 1
+                    print()
+                    add_log()
+
+                    count_all_frames += 1
+                    set_progress_fr(count_all_frames, count_all_fr)
+
+                    if process_status != 'work':
+                        break
+                imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
+                os.remove(TMP_PATH)
+            elif isdir and '_vid' in os.listdir(pth) and op_mode == 'D':
+                inp_dir_tmp = pth
+
+                img = imread(os.path.join(inp_dir_tmp, '000000.png'))
+                height = img.shape[0]
+                width = img.shape[1]
+                fps = 24
+                video = cv2.VideoWriter(TMP_PATH, 0, fps, (width, height))
+
+                frames = sorted([name for name in os.listdir(inp_dir_tmp) if name.endswith('.png')])
+                count_frames = len(frames)
+                count = 0
+                for f in frames:
+                    print_tab(f'frame {count + 1}/{count_frames}', depth)
+                    add_log(f'frame {count + 1}/{count_frames}', depth)
+
+                    img = imread(os.path.join(inp_dir_tmp, f))
+                    if settings['print_info'] == 'print':  # Вывод информации о считывании
+                        print_tab(img.shape, depth)
+                        add_log(img.shape, depth)
+                    imsave(TMP_PATH, img.astype(uint8)[0:1, 0:1] * 0)
+                    count += 1
+                    print()
+                    add_log()
+
+                    count_all_frames += 1
+                    set_progress_fr(count_all_frames, count_all_fr)
+
+                    if process_status != 'work':
+                        break
+                imsave(TMP_PATH, img[0:1, 0:1] * 0)  # Затирание временного файла
+                os.remove(TMP_PATH)
+            elif isdir:
+                new_inp_dir = pth
+
+                print()
+                add_log()
+
+                count_all_frames += 1
+                set_progress_fr(count_all_frames, count_all_fr)
+                set_progress_f_d(count_all_files, count_all_f_d)
+
+                count_all_files, count_all_frames = converse_dir_test(op_mode, marker, formats, new_inp_dir, output_dir, count_all_files, count_all_frames, depth + 1)
+                print_tab(f'{Fore.GREEN}*[DIR] ', depth, end='')
+                add_log('*[DIR] ', depth, end='')
+            else:
+                count_all_frames += 1
+                set_progress_fr(count_all_frames, count_all_fr)
+        except Exception as err:  # count
+            print_warn('Couldn`t process the file')
+            print(f'{Fore.YELLOW}{err}{Style.RESET_ALL}\n')
+            add_log(f'{err}\n')
+        print_tab(f'{Fore.GREEN}Time: {perf_counter() - start}{Style.RESET_ALL}\n', depth)
+        add_log(f'Time: {perf_counter() - start}\n', depth)
+
+        set_progress_f_d(count_all_files, count_all_f_d)
+
+        if process_status != 'work':
+            break
+    if process_status == 'abort':
+        print(' >> Aborted <<\n')
+        add_log(' >> Aborted <<\n')
+    elif process_status == 'error':
+        print(' >> Emergency stop <<\n')
+        add_log(' >> Emergency stop <<\n')
+    elif depth == 0:
+        print(' >> Done <<\n')
+        add_log(' >> Done <<\n')
+        gui.logger.done()
+    return count_all_files, count_all_frames
+
+
 # Шифровка
 def encode():
     op_mode = 'E'
     input_dir = settings['src_dir_enc']
     output_dir = settings['dst_dir_enc']
     marker = settings['marker_enc']
-    formats = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.avi', '.mp4', '.webm']
+    formats = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.avi', '.mp4', '.webm', '.mov']
     count_start = 0
     depth = 0
 
@@ -2036,9 +2220,9 @@ gui.mainloop()
 # v7.0.0 - добавлен журнал
 
 # заменить abort на pause
-# выбор расширений
+# добавить выбор расширений
 # добавить варианты фпс
 # контроль версий
-# - всплывающие подсказки
 # - больше картинок
+# - всплывающие подсказки
 # цвета в журнале
