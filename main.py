@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v7.0.0-PRE_7'
-PROGRAM_DATE = '2.1.2023  3:18'
+PROGRAM_VERSION = 'v7.0.0-PRE_8'
+PROGRAM_DATE = '2.1.2023  3:30'
 
 """ Пути и файлы """
 
@@ -129,7 +129,7 @@ ST_FG_KEY     = {'light': '#EE0000', 'dark': '#BC4040', 'infernal': '#FF0000'}  
 
 ST_PROG       = {'light': '#06B025', 'dark': '#06B025', 'infernal': '#771111'}  # bg
 ST_PROG_ABORT = {'light': '#FFB050', 'dark': '#FFB040', 'infernal': '#222222'}  # bg
-ST_PROG_DONE  = {'light': '#2222DD', 'dark': '#2222DD', 'infernal': '#2222DD'}  # bg
+ST_PROG_DONE  = {'light': '#0077FF', 'dark': '#1133DD', 'infernal': '#AA1166'}  # bg
 
 """ Ключ """
 
@@ -560,8 +560,8 @@ def filename_processing(op_mode, naming_mode, base_name, ext, output_dir, marker
     return new_name
 
 
-# Подсчёт всех кадров
-def count_f_and_d(op_mode, inp_dir, count_f_d, count_fr):
+# Подсчёт всех файлов и папок, всех кадров
+def count_all(op_mode, inp_dir, count_f_d, count_fr):
     for filename in os.listdir(inp_dir):  # Проход по файлам
         base_name, ext = os.path.splitext(filename)
         pth = os.path.join(inp_dir, filename)
@@ -582,7 +582,7 @@ def count_f_and_d(op_mode, inp_dir, count_f_d, count_fr):
                 if '_gif' not in os.listdir(pth) and\
                    '_vid' not in os.listdir(pth) or\
                    op_mode == 'E':
-                    count_f_d, count_fr = count_f_and_d(op_mode, pth, count_f_d, count_fr)
+                    count_f_d, count_fr = count_all(op_mode, pth, count_f_d, count_fr)
             else:
                 count_fr += 1
         except Exception as err:
@@ -860,13 +860,13 @@ def encode():
     output_dir = settings['dst_dir_enc']
     marker = settings['marker_enc']
     formats = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.avi', '.mp4', '.webm']
-    count_all = 0
+    count_start = 0
     depth = 0
 
     print('                                   START ENCRYPTING\n')
     global count_all_f_d, count_all_fr
-    count_all_f_d, count_all_fr = count_f_and_d(op_mode, input_dir, count_all, count_all)
-    converse_dir(op_mode, marker, formats, input_dir, output_dir, count_all, count_all, depth)
+    count_all_f_d, count_all_fr = count_all(op_mode, input_dir, count_start, count_start)
+    converse_dir(op_mode, marker, formats, input_dir, output_dir, count_start, count_start, depth)
     print('=============================== PROCESSING IS FINISHED ===============================')
 
 
@@ -886,13 +886,13 @@ def decode():
     output_dir = settings['dst_dir_dec']
     marker = settings['marker_dec']
     formats = ['.png']
-    count_all = 0
+    count_start = 0
     depth = 0
 
     print('                                   START DECRYPTING\n')
     global count_all_f_d, count_all_fr
-    count_all_f_d, count_all_fr = count_f_and_d(op_mode, input_dir, count_all, count_all)
-    converse_dir(op_mode, marker, formats, input_dir, output_dir, count_all, count_all, depth)
+    count_all_f_d, count_all_fr = count_all(op_mode, input_dir, count_start, count_start)
+    converse_dir(op_mode, marker, formats, input_dir, output_dir, count_start, count_start, depth)
     print('=============================== PROCESSING IS FINISHED ===============================')
 
 
@@ -2029,7 +2029,6 @@ gui.mainloop()
 # v7.0.0 - добавлен журнал
 
 # при входе в папку, табать сообщения
-# [] -> ()
 # заменить abort на pause
 # выбор расширений
 # добавить варианты фпс
