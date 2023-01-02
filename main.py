@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = ' v7.0.0-PRE_12'
-PROGRAM_DATE = '2.1.2023  5:59'
+PROGRAM_VERSION = ' v7.0.0-PRE_13'
+PROGRAM_DATE = '2.1.2023  8:17'
 
 """ Пути и файлы """
 
@@ -860,7 +860,7 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
 
 
 # Диагностика папки с файлами
-def converse_dir_test(op_mode, marker, formats, inp_dir, output_dir, count_all_files, count_all_frames, depth):
+def diagnostic_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files, count_all_frames, depth):
     count_correct = settings['count_from'] - 1  # Счётчик количества обработанных файлов
     for filename in os.listdir(inp_dir):  # Проход по файлам
         base_name, ext = os.path.splitext(filename)
@@ -1014,7 +1014,7 @@ def converse_dir_test(op_mode, marker, formats, inp_dir, output_dir, count_all_f
                 set_progress_fr(count_all_frames, count_all_fr)
                 set_progress_f_d(count_all_files, count_all_f_d)
 
-                count_all_files, count_all_frames = converse_dir_test(op_mode, marker, formats, new_inp_dir, output_dir, count_all_files, count_all_frames, depth + 1)
+                count_all_files, count_all_frames = diagnostic_dir(op_mode, marker, formats, new_inp_dir, output_dir, count_all_files, count_all_frames, depth + 1)
                 print_tab(f'{Fore.GREEN}*[DIR] ', depth, end='')
                 add_log('*[DIR] ', depth, end='')
             else:
@@ -1045,7 +1045,7 @@ def converse_dir_test(op_mode, marker, formats, inp_dir, output_dir, count_all_f
 
 
 # Шифровка
-def encode():
+def encode(cmd):
     op_mode = 'E'
     input_dir = settings['src_dir_enc']
     output_dir = settings['dst_dir_enc']
@@ -1057,12 +1057,15 @@ def encode():
     print('                                   START ENCRYPTING\n')
     global count_all_f_d, count_all_fr
     count_all_f_d, count_all_fr = count_all(op_mode, input_dir, count_start, count_start)
-    converse_dir(op_mode, marker, formats, input_dir, output_dir, count_start, count_start, depth)
+    if cmd == 1:
+        diagnostic_dir(op_mode, marker, formats, input_dir, output_dir, count_start, count_start, depth)
+    elif cmd == 2:
+        converse_dir(op_mode, marker, formats, input_dir, output_dir, count_start, count_start, depth)
     print('=============================== PROCESSING IS FINISHED ===============================')
 
 
 # Дешифровка
-def decode():
+def decode(cmd):
     global DEC_R, DEC_G, DEC_B
     DEC_R = [0] * 256  # Массив для отмены цветового множителя для красного канала
     DEC_G = [0] * 256  # Массив для отмены цветового множителя для зелёного канала
@@ -1083,7 +1086,10 @@ def decode():
     print('                                   START DECRYPTING\n')
     global count_all_f_d, count_all_fr
     count_all_f_d, count_all_fr = count_all(op_mode, input_dir, count_start, count_start)
-    converse_dir(op_mode, marker, formats, input_dir, output_dir, count_start, count_start, depth)
+    if cmd == 1:
+        diagnostic_dir(op_mode, marker, formats, input_dir, output_dir, count_start, count_start, depth)
+    elif cmd == 2:
+        converse_dir(op_mode, marker, formats, input_dir, output_dir, count_start, count_start, depth)
     print('=============================== PROCESSING IS FINISHED ===============================')
 
 
@@ -1239,21 +1245,25 @@ class EnterSaveNameW(tk.Toplevel):
 
 # Всплывающее окно для ввода пароля
 class EnterKeyW(tk.Toplevel):
-    def __init__(self, parent):
+    def __init__(self, parent, action):
         super().__init__(parent)
         self.title('Media encrypter - Key')
         self.configure(bg=ST_BG[st])
 
         self.has_key = False
+        self.cmd = 0
 
         self.key = tk.StringVar()
 
         self.vcmd = (self.register(validate_key), '%P')
 
-        tk.Label(self, text=f'Enter a key ({KEY_LEN} symbols; only latin letters, digits, - and _)',
-                                                    bg=ST_BG[st], fg=ST_FG_TEXT[st]).grid(row=0, columnspan=3, padx=6,      pady=4)
-        tk.Label(self, text='An example of a key:', bg=ST_BG[st], fg=ST_FG_TEXT[st]).grid(row=1, column=0,     padx=(6, 1), pady=1, sticky='E')
-        tk.Label(self, text='Enter a key:',         bg=ST_BG[st], fg=ST_FG_TEXT[st]).grid(row=2, column=0,     padx=(6, 1), pady=1, sticky='E')
+        self.frame_main = tk.LabelFrame(self, bg=ST_BG[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
+        self.frame_main.grid(row=0, columnspan=2, padx=6, pady=4)
+
+        tk.Label(self.frame_main, text=f'Enter a key ({KEY_LEN} symbols; only latin letters, digits, - and _)',
+                                                               bg=ST_BG[st], fg=ST_FG_TEXT[st]).grid(row=0, columnspan=3, padx=6,      pady=4)
+        tk.Label(self.frame_main, text='An example of a key:', bg=ST_BG[st], fg=ST_FG_TEXT[st]).grid(row=1, column=0,     padx=(6, 1), pady=1,      sticky='E')
+        tk.Label(self.frame_main, text='Enter a key:',         bg=ST_BG[st], fg=ST_FG_TEXT[st]).grid(row=2, column=0,     padx=(6, 1), pady=(1, 4), sticky='E')
 
         # Функция нужна, чтобы можно было скопировать ключ-пример, но нельзя было его изменить
         def focus_text(event):
@@ -1261,21 +1271,24 @@ class EnterKeyW(tk.Toplevel):
             self.txt_example_key.focus()
             self.txt_example_key.config(state='disabled')
 
-        self.txt_example_key = tk.Text(self, height=1, width=KEY_LEN, borderwidth=1, font='TkFixedFont', bg=ST_BG_FIELDS[st], fg=ST_FG_EXAMPLE[st], highlightbackground=ST_BORDER[st], selectbackground=ST_SELECT[st], highlightcolor=ST_HIGHLIGHT[st])
+        self.txt_example_key = tk.Text(self.frame_main, height=1, width=KEY_LEN, borderwidth=1, font='TkFixedFont', bg=ST_BG_FIELDS[st], fg=ST_FG_EXAMPLE[st], highlightbackground=ST_BORDER[st], selectbackground=ST_SELECT[st], highlightcolor=ST_HIGHLIGHT[st])
         self.txt_example_key.insert(1.0, settings['example_key'])
         self.txt_example_key.grid(row=1, column=1, padx=(0, 4), pady=1)
         self.txt_example_key.configure(state='disabled')
         self.txt_example_key.bind('<Button-1>', focus_text)
 
-        self.entry_key = tk.Entry(self, textvariable=self.key, width=KEY_LEN, font='TkFixedFont', show='*', validate='key', validatecommand=self.vcmd, bg=ST_BG_FIELDS[st],  fg=ST_FG_KEY[st], highlightbackground=ST_BORDER[st], selectbackground=ST_SELECT[st], highlightcolor=ST_HIGHLIGHT[st])
-        self.btn_copy_example  = tk.Button(self, text='Copy',   command=self.copy_example_key,     bg=ST_BTN[st],    fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
-        self.btn_show_hide_key = tk.Button(self, text='Show',   command=self.show_hide_key,        bg=ST_BTN[st],    fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
-        self.btn_submit        = tk.Button(self, text='Submit', command=self.check_key_and_return, bg=ST_ACCEPT[st], fg=ST_FG_TEXT[st], activebackground=ST_ACC_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.entry_key = tk.Entry(self.frame_main, textvariable=self.key, width=KEY_LEN, font='TkFixedFont', show='*', validate='key', validatecommand=self.vcmd, bg=ST_BG_FIELDS[st],  fg=ST_FG_KEY[st], highlightbackground=ST_BORDER[st], selectbackground=ST_SELECT[st], highlightcolor=ST_HIGHLIGHT[st])
+        self.btn_copy_example  = tk.Button(self.frame_main, text='Copy', command=self.copy_example_key, bg=ST_BTN[st], fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.btn_show_hide_key = tk.Button(self.frame_main, text='Show', command=self.show_hide_key,    bg=ST_BTN[st], fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
 
         self.btn_copy_example.grid( row=1, column=2, padx=(0, 6), pady=1)
-        self.entry_key.grid(        row=2, column=1, padx=(0, 4), pady=1, sticky='W')
-        self.btn_show_hide_key.grid(row=2, column=2, padx=(0, 6), pady=1)
-        self.btn_submit.grid(       row=3, columnspan=3, pady=4)
+        self.entry_key.grid(        row=2, column=1, padx=(0, 4), pady=(1, 4))
+        self.btn_show_hide_key.grid(row=2, column=2, padx=(0, 6), pady=(1, 4))
+
+        self.btn_diagnostic = tk.Button(self, text='Scan files', command=self.to_diagnostic, bg=ST_BTN[st], fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.btn_submit     = tk.Button(self, text=action,       command=self.to_process,    bg=ST_BTN[st], fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.btn_diagnostic.grid(row=1, column=0, padx=6, pady=(0, 4))
+        self.btn_submit.grid(    row=1, column=1, padx=6, pady=(0, 4))
 
     # Подставить ключ-пример
     def copy_example_key(self):
@@ -1300,11 +1313,20 @@ class EnterKeyW(tk.Toplevel):
         self.has_key = True
         self.destroy()
 
+    # Начать диагностику
+    def to_diagnostic(self):
+        self.cmd = 1
+        self.check_key_and_return()
+
+    # Начать обработку
+    def to_process(self):
+        self.cmd = 2
+        self.check_key_and_return()
+
     def open(self):
         self.grab_set()
         self.wait_window()
-        key = self.key.get()
-        return self.has_key, key
+        return self.has_key, self.key.get(), self.cmd
 
 
 # Окно настроек
@@ -2116,8 +2138,8 @@ class MainW(tk.Tk):
 
     # Отправить на шифровку
     def encode(self):
-        window = EnterKeyW(self)
-        has_key, key = window.open()
+        window = EnterKeyW(self, 'Encode')
+        has_key, key, cmd = window.open()
         if not has_key:
             return
 
@@ -2137,13 +2159,13 @@ class MainW(tk.Tk):
         t1.start()
 
         extract_key_values(key_to_bites(key))
-        t2 = Thread(target=encode)
+        t2 = Thread(target=encode, args=[cmd])
         t2.start()
 
     # Отправить на дешифровку
     def decode(self):
-        window = EnterKeyW(self)
-        has_key, key = window.open()
+        window = EnterKeyW(self, 'Decode')
+        has_key, key, cmd = window.open()
         if not has_key:
             return
 
@@ -2163,7 +2185,7 @@ class MainW(tk.Tk):
         t1.start()
 
         extract_key_values(key_to_bites(key))
-        t2 = Thread(target=decode)
+        t2 = Thread(target=decode, args=[cmd])
         t2.start()
 
     # Перейти в режим ручного управления
