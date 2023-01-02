@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = ' v7.0.0-PRE_10'
-PROGRAM_DATE = '2.1.2023  4:00'
+PROGRAM_VERSION = ' v7.0.0-PRE_11'
+PROGRAM_DATE = '2.1.2023  4:28'
 
 """ Пути и файлы """
 
@@ -577,17 +577,18 @@ def count_all(op_mode, inp_dir, count_f_d, count_fr):
             if ext == '.gif':
                 im = Image.open(pth)
                 count_fr += im.n_frames
+            elif isdir and '_gif' in os.listdir(pth) and op_mode == 'D':
+                count_fr += len([name for name in os.listdir(pth) if name.endswith('.png')])
             elif ext in ['.avi', '.mp4', '.webm']:
                 vid = VideoFileClip(pth)
                 fps = min(vid.fps, 24)
                 step = 1 / fps
                 count_fr += int(vid.duration // step + 1)
+            elif isdir and '_vid' in os.listdir(pth) and op_mode == 'D':
+                count_fr += len([name for name in os.listdir(pth) if name.endswith('.png')])
             elif isdir:
                 count_fr += 1
-                if '_gif' not in os.listdir(pth) and\
-                   '_vid' not in os.listdir(pth) or\
-                   op_mode == 'E':
-                    count_f_d, count_fr = count_all(op_mode, pth, count_f_d, count_fr)
+                count_f_d, count_fr = count_all(op_mode, pth, count_f_d, count_fr)
             else:
                 count_fr += 1
         except Exception as err:
@@ -693,16 +694,17 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
                 add_log(f'({count_all_files}) <{filename}>  ->  <{res_name}>', depth)
 
                 inp_dir_tmp = pth
-                frames = sorted((fr for fr in os.listdir(inp_dir_tmp) if fr.endswith('.png')))
+                frames = sorted([name for name in os.listdir(inp_dir_tmp) if name.endswith('.png')])
                 res = os.path.join(output_dir, res_name)
 
                 img = imread(os.path.join(inp_dir_tmp, frames[0]))
                 h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b = decode_file_calc(img, depth)
 
+                length = len(frames)
                 with io.get_writer(res, mode='I', duration=1/24) as writer:
-                    for i in range(len(frames)):
-                        print_tab(f'frame {i + 1}', depth)
-                        add_log(f'frame {i + 1}', depth)
+                    for i in range(length):
+                        print_tab(f'frame {i + 1}/{length}', depth)
+                        add_log(f'frame {i + 1}/{length}', depth)
 
                         fr = imread(os.path.join(inp_dir_tmp, frames[i]))
                         if settings['print_info'] == 'print':  # Вывод информации о считывании
@@ -737,8 +739,8 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
                 vid = VideoFileClip(pth)
                 fps = min(vid.fps, 24)
                 step = 1 / fps
-                count = 0
                 count_frames = int(vid.duration // step + 1)
+                count = 0
                 for current_duration in arange(0, vid.duration, step):
                     print_tab(f'frame {count + 1}/{count_frames}', depth)
                     add_log(f'frame {count + 1}/{count_frames}', depth)
@@ -781,11 +783,12 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
 
                 h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b = decode_file_calc(img, depth)
 
+                count_frames = len([name for name in os.listdir(inp_dir_tmp) if name.endswith('.png')])
                 count = 0
                 for f in os.listdir(inp_dir_tmp):
                     if f.endswith('.png'):
-                        print_tab(f'frame {count + 1}', depth)
-                        add_log(f'frame {count + 1}', depth)
+                        print_tab(f'frame {count + 1}/{count_frames}', depth)
+                        add_log(f'frame {count + 1}/{count_frames}', depth)
 
                         img = imread(os.path.join(inp_dir_tmp, f))
                         if settings['print_info'] == 'print':  # Вывод информации о считывании
@@ -851,9 +854,9 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
         print(' >> Emergency stop <<\n')
         add_log(' >> Emergency stop <<\n')
     elif depth == 0:
-            print(' >> Done <<\n')
-            add_log(' >> Done <<\n')
-            gui.logger.done()
+        print(' >> Done <<\n')
+        add_log(' >> Done <<\n')
+        gui.logger.done()
     return count_all_files, count_all_frames
 
 
