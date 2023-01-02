@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = ' v7.0.0-PRE_13'
-PROGRAM_DATE = '2.1.2023  8:17'
+PROGRAM_VERSION = ' v7.0.0-PRE_14'
+PROGRAM_DATE = '2.1.2023 20:53'
 
 """ Пути и файлы """
 
@@ -1425,10 +1425,10 @@ class SettingsW(tk.Toplevel):
         self.check_support_ru    = ttk.Checkbutton(self.frame_fields,     variable=self.inp_support_ru,    command=self.processing_ru_state,                   style='.TCheckbutton')
         self.combo_processing_ru = ttk.Combobox(   self.frame_fields, textvariable=self.inp_processing_ru, values=PROCESSING_RU_MODES,       state='readonly', style='.TCombobox')
         self.combo_naming_mode   = ttk.Combobox(   self.frame_fields, textvariable=self.inp_naming_mode,   values=NAMING_MODES,              state='readonly', style='.TCombobox')
-        self.frame_count_from      = tk.LabelFrame(self.frame_fields, borderwidth=0, bg=ST_BG[st])
-        self.frame_format         = tk.LabelFrame( self.frame_fields, borderwidth=0, bg=ST_BG[st])
-        self.frame_marker_enc      = tk.LabelFrame(self.frame_fields, borderwidth=0, bg=ST_BG[st])
-        self.frame_marker_dec      = tk.LabelFrame(self.frame_fields, borderwidth=0, bg=ST_BG[st])
+        self.frame_count_from    = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
+        self.frame_format        = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
+        self.frame_marker_enc    = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
+        self.frame_marker_dec    = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
         self.frame_src_dir_enc   = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
         self.frame_dst_dir_enc   = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
         self.frame_src_dir_dec   = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
@@ -1862,7 +1862,7 @@ class ManualW(tk.Toplevel):
 
         self.frame_all = tk.LabelFrame(self,           bg=ST_BG[st],     highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
         self.frame_rgb = tk.LabelFrame(self.frame_all, bg=ST_BG_RGB[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
-        self.frame_all.grid(row=0, column=0, columnspan=2, padx=4, pady=4)
+        self.frame_all.grid(row=0, column=0, columnspan=3, padx=4, pady=4)
         self.frame_rgb.grid(row=0, column=0, columnspan=4, padx=4, pady=4)
 
         tk.Label(self.frame_rgb, text='RED',   bg=ST_BG_RGB[st], fg='RED').grid(  row=0, column=1, pady=(4, 1))
@@ -1930,11 +1930,22 @@ class ManualW(tk.Toplevel):
         self.entry_mult_name.grid(row=1, column=1, padx=(0, 6), pady=4, sticky='W')
         self.spin_order.grid(     row=1, column=3, padx=(0, 6), pady=4, sticky='W')
 
+        self.st_check = ttk.Style()
+        self.st_check.configure(style='.TCheckbutton', background=ST_BG[st])
+        self.st_check.map('.TCheckbutton', background=[('active', ST_SELECT[st])])
+
+        self.cmd = tk.BooleanVar(value=False)
+
         self.btn_encode = tk.Button(self, text='Encode', command=self.pre_encode, bg=ST_BTN[st], fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
         self.btn_decode = tk.Button(self, text='Decode', command=self.pre_decode, bg=ST_BTN[st], fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
-
+        self.frame_scan = tk.LabelFrame(self, bg=ST_BG_RGB[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
         self.btn_encode.grid(row=1, column=0, pady=(0, 4))
         self.btn_decode.grid(row=1, column=1, pady=(0, 4))
+        self.frame_scan.grid(row=1, column=2, pady=(0, 4))
+
+        tk.Label(self.frame_scan, text='Scanning', bg=ST_BG[st], fg=ST_FG_TEXT[st]).grid(row=1, column=2, padx=(4, 1), pady=4)
+        self.check_mode = ttk.Checkbutton(self.frame_scan, variable=self.cmd, style='.TCheckbutton')
+        self.check_mode.grid(row=1, column=3, padx=(0, 4), pady=4)
 
     # Заполнить ключевые значения
     def set_key_vales(self):
@@ -1954,7 +1965,6 @@ class ManualW(tk.Toplevel):
             self.inp_shift_w_r.get() == '' or\
             self.inp_shift_w_g.get() == '' or\
             self.inp_shift_w_b.get() == '' or\
-            self.inp_order.get() == '' or\
             self.inp_shift_r.get() == '' or\
             self.inp_shift_g.get() == '' or\
             self.inp_shift_b.get() == '' or\
@@ -2012,7 +2022,10 @@ class ManualW(tk.Toplevel):
     def open(self):
         self.grab_set()
         self.wait_window()
-        return self.mode
+        if self.cmd:
+            return self.mode, 1
+        else:
+            return self.mode, 2
 
 
 # Окно журнала
@@ -2191,7 +2204,7 @@ class MainW(tk.Tk):
     # Перейти в режим ручного управления
     def mcm(self):
         window = ManualW(self)
-        action = window.open()
+        action, cmd = window.open()
 
         global fn_symbols, fn_symbols_num
         if settings['support_ru'] == 'no':
@@ -2209,10 +2222,10 @@ class MainW(tk.Tk):
         t1.start()
 
         if action == 'E':
-            t2 = Thread(target=encode)
+            t2 = Thread(target=encode, args=[cmd])
             t2.start()
         elif action == 'D':
-            t2 = Thread(target=decode)
+            t2 = Thread(target=decode, args=[cmd])
             t2.start()
 
 
