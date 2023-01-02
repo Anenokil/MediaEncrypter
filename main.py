@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v7.0.0-PRE_8'
-PROGRAM_DATE = '2.1.2023  3:30'
+PROGRAM_VERSION = 'v7.0.0-PRE_9'
+PROGRAM_DATE = '2.1.2023  3:39'
 
 """ Пути и файлы """
 
@@ -563,7 +563,7 @@ def filename_processing(op_mode, naming_mode, base_name, ext, output_dir, marker
 # Подсчёт всех файлов и папок, всех кадров
 def count_all(op_mode, inp_dir, count_f_d, count_fr):
     for filename in os.listdir(inp_dir):  # Проход по файлам
-        base_name, ext = os.path.splitext(filename)
+        _, ext = os.path.splitext(filename)
         pth = os.path.join(inp_dir, filename)
         isdir = os.path.isdir(pth)
 
@@ -845,10 +845,9 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
     elif process_status == 'error':
         print(' >> Emergency stop <<\n')
         add_log(' >> Emergency stop <<\n')
-    else:
-        print(' >> Done <<\n')
-        add_log(' >> Done <<\n')
-        if depth == 0:
+    elif depth == 0:
+            print(' >> Done <<\n')
+            add_log(' >> Done <<\n')
             gui.logger.done()
     return count_all_files, count_all_frames
 
