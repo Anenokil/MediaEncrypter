@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v7.0.0-PRE_6'
-PROGRAM_DATE = '2.1.2023  2:50'
+PROGRAM_VERSION = 'v7.0.0-PRE_7'
+PROGRAM_DATE = '2.1.2023  3:18'
 
 """ Пути и файлы """
 
@@ -127,8 +127,9 @@ ST_FG_FOOTER  = {'light': '#666666', 'dark': '#666666', 'infernal': '#222222'}  
 ST_FG_EXAMPLE = {'light': '#448899', 'dark': '#448899', 'infernal': '#010101'}  # fg
 ST_FG_KEY     = {'light': '#EE0000', 'dark': '#BC4040', 'infernal': '#FF0000'}  # fg
 
-ST_PROG       = {'light': '#06B025', 'dark': '#06B025', 'infernal': '#771111'}  # fg
-ST_PROG_ABORT = {'light': '#FFB050', 'dark': '#FFB040', 'infernal': '#222222'}  # fg
+ST_PROG       = {'light': '#06B025', 'dark': '#06B025', 'infernal': '#771111'}  # bg
+ST_PROG_ABORT = {'light': '#FFB050', 'dark': '#FFB040', 'infernal': '#222222'}  # bg
+ST_PROG_DONE  = {'light': '#2222DD', 'dark': '#2222DD', 'infernal': '#2222DD'}  # bg
 
 """ Ключ """
 
@@ -143,8 +144,8 @@ def add_log(msg='', end='\n'):
     try:
         gui.logger.add_log(msg, end)
     except:
-        global abort_process
-        abort_process = True
+        global process_status
+        process_status = 'error'
 
 
 # Обновить прогресс обработки (файлы и папки)
@@ -152,8 +153,8 @@ def set_progress_f_d(num, den):
     try:
         gui.logger.set_progress_f_d(num, den)
     except:
-        global abort_process
-        abort_process = True
+        global process_status
+        process_status = 'error'
 
 
 # Обновить прогресс обработки (кадры)
@@ -161,8 +162,8 @@ def set_progress_fr(num, den):
     try:
         gui.logger.set_progress_fr(num, den)
     except:
-        global abort_process
-        abort_process = True
+        global process_status
+        process_status = 'error'
 
 
 # Вывод предупреждения в консоль и в журнал
@@ -589,13 +590,19 @@ def count_f_and_d(op_mode, inp_dir, count_f_d, count_fr):
             print(f'{Fore.YELLOW}{err}{Style.RESET_ALL}\n')
             add_log(f'{err}\n')
 
-        if abort_process:
+        if process_status != 'work':
             break
+    if process_status == 'abort':
+        print(' >> Aborted <<\n')
+        add_log(' >> Aborted <<\n')
+    elif process_status == 'error':
+        print(' >> Emergency stop <<\n')
+        add_log(' >> Emergency stop <<\n')
     return count_f_d, count_fr
 
 
 # Обработка папки с файлами
-def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files, count_all_frames):
+def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files, count_all_frames, depth):
     count_correct = settings['count_from'] - 1  # Счётчик количества обработанных файлов
     for filename in os.listdir(inp_dir):  # Проход по файлам
         base_name, ext = os.path.splitext(filename)
@@ -670,7 +677,7 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
                         count_all_frames += 1
                         set_progress_fr(count_all_frames, count_all_fr)
 
-                        if abort_process:
+                        if process_status != 'work':
                             break
                     imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
                     os.remove(TMP_PATH)
@@ -705,7 +712,7 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
                         count_all_frames += 1
                         set_progress_fr(count_all_frames, count_all_fr)
 
-                        if abort_process:
+                        if process_status != 'work':
                             break
                     imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
                     os.remove(TMP_PATH)
@@ -745,7 +752,7 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
                     count_all_frames += 1
                     set_progress_fr(count_all_frames, count_all_fr)
 
-                    if abort_process:
+                    if process_status != 'work':
                         break
                 imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
                 os.remove(TMP_PATH)
@@ -789,7 +796,7 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
                         count_all_frames += 1
                         set_progress_fr(count_all_frames, count_all_fr)
 
-                        if abort_process:
+                        if process_status != 'work':
                             break
                 imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
                 os.remove(TMP_PATH)
@@ -815,7 +822,7 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
                 set_progress_fr(count_all_frames, count_all_fr)
                 set_progress_f_d(count_all_files, count_all_f_d)
 
-                count_all_files, count_all_frames = converse_dir(op_mode, marker, formats, new_inp_dir, new_outp_dir, count_all_files, count_all_frames)
+                count_all_files, count_all_frames = converse_dir(op_mode, marker, formats, new_inp_dir, new_outp_dir, count_all_files, count_all_frames, depth + 1)
                 print(f'{Fore.GREEN}*[DIR] ', end='')
                 add_log('*[DIR] ', end='')
             else:
@@ -830,9 +837,19 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
 
         set_progress_f_d(count_all_files, count_all_f_d)
 
-        if abort_process:
-            add_log(' >> Aborted <<\n')
+        if process_status != 'work':
             break
+    if process_status == 'abort':
+        print(' >> Aborted <<\n')
+        add_log(' >> Aborted <<\n')
+    elif process_status == 'error':
+        print(' >> Emergency stop <<\n')
+        add_log(' >> Emergency stop <<\n')
+    else:
+        print(' >> Done <<\n')
+        add_log(' >> Done <<\n')
+        if depth == 0:
+            gui.logger.done()
     return count_all_files, count_all_frames
 
 
@@ -844,11 +861,12 @@ def encode():
     marker = settings['marker_enc']
     formats = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.avi', '.mp4', '.webm']
     count_all = 0
+    depth = 0
 
     print('                                   START ENCRYPTING\n')
     global count_all_f_d, count_all_fr
     count_all_f_d, count_all_fr = count_f_and_d(op_mode, input_dir, count_all, count_all)
-    converse_dir(op_mode, marker, formats, input_dir, output_dir, count_all, count_all)
+    converse_dir(op_mode, marker, formats, input_dir, output_dir, count_all, count_all, depth)
     print('=============================== PROCESSING IS FINISHED ===============================')
 
 
@@ -869,11 +887,12 @@ def decode():
     marker = settings['marker_dec']
     formats = ['.png']
     count_all = 0
+    depth = 0
 
     print('                                   START DECRYPTING\n')
     global count_all_f_d, count_all_fr
     count_all_f_d, count_all_fr = count_f_and_d(op_mode, input_dir, count_all, count_all)
-    converse_dir(op_mode, marker, formats, input_dir, output_dir, count_all, count_all)
+    converse_dir(op_mode, marker, formats, input_dir, output_dir, count_all, count_all, depth)
     print('=============================== PROCESSING IS FINISHED ===============================')
 
 
@@ -1797,9 +1816,12 @@ class LoggerW(tk.Toplevel):
         self.st_progress = ttk.Style()
         self.st_progress.theme_use('winnative')
         self.st_progress.configure('normal.Horizontal.TProgressbar', troughcolor=ST_BG_FIELDS[st], background=ST_PROG[st])
-        self.st_progress_stopped = ttk.Style()
-        self.st_progress_stopped.theme_use('winnative')
-        self.st_progress_stopped.configure('abort.Horizontal.TProgressbar', troughcolor=ST_BG_FIELDS[st], background=ST_PROG_ABORT[st])
+        self.st_progress_aborted = ttk.Style()
+        self.st_progress_aborted.theme_use('winnative')
+        self.st_progress_aborted.configure('abort.Horizontal.TProgressbar', troughcolor=ST_BG_FIELDS[st], background=ST_PROG_ABORT[st])
+        self.st_progress_done = ttk.Style()
+        self.st_progress_done.theme_use('winnative')
+        self.st_progress_done.configure('done.Horizontal.TProgressbar', troughcolor=ST_BG_FIELDS[st], background=ST_PROG_DONE[st])
 
         self.frame_progress = tk.LabelFrame(self, bg=ST_BG[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
         self.frame_progress.grid(row=0, columnspan=2, padx=6, pady=(6, 4))
@@ -1818,20 +1840,28 @@ class LoggerW(tk.Toplevel):
 
         self.scrollbar = tk.Scrollbar(self, bg=ST_BG[st])
         self.log = tk.Text(self, width=70, height=30, state='disabled', yscrollcommand=self.scrollbar.set, bg=ST_BG_FIELDS[st], fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
-        self.btn_abort = tk.Button(self, text='Abort', command=self.stop_process,                          bg=ST_CLOSE[st],     fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_CLS_SELECT[st])
+        self.btn_abort = tk.Button(self, text='Abort', command=self.abort_process,                         bg=ST_CLOSE[st],     fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_CLS_SELECT[st])
 
-        self.log.grid(         row=1, column=0, sticky='NSEW', padx=(6, 0), pady=0)
-        self.scrollbar.grid(   row=1, column=1, sticky='NSW',  padx=(0, 6), pady=0)
-        self.scrollbar.config( command=self.log.yview)
-        self.btn_abort.grid(   row=2, columnspan=2, padx=6, pady=(4, 6))
+        self.log.grid(        row=1, column=0, sticky='NSEW', padx=(6, 0), pady=0)
+        self.scrollbar.grid(  row=1, column=1, sticky='NSW',  padx=(0, 6), pady=0)
+        self.scrollbar.config(command=self.log.yview)
+        self.btn_abort.grid(  row=2, columnspan=2, padx=6, pady=(4, 6))
 
-    # Завершить обработку
-    def stop_process(self):
-        global abort_process
-        abort_process = True
+    # Прервать обработку
+    def abort_process(self):
+        global process_status
+        process_status = 'abort'
         self.btn_abort['state'] = 'disabled'
         self.progressbar_f_d['style'] = 'abort.Horizontal.TProgressbar'
         self.progressbar_fr['style'] = 'abort.Horizontal.TProgressbar'
+
+    # Завершение обработки
+    def done(self):
+        global process_status
+        process_status = 'done'
+        self.btn_abort['state'] = 'disabled'
+        self.progressbar_f_d['style'] = 'done.Horizontal.TProgressbar'
+        self.progressbar_fr['style'] = 'done.Horizontal.TProgressbar'
 
     # Добавить запись в журнал
     def add_log(self, msg='', end='\n'):
@@ -1908,8 +1938,8 @@ class MainW(tk.Tk):
             fn_symbols = FN_SYMBOLS_WITH_RU
             fn_symbols_num = FN_SYMBOLS_WITH_RU_NUM
 
-        global abort_process
-        abort_process = False
+        global process_status
+        process_status = 'work'
 
         self.logger = LoggerW(self)
         t1 = Thread(target=self.logger.open)
@@ -1934,8 +1964,8 @@ class MainW(tk.Tk):
             fn_symbols = FN_SYMBOLS_WITH_RU
             fn_symbols_num = FN_SYMBOLS_WITH_RU_NUM
 
-        global abort_process
-        abort_process = False
+        global process_status
+        process_status = 'work'
 
         self.logger = LoggerW(self)
         t1 = Thread(target=self.logger.open)
@@ -1958,8 +1988,8 @@ class MainW(tk.Tk):
             fn_symbols = FN_SYMBOLS_WITH_RU
             fn_symbols_num = FN_SYMBOLS_WITH_RU_NUM
 
-        global abort_process
-        abort_process = False
+        global process_status
+        process_status = 'work'
 
         self.logger = LoggerW(self)
         t1 = Thread(target=self.logger.open)
@@ -1998,7 +2028,7 @@ gui.mainloop()
 # v6.0.0 - добавлен графический интерфейс
 # v7.0.0 - добавлен журнал
 
-# при окончании работы выводить сообщение и делать кнопку (end_process = 'no', 'end', 'abort', 'error')
+# при входе в папку, табать сообщения
 # [] -> ()
 # заменить abort на pause
 # выбор расширений
