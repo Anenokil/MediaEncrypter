@@ -1,7 +1,7 @@
 The program can encrypt/decrypt images, gifs and videos
 ---
 
-Supported file extensions: <b>.png</b>, <b>.jpg</b>, <b>.jpeg</b>, <b>.bmp</b>, <b>.gif</b>, <b>.avi</b>, <b>.mp4</b>, <b>.webm</b>
+Supported file extensions: <b>.png</b>, <b>.jpg</b>, <b>.jpeg</b>, <b>.bmp</b>, <b>.gif</b>, <b>.avi</b>, <b>.mp4</b>, <b>.webm</b>, <b>.mov</b>
 <pre>
 - Images obtained as result of program are saved with <b>.png</b> extension
 - Gifs   obtained as result of program are saved with <b>.gif</b> extension
