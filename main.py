@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v7.0.0-PRE_9'
-PROGRAM_DATE = '2.1.2023  3:39'
+PROGRAM_VERSION = ' v7.0.0-PRE_10'
+PROGRAM_DATE = '2.1.2023  4:00'
 
 """ Пути и файлы """
 
@@ -139,10 +139,15 @@ KEY_LEN = 40  # Длина ключа
 """ Общие функции """
 
 
+# Печать с отступом
+def print_tab(msg='', tab=0, end='\n'):
+    print('~ ' * tab + str(msg), end=end)
+
+
 # Добавить запись в журнал обработки
-def add_log(msg='', end='\n'):
+def add_log(msg='', tab=0, end='\n'):
     try:
-        gui.logger.add_log(msg, end)
+        gui.logger.add_log(msg, tab, end)
     except:
         global process_status
         process_status = 'error'
@@ -305,7 +310,7 @@ def extract_key_values(b):
 
 
 # Разделение полотна на блоки и их перемешивание
-def mix_blocks(img, mult_h, mult_w, shift_h, shift_w):
+def mix_blocks(img, mult_h, mult_w, shift_h, shift_w, depth):
     h = img.shape[0]  # Высота изображения
     w = img.shape[1]  # Ширина изображения
 
@@ -317,8 +322,8 @@ def mix_blocks(img, mult_h, mult_w, shift_h, shift_w):
         mult_w += 1
 
     if settings['print_info'] == 'print':
-        print(f'{h}x{w}: {mult_h} {mult_w}')
-        add_log(f'{h}x{w}: {mult_h} {mult_w}')
+        print_tab(f'{h}x{w}: {mult_h} {mult_w}', depth)
+        add_log(f'{h}x{w}: {mult_h} {mult_w}', depth)
 
     img_tmp = img.copy()
     for i in range(h):
@@ -331,7 +336,7 @@ def mix_blocks(img, mult_h, mult_w, shift_h, shift_w):
 
 
 # Шифровка файла
-def encode_file(img):
+def encode_file(img, depth):
     # Разделение изображения на RGB-каналы
     if len(img.shape) < 3:  # Если в изображении меньше трёх каналов
         red, green, blue = img.copy(), img.copy(), img.copy()
@@ -339,9 +344,9 @@ def encode_file(img):
         red, green, blue = [img[:, :, i].copy() for i in range(3)]
 
     # Перемешивание блоков для каждого канала
-    mix_blocks(red,   mult_blocks_h_r, mult_blocks_w_r, shift_h_r, shift_w_r)
-    mix_blocks(green, mult_blocks_h_g, mult_blocks_w_g, shift_h_g, shift_w_g)
-    mix_blocks(blue,  mult_blocks_h_b, mult_blocks_w_b, shift_h_b, shift_w_b)
+    mix_blocks(red,   mult_blocks_h_r, mult_blocks_w_r, shift_h_r, shift_w_r, depth)
+    mix_blocks(green, mult_blocks_h_g, mult_blocks_w_g, shift_h_g, shift_w_g, depth)
+    mix_blocks(blue,  mult_blocks_h_b, mult_blocks_w_b, shift_h_b, shift_w_b, depth)
 
     # Начальное смещение цвета для каждого канала
     red = (red + shift_r) % 256
@@ -379,7 +384,7 @@ def encode_file(img):
 
 
 # Вычисление параметров для recover_blocks
-def recover_blocks_calc(h, w, mult_h, mult_w):
+def recover_blocks_calc(h, w, mult_h, mult_w, depth):
     # Нахождение наименьшего числа, взаимно-простого с h, большего чем mult_h, дающего при делении на h в остатке 1
     while gcd(mult_h, h) != 1 or mult_h % h == 1:
         mult_h += 1
@@ -388,8 +393,8 @@ def recover_blocks_calc(h, w, mult_h, mult_w):
         mult_w += 1
 
     if settings['print_info'] == 'print':
-        print(f'{h}x{w}: {mult_h} {mult_w}')
-        add_log(f'{h}x{w}: {mult_h} {mult_w}')
+        print_tab(f'{h}x{w}: {mult_h} {mult_w}', depth)
+        add_log(f'{h}x{w}: {mult_h} {mult_w}', depth)
 
     dec_h = [0] * h  # Составление массива обратных сдвигов по вертикали
     for i in range(h):
@@ -414,13 +419,13 @@ def recover_blocks(img, h, w, shift_h, shift_w, dec_h, dec_w):
 
 
 # Вычисление параметров для decode_file
-def decode_file_calc(img):
+def decode_file_calc(img, depth):
     h = img.shape[0]  # Высота изображения
     w = img.shape[1]  # Ширина изображения
 
-    dec_h_r, dec_w_r = recover_blocks_calc(h, w, mult_blocks_h_r, mult_blocks_w_r)  # Массивы обратных сдвигов для красного канала
-    dec_h_g, dec_w_g = recover_blocks_calc(h, w, mult_blocks_h_g, mult_blocks_w_g)  # Массивы обратных сдвигов для зелёного канала
-    dec_h_b, dec_w_b = recover_blocks_calc(h, w, mult_blocks_h_b, mult_blocks_w_b)  # Массивы обратных сдвигов для синего канала
+    dec_h_r, dec_w_r = recover_blocks_calc(h, w, mult_blocks_h_r, mult_blocks_w_r, depth)  # Массивы обратных сдвигов для красного канала
+    dec_h_g, dec_w_g = recover_blocks_calc(h, w, mult_blocks_h_g, mult_blocks_w_g, depth)  # Массивы обратных сдвигов для зелёного канала
+    dec_h_b, dec_w_b = recover_blocks_calc(h, w, mult_blocks_h_b, mult_blocks_w_b, depth)  # Массивы обратных сдвигов для синего канала
 
     return h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b
 
@@ -611,8 +616,8 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
         pth = os.path.join(inp_dir, filename)
         isdir = os.path.isdir(pth)
         if ext.lower() not in formats and not isdir:  # Проверка формата
-            print(f'({count_all_files}) <{filename}>')
-            add_log(f'({count_all_files}) <{filename}>')
+            print_tab(f'({count_all_files}) <{filename}>', depth)
+            add_log(f'({count_all_files}) <{filename}>', depth)
             print_warn('Unsupported file extension')
             print()
             add_log()
@@ -627,19 +632,19 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
             if ext in ['.png', '.jpg', '.jpeg', '.bmp']:
                 res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '.png', output_dir, marker, count_correct)  # Преобразование имени файла
 
-                print(f'({count_all_files}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-                add_log(f'({count_all_files}) <{filename}>  ->  <{res_name}>')
+                print_tab(f'({count_all_files}) <{filename}>  ->  <{res_name}>', depth)  # Вывод информации
+                add_log(f'({count_all_files}) <{filename}>  ->  <{res_name}>', depth)
 
                 img = imread(pth)  # Считывание изображения
                 if settings['print_info'] == 'print':
-                    print(img.shape)
-                    add_log(img.shape)
+                    print_tab(img.shape, depth)
+                    add_log(img.shape, depth)
 
                 outp_path = os.path.join(output_dir, res_name)
                 if op_mode == 'E':  # Запись результата
-                    imsave(outp_path, encode_file(img).astype(uint8))
+                    imsave(outp_path, encode_file(img, depth).astype(uint8))
                 else:
-                    h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b = decode_file_calc(img)
+                    h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b = decode_file_calc(img, depth)
                     img = decode_file(img, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b)
                     imsave(outp_path, img.astype(uint8))
                 print()
@@ -650,8 +655,8 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
             elif ext == '.gif':
                 res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', output_dir, marker, count_correct)  # Преобразование имени файла
 
-                print(f'({count_all_files}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-                add_log(f'({count_all_files}) <{filename}>  ->  <{res_name}>')
+                print_tab(f'({count_all_files}) <{filename}>  ->  <{res_name}>', depth)  # Вывод информации
+                add_log(f'({count_all_files}) <{filename}>  ->  <{res_name}>', depth)
 
                 res = os.path.join(output_dir, res_name)
                 if res_name not in os.listdir(output_dir):
@@ -660,17 +665,17 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
 
                 with Image.open(pth) as im:
                     for i in range(im.n_frames):
-                        print(f'frame {i + 1}/{im.n_frames}')
-                        add_log(f'frame {i + 1}/{im.n_frames}')
+                        print_tab(f'frame {i + 1}/{im.n_frames}', depth)
+                        add_log(f'frame {i + 1}/{im.n_frames}', depth)
 
                         im.seek(i)
                         im.save(TMP_PATH)
                         fr = imread(TMP_PATH)
                         if settings['print_info'] == 'print':  # Вывод информации о считывании
-                            print(fr.shape)
-                            add_log(fr.shape)
+                            print_tab(fr.shape, depth)
+                            add_log(fr.shape, depth)
                         outp_path = os.path.join(res, '{:05}.png'.format(i))
-                        imsave(outp_path, encode_file(fr).astype(uint8))
+                        imsave(outp_path, encode_file(fr, depth).astype(uint8))
                         print()
                         add_log()
 
@@ -684,25 +689,25 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
             elif isdir and '_gif' in os.listdir(pth) and op_mode == 'D':
                 res_name = filename_processing(op_mode, settings['naming_mode'], filename, '.gif', output_dir, marker, count_correct)  # Преобразование имени файла
 
-                print(f'({count_all_files}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-                add_log(f'({count_all_files}) <{filename}>  ->  <{res_name}>')
+                print_tab(f'({count_all_files}) <{filename}>  ->  <{res_name}>', depth)  # Вывод информации
+                add_log(f'({count_all_files}) <{filename}>  ->  <{res_name}>', depth)
 
                 inp_dir_tmp = pth
                 frames = sorted((fr for fr in os.listdir(inp_dir_tmp) if fr.endswith('.png')))
                 res = os.path.join(output_dir, res_name)
 
                 img = imread(os.path.join(inp_dir_tmp, frames[0]))
-                h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b = decode_file_calc(img)
+                h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b = decode_file_calc(img, depth)
 
                 with io.get_writer(res, mode='I', duration=1/24) as writer:
                     for i in range(len(frames)):
-                        print(f'frame {i + 1}')
-                        add_log(f'frame {i + 1}')
+                        print_tab(f'frame {i + 1}', depth)
+                        add_log(f'frame {i + 1}', depth)
 
                         fr = imread(os.path.join(inp_dir_tmp, frames[i]))
                         if settings['print_info'] == 'print':  # Вывод информации о считывании
-                            print(fr.shape)
-                            add_log(fr.shape)
+                            print_tab(fr.shape, depth)
+                            add_log(fr.shape, depth)
                         img = decode_file(fr, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b)
                         imsave(TMP_PATH, img.astype(uint8))
                         writer.append_data(io.imread(TMP_PATH))
@@ -721,8 +726,8 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
                 tmp_name = filename_processing(op_mode, 'numbering', base_name, '', output_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
                 res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', output_dir, marker, count_correct)
 
-                print(f'({count_all_files}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-                add_log(f'({count_all_files}) <{filename}>  ->  <{res_name}>')
+                print_tab(f'({count_all_files}) <{filename}>  ->  <{res_name}>', depth)  # Вывод информации
+                add_log(f'({count_all_files}) <{filename}>  ->  <{res_name}>', depth)
 
                 res = os.path.join(output_dir, tmp_name)
                 if tmp_name not in os.listdir(output_dir):
@@ -735,16 +740,16 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
                 count = 0
                 count_frames = int(vid.duration // step + 1)
                 for current_duration in arange(0, vid.duration, step):
-                    print(f'frame {count + 1}/{count_frames}')
-                    add_log(f'frame {count + 1}/{count_frames}')
+                    print_tab(f'frame {count + 1}/{count_frames}', depth)
+                    add_log(f'frame {count + 1}/{count_frames}', depth)
 
                     frame_filename = os.path.join(res, '{:06}.png'.format(count))
                     vid.save_frame(TMP_PATH, current_duration)
                     fr = imread(TMP_PATH)
                     if settings['print_info'] == 'print':  # Вывод информации о считывании
-                        print(fr.shape)
-                        add_log(fr.shape)
-                    imsave(frame_filename, encode_file(fr).astype(uint8))
+                        print_tab(fr.shape, depth)
+                        add_log(fr.shape, depth)
+                    imsave(frame_filename, encode_file(fr, depth).astype(uint8))
                     count += 1
                     print()
                     add_log()
@@ -762,8 +767,8 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
                 tmp_name = filename_processing(op_mode, 'numbering', filename, '.mp4', output_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
                 res_name = filename_processing(op_mode, settings['naming_mode'], filename, '.mp4', output_dir, marker, count_correct)
 
-                print(f'({count_all_files}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-                add_log(f'({count_all_files}) <{filename}>  ->  <{res_name}>')
+                print_tab(f'({count_all_files}) <{filename}>  ->  <{res_name}>', depth)  # Вывод информации
+                add_log(f'({count_all_files}) <{filename}>  ->  <{res_name}>', depth)
 
                 inp_dir_tmp = pth
                 res = os.path.join(output_dir, tmp_name)
@@ -774,18 +779,18 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
                 fps = 24
                 video = cv2.VideoWriter(res, 0, fps, (width, height))
 
-                h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b = decode_file_calc(img)
+                h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b = decode_file_calc(img, depth)
 
                 count = 0
                 for f in os.listdir(inp_dir_tmp):
                     if f.endswith('.png'):
-                        print(f'frame {count + 1}')
-                        add_log(f'frame {count + 1}')
+                        print_tab(f'frame {count + 1}', depth)
+                        add_log(f'frame {count + 1}', depth)
 
                         img = imread(os.path.join(inp_dir_tmp, f))
                         if settings['print_info'] == 'print':  # Вывод информации о считывании
-                            print(img.shape)
-                            add_log(img.shape)
+                            print_tab(img.shape, depth)
+                            add_log(img.shape, depth)
                         fr = decode_file(img, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b)
                         imsave(TMP_PATH, fr.astype(uint8))
                         video.write(cv2.imread(TMP_PATH))
@@ -806,8 +811,8 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
             elif isdir:
                 res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '', output_dir, marker, count_correct)  # Преобразование имени файла
 
-                print(f'({count_all_files}) <{filename}>  ->  <{res_name}>')  # Вывод информации
-                add_log(f'({count_all_files}) <{filename}>  ->  <{res_name}>')
+                print_tab(f'({count_all_files}) <{filename}>  ->  <{res_name}>', depth)  # Вывод информации
+                add_log(f'({count_all_files}) <{filename}>  ->  <{res_name}>', depth)
 
                 new_inp_dir = pth
                 new_outp_dir = os.path.join(output_dir, res_name)
@@ -823,17 +828,17 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
                 set_progress_f_d(count_all_files, count_all_f_d)
 
                 count_all_files, count_all_frames = converse_dir(op_mode, marker, formats, new_inp_dir, new_outp_dir, count_all_files, count_all_frames, depth + 1)
-                print(f'{Fore.GREEN}*[DIR] ', end='')
-                add_log('*[DIR] ', end='')
+                print_tab(f'{Fore.GREEN}*[DIR] ', depth, end='')
+                add_log('*[DIR] ', depth, end='')
             else:
                 count_all_frames += 1
                 set_progress_fr(count_all_frames, count_all_fr)
-        except Exception as err:
+        except Exception as err:  # count
             print_warn('Couldn`t process the file')
             print(f'{Fore.YELLOW}{err}{Style.RESET_ALL}\n')
             add_log(f'{err}\n')
-        print(f'{Fore.GREEN}Time: {perf_counter() - start}{Style.RESET_ALL}\n')
-        add_log(f'Time: {perf_counter() - start}\n')
+        print_tab(f'{Fore.GREEN}Time: {perf_counter() - start}{Style.RESET_ALL}\n', depth)
+        add_log(f'Time: {perf_counter() - start}\n', depth)
 
         set_progress_f_d(count_all_files, count_all_f_d)
 
@@ -1863,13 +1868,13 @@ class LoggerW(tk.Toplevel):
         self.progressbar_fr['style'] = 'done.Horizontal.TProgressbar'
 
     # Добавить запись в журнал
-    def add_log(self, msg='', end='\n'):
+    def add_log(self, msg='', tab=0, end='\n'):
         self.log['state'] = 'normal'
         if self.log.yview()[1] == 1.0:
-            self.log.insert(tk.END, str(msg) + end)
+            self.log.insert(tk.END, '~ ' * tab + str(msg) + end)
             self.log.yview_moveto(1.0)
         else:
-            self.log.insert(tk.END, str(msg) + end)
+            self.log.insert(tk.END, '~ ' * tab + str(msg) + end)
         self.log['state'] = 'disabled'
 
     # Установить прогресс (файлы и папки)
@@ -2027,7 +2032,6 @@ gui.mainloop()
 # v6.0.0 - добавлен графический интерфейс
 # v7.0.0 - добавлен журнал
 
-# при входе в папку, табать сообщения
 # заменить abort на pause
 # выбор расширений
 # добавить варианты фпс
