@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = ' v7.0.0-PRE_14'
-PROGRAM_DATE = '2.1.2023 20:53'
+PROGRAM_VERSION = ' v7.0.0-PRE_15'
+PROGRAM_DATE = '3.1.2023 18:48'
 
 """ Пути и файлы """
 
@@ -1834,18 +1834,18 @@ class ManualW(tk.Toplevel):
 
         self.mode = ''
 
-        self.inp_mult_blocks_h_r = tk.StringVar()  # Множитель блоков по горизонтали для красного канала
-        self.inp_mult_blocks_h_g = tk.StringVar()  # Множитель блоков по горизонтали для зелёного канала
-        self.inp_mult_blocks_h_b = tk.StringVar()  # Множитель блоков по горизонтали для синего канала
-        self.inp_mult_blocks_w_r = tk.StringVar()  # Множитель блоков по вертикали для красного канала
-        self.inp_mult_blocks_w_g = tk.StringVar()  # Множитель блоков по вертикали для зелёного канала
-        self.inp_mult_blocks_w_b = tk.StringVar()  # Множитель блоков по вертикали для синего канала
-        self.inp_shift_h_r = tk.StringVar()  # Сдвиг блоков по горизонтали для красного канала
-        self.inp_shift_h_g = tk.StringVar()  # Сдвиг блоков по горизонтали для зелёного канала
-        self.inp_shift_h_b = tk.StringVar()  # Сдвиг блоков по горизонтали для синего канала
-        self.inp_shift_w_r = tk.StringVar()  # Сдвиг блоков по вертикали для красного канала
-        self.inp_shift_w_g = tk.StringVar()  # Сдвиг блоков по вертикали для зелёного канала
-        self.inp_shift_w_b = tk.StringVar()  # Сдвиг блоков по вертикали для синего канала
+        self.inp_mult_blocks_h_r = tk.StringVar()  # Множитель блоков по вертикали для красного канала
+        self.inp_mult_blocks_h_g = tk.StringVar()  # Множитель блоков по вертикали для зелёного канала
+        self.inp_mult_blocks_h_b = tk.StringVar()  # Множитель блоков по вертикали для синего канала
+        self.inp_mult_blocks_w_r = tk.StringVar()  # Множитель блоков по горизонтали для красного канала
+        self.inp_mult_blocks_w_g = tk.StringVar()  # Множитель блоков по горизонтали для зелёного канала
+        self.inp_mult_blocks_w_b = tk.StringVar()  # Множитель блоков по горизонтали для синего канала
+        self.inp_shift_h_r = tk.StringVar()  # Сдвиг блоков по вертикали для красного канала
+        self.inp_shift_h_g = tk.StringVar()  # Сдвиг блоков по вертикали для зелёного канала
+        self.inp_shift_h_b = tk.StringVar()  # Сдвиг блоков по вертикали для синего канала
+        self.inp_shift_w_r = tk.StringVar()  # Сдвиг блоков по горизонтали для красного канала
+        self.inp_shift_w_g = tk.StringVar()  # Сдвиг блоков по горизонтали для зелёного канала
+        self.inp_shift_w_b = tk.StringVar()  # Сдвиг блоков по горизонтали для синего канала
         self.inp_shift_r = tk.StringVar()  # Первичное смещение цвета для красного канала
         self.inp_shift_g = tk.StringVar()  # Первичное смещение цвета для зелёного канала
         self.inp_shift_b = tk.StringVar()  # Первичное смещение цвета для синего канала
@@ -2131,11 +2131,11 @@ class MainW(tk.Tk):
         self.lbl_header1.grid(row=0, padx=7, pady=(7, 0))
         self.lbl_header2.grid(row=1, padx=7, pady=(0, 7))
 
-        self.btn_settings = tk.Button(self, text='Settings',    font='StdFont 12', command=self.settings, bg=ST_BTN[st],   fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
-        self.btn_encode   = tk.Button(self, text='Encode',      font='StdFont 12', command=self.encode,   bg=ST_BTN[st],   fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
-        self.btn_decode   = tk.Button(self, text='Decode',      font='StdFont 12', command=self.decode,   bg=ST_BTN[st],   fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
-        self.btn_mcm      = tk.Button(self, text='Debug (MCM)', font='StdFont 12', command=self.mcm,      bg=ST_MCM[st],   fg=ST_FG_TEXT[st], activebackground=ST_MCM_SELECT[st], highlightbackground=ST_BORDER[st])
-        self.btn_close    = tk.Button(self, text='Close',       font='StdFont 12', command=self.quit,     bg=ST_CLOSE[st], fg=ST_FG_TEXT[st], activebackground=ST_CLS_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.btn_settings = tk.Button(self, text='Settings',       font='StdFont 12', command=self.settings, bg=ST_BTN[st],   fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.btn_encode   = tk.Button(self, text='Encode',         font='StdFont 12', command=self.encode,   bg=ST_BTN[st],   fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.btn_decode   = tk.Button(self, text='Decode',         font='StdFont 12', command=self.decode,   bg=ST_BTN[st],   fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.btn_mcm      = tk.Button(self, text='Manual Control', font='StdFont 12', command=self.mcm,      bg=ST_MCM[st],   fg=ST_FG_TEXT[st], activebackground=ST_MCM_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.btn_close    = tk.Button(self, text='Close',          font='StdFont 12', command=self.quit,     bg=ST_CLOSE[st], fg=ST_FG_TEXT[st], activebackground=ST_CLS_SELECT[st], highlightbackground=ST_BORDER[st])
         self.btn_settings.grid(row=2, pady=5)
         self.btn_encode.grid(  row=3, pady=5)
         self.btn_decode.grid(  row=4, pady=5)
