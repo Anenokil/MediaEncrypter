@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = ' v7.0.0-PRE_19'
-PROGRAM_DATE = '10.1.2023  16:04'
+PROGRAM_VERSION = ' v7.0.0-PRE_20'
+PROGRAM_DATE = '10.1.2023  16:15'
 
 """ Пути и файлы """
 
@@ -1550,22 +1550,22 @@ class SettingsW(tk.Toplevel):
 
     # Выбор папки источника при шифровке
     def choose_source_enc(self):
-        directory = askdirectory()
+        directory = askdirectory(initialdir=os.path.dirname(__file__))
         self.inp_src_dir_enc.set(directory)
 
     # Выбор папки назначения при шифровке
     def choose_dest_enc(self):
-        directory = askdirectory()
+        directory = askdirectory(initialdir=os.path.dirname(__file__))
         self.inp_dst_dir_enc.set(directory)
 
     # Выбор папки источника при дешифровке
     def choose_source_dec(self):
-        directory = askdirectory()
+        directory = askdirectory(initialdir=os.path.dirname(__file__))
         self.inp_src_dir_dec.set(directory)
 
     # Выбор папки назначения при дешифровке
     def choose_dest_dec(self):
-        directory = askdirectory()
+        directory = askdirectory(initialdir=os.path.dirname(__file__))
         self.inp_dst_dir_dec.set(directory)
 
     # Установить настройки по умолчанию
