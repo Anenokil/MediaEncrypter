@@ -1148,7 +1148,7 @@ def validate_expand(value, entry, min_len, max_len):
 
 # Всплывающее окно с сообщением
 class PopupMsgW(tk.Toplevel):
-    def __init__(self, parent, msg, btn_text='OK', title='Media encrypter'):
+    def __init__(self, parent, msg, btn_text='OK', title=PROGRAM_NAME):
         super().__init__(parent)
         self.title(title)
         self.configure(bg=ST_BG[st])
@@ -1159,7 +1159,7 @@ class PopupMsgW(tk.Toplevel):
 
 # Всплывающее окно с сообщением и двумя кнопками
 class PopupDialogueW(tk.Toplevel):
-    def __init__(self, parent, msg='Are you sure?', btn_yes='Yes', btn_no='Cancel', title='Media encrypter'):
+    def __init__(self, parent, msg='Are you sure?', btn_yes='Yes', btn_no='Cancel', title=PROGRAM_NAME):
         super().__init__(parent)
         self.title(title)
         self.configure(bg=ST_BG[st])
@@ -1184,7 +1184,7 @@ class PopupDialogueW(tk.Toplevel):
 
 # Всплывающее окно с полем Combobox
 class PopupChooseW(tk.Toplevel):
-    def __init__(self, parent, values, msg='Choose the one of these', btn_text='Confirm', title='Media encrypter'):
+    def __init__(self, parent, values, msg='Choose the one of these', btn_text='Confirm', title=PROGRAM_NAME):
         super().__init__(parent)
         self.title(title)
         self.configure(bg=ST_BG[st])
@@ -1208,7 +1208,7 @@ class PopupChooseW(tk.Toplevel):
 class EnterSaveNameW(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
-        self.title('Media encrypter')
+        self.title(PROGRAM_NAME)
         self.configure(bg=ST_BG[st])
 
         self.name_is_correct = False
@@ -2118,7 +2118,7 @@ class LoggerW(tk.Toplevel):
 class MainW(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title('Media encrypter')
+        self.title(PROGRAM_NAME)
         self.eval('tk::PlaceWindow . center')
         self.resizable(width=False, height=False)
         self.configure(bg=ST_BG[st])
