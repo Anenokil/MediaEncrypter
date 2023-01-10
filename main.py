@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = ' v7.0.0-PRE_17'
-PROGRAM_DATE = '4.1.2023 8:40'
+PROGRAM_VERSION = ' v7.0.0-PRE_19'
+PROGRAM_DATE = '10.1.2023  16:04'
 
 """ Пути и файлы """
 
@@ -1425,16 +1425,16 @@ class SettingsW(tk.Toplevel):
         self.check_support_ru    = ttk.Checkbutton(self.frame_fields,     variable=self.inp_support_ru,    command=self.processing_ru_state,                   style='.TCheckbutton')
         self.combo_processing_ru = ttk.Combobox(   self.frame_fields, textvariable=self.inp_processing_ru, values=PROCESSING_RU_MODES,       state='readonly', style='.TCombobox')
         self.combo_naming_mode   = ttk.Combobox(   self.frame_fields, textvariable=self.inp_naming_mode,   values=NAMING_MODES,              state='readonly', style='.TCombobox')
-        self.frame_count_from    = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
-        self.frame_format        = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
-        self.frame_marker_enc    = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
-        self.frame_marker_dec    = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
-        self.frame_src_dir_enc   = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
-        self.frame_dst_dir_enc   = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
-        self.frame_src_dir_dec   = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
-        self.frame_dst_dir_dec   = tk.LabelFrame(  self.frame_fields, borderwidth=0, bg=ST_BG[st])
-        self.entry_example_key   = tk.Entry(       self.frame_fields, textvariable=self.inp_example_key, relief='solid', width=KEY_LEN, font='TkFixedFont', validate='key', validatecommand=self.vcmd_key, bg=ST_BG_FIELDS[st], fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st])
-        self.combo_print_info    = ttk.Combobox(   self.frame_fields, textvariable=self.inp_print_info, values=PRINT_INFO_MODES, state='readonly', style='.TCombobox')
+        self.frame_count_from    = tk.Frame(self.frame_fields, borderwidth=0, bg=ST_BG[st])
+        self.frame_format        = tk.Frame(self.frame_fields, borderwidth=0, bg=ST_BG[st])
+        self.frame_marker_enc    = tk.Frame(self.frame_fields, borderwidth=0, bg=ST_BG[st])
+        self.frame_marker_dec    = tk.Frame(self.frame_fields, borderwidth=0, bg=ST_BG[st])
+        self.frame_src_dir_enc   = tk.Frame(self.frame_fields, borderwidth=0, bg=ST_BG[st])
+        self.frame_dst_dir_enc   = tk.Frame(self.frame_fields, borderwidth=0, bg=ST_BG[st])
+        self.frame_src_dir_dec   = tk.Frame(self.frame_fields, borderwidth=0, bg=ST_BG[st])
+        self.frame_dst_dir_dec   = tk.Frame(self.frame_fields, borderwidth=0, bg=ST_BG[st])
+        self.entry_example_key   = tk.Entry(    self.frame_fields, textvariable=self.inp_example_key, relief='solid', width=KEY_LEN, font='TkFixedFont', validate='key', validatecommand=self.vcmd_key, bg=ST_BG_FIELDS[st], fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st])
+        self.combo_print_info    = ttk.Combobox(self.frame_fields, textvariable=self.inp_print_info, values=PRINT_INFO_MODES, state='readonly', style='.TCombobox')
 
         if not self.inp_support_ru.get():
             self.combo_processing_ru['state'] = 'disabled'
