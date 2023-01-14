@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = ' v7.0.0-PRE_20'
-PROGRAM_DATE = '10.1.2023  16:15'
+PROGRAM_VERSION = ' v7.0.0-PRE_21'
+PROGRAM_DATE = '14.1.2023  22:34'
 
 """ Пути и файлы """
 
@@ -103,7 +103,7 @@ DEFAULT_SETTINGS = {'count_from': 1,
 
 ST_BG         = {'light': '#EEEEEE', 'dark': '#222222', 'infernal': '#DD1515'}  # bg или background
 ST_BG_RGB     = {'light': '#EEEEEE', 'dark': '#222222', 'infernal': '#993333'}  # bg
-ST_BG_FIELDS  = {'light': '#FFFFFF', 'dark': '#171717', 'infernal': '#CCCCCC'}  # bg
+ST_BG_FIELDS  = {'light': '#FFFFFF', 'dark': '#171717', 'infernal': '#FFAAAA'}  # bg
 ST_BG_ERR     = {'light': '#EE6666', 'dark': '#773333', 'infernal': '#FF0000'}  # bg
 
 ST_BORDER     = {'light': '#222222', 'dark': '#111111', 'infernal': '#330000'}  # highlightbackground
@@ -2255,7 +2255,10 @@ gui.mainloop()
 # заменить abort на pause
 # добавить выбор расширений
 # добавить варианты фпс
-# контроль версий
 # - больше картинок
 # - всплывающие подсказки
 # цвета в журнале
+
+# контроль версий
+# показывать общее время выполнения
+# tk.INSERT -> tk.END
