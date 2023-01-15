@@ -9,20 +9,25 @@ You can also test the program using a test key (it is specified in the program t
 To decrypt a file you must enter the **same key** that you entered when encrypting<br>
 
 ## Other
-Supported file extensions: <b>.png</b>, <b>.jpg</b>, <b>.jpeg</b>, <b>.bmp</b>, <b>.gif</b>, <b>.avi</b>, <b>.mp4</b>, <b>.webm</b>, <b>.mov</b>
+Supported file extensions:
+- **.png**, **.jpg**, **.jpeg**, **.jfif**, **.bmp**;
+- **.gif**;
+- **.avi**, **.mp4**, **.webm**, **.mov**
+
+---
 
 - `Images` obtained as result of program are saved with `.png` extension
 - `Gifs` obtained as result of program are saved with `.gif` extension
 - `Videos` obtained as result of program are saved with `.mp4` extension
 
-<br>
+---
 
 | | The default `source` folder | The default `destination` folder |
 |:---:|:---:|:---:|
 | **When encrypting** | f_src | f_enc |
 | **When decrypting** | f_enc | d_dec |
 
-<br>
+---
 
 The program has GUI and 3 styles:
 1. *light*
