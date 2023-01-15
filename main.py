@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = ' v7.0.0-PRE_21'
-PROGRAM_DATE = '14.1.2023  22:34'
+PROGRAM_VERSION = ' v7.0.0-PRE_22'
+PROGRAM_DATE = '15.1.2023  20:08'
 
 """ Пути и файлы """
 
@@ -630,7 +630,7 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
 
         start = perf_counter()
         try:
-            if ext in ['.png', '.jpg', '.jpeg', '.bmp']:
+            if ext in ['.png', '.jpg', '.jpeg', '.jfif', '.bmp']:
                 res_name = filename_processing(op_mode, settings['naming_mode'], base_name, '.png', output_dir, marker, count_correct)  # Преобразование имени файла
 
                 print_tab(f'({count_all_files}) <{filename}>  ->  <{res_name}>', depth)  # Вывод информации
@@ -883,7 +883,7 @@ def diagnostic_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_file
 
         start = perf_counter()
         try:
-            if ext in ['.png', '.jpg', '.jpeg', '.bmp']:
+            if ext in ['.png', '.jpg', '.jpeg', '.jfif', '.bmp']:
                 img = imread(pth)  # Считывание изображения
                 if settings['print_info'] == 'print':
                     print_tab(img.shape, depth)
@@ -1050,7 +1050,7 @@ def encode(cmd):
     input_dir = settings['src_dir_enc']
     output_dir = settings['dst_dir_enc']
     marker = settings['marker_enc']
-    formats = ['.png', '.jpg', '.jpeg', '.bmp', '.gif', '.avi', '.mp4', '.webm', '.mov']
+    formats = ['.png', '.jpg', '.jpeg', '.jfif', '.bmp', '.gif', '.avi', '.mp4', '.webm', '.mov']
     count_start = 0
     depth = 0
 
