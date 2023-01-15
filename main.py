@@ -26,8 +26,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = ' v7.0.0-PRE_22'
-PROGRAM_DATE = '15.1.2023  20:08'
+PROGRAM_VERSION = ' v7.0.0-PRE_23'
+PROGRAM_DATE = '15.1.2023  20:46'
 
 """ Пути и файлы """
 
@@ -92,7 +92,10 @@ DEFAULT_SETTINGS = {'count_from': 1,
                     'dst_dir_dec': 'f_dec',
                     'example_key': '_123456789_123456789_123456789_123456789'}
 
-""" Стили """
+""" Стандартные темы """
+
+LAST_THEME_VERSION = 1
+THEMES = ['light', 'dark', 'infernal']  # Названия тем
 
 # Все: bg
 # Все, кроме frame: fg
@@ -101,35 +104,66 @@ DEFAULT_SETTINGS = {'count_from': 1,
 # Кнопки: activebackground
 # Entry: selectbackground, highlightcolor
 
-ST_BG         = {'light': '#EEEEEE', 'dark': '#222222', 'infernal': '#DD1515'}  # bg или background
-ST_BG_RGB     = {'light': '#EEEEEE', 'dark': '#222222', 'infernal': '#993333'}  # bg
-ST_BG_FIELDS  = {'light': '#FFFFFF', 'dark': '#171717', 'infernal': '#FFAAAA'}  # bg
-ST_BG_ERR     = {'light': '#EE6666', 'dark': '#773333', 'infernal': '#FF0000'}  # bg
+ST_BG          = {THEMES[0]: '#EEEEEE', THEMES[1]: '#222222', THEMES[2]: '#DD1515'}  # bg или background
+ST_BG_RGB      = {THEMES[0]: '#EEEEEE', THEMES[1]: '#222222', THEMES[2]: '#993333'}  # bg
+ST_BG_FIELDS   = {THEMES[0]: '#FFFFFF', THEMES[1]: '#171717', THEMES[2]: '#FFAAAA'}  # bg
+ST_BG_ERR      = {THEMES[0]: '#EE6666', THEMES[1]: '#773333', THEMES[2]: '#FF0000'}  # bg
 
-ST_BORDER     = {'light': '#222222', 'dark': '#111111', 'infernal': '#330000'}  # highlightbackground
-ST_RELIEF     = {'light': 'groove',  'dark': 'solid',   'infernal': 'groove' }  # relief
+ST_BORDER      = {THEMES[0]: '#222222', THEMES[1]: '#111111', THEMES[2]: '#330000'}  # highlightbackground
+ST_RELIEF      = {THEMES[0]: 'groove',  THEMES[1]: 'solid',   THEMES[2]: 'groove' }  # relief
 
-ST_SELECT     = {'light': '#BBBBBB', 'dark': '#444444', 'infernal': '#FF5500'}  # selectbackground
-ST_HIGHLIGHT  = {'light': '#00DD00', 'dark': '#007700', 'infernal': '#EEEEEE'}  # highlightcolor
+ST_SELECT      = {THEMES[0]: '#BBBBBB', THEMES[1]: '#444444', THEMES[2]: '#FF5500'}  # selectbackground
+ST_HIGHLIGHT   = {THEMES[0]: '#00DD00', THEMES[1]: '#007700', THEMES[2]: '#EEEEEE'}  # highlightcolor
 
-ST_BTN        = {'light': '#D0D0D0', 'dark': '#202020', 'infernal': '#DD2020'}  # bg
-ST_BTN_SELECT = {'light': '#BABABA', 'dark': '#272727', 'infernal': '#DD5020'}  # activebackground
-ST_MCM        = {'light': '#B0B0B0', 'dark': '#0E0E0E', 'infernal': '#CC3333'}  # bg
-ST_MCM_SELECT = {'light': '#9A9A9A', 'dark': '#151515', 'infernal': '#CC6333'}  # activebackground
-ST_ACCEPT     = {'light': '#88DD88', 'dark': '#446F44', 'infernal': '#CC6633'}  # bg
-ST_ACC_SELECT = {'light': '#77CC77', 'dark': '#558055', 'infernal': '#CC9633'}  # activebackground
-ST_CLOSE      = {'light': '#FF6666', 'dark': '#803333', 'infernal': '#CD0000'}  # bg
-ST_CLS_SELECT = {'light': '#EE5555', 'dark': '#904444', 'infernal': '#CD3000'}  # activebackground
+ST_BTN         = {THEMES[0]: '#D0D0D0', THEMES[1]: '#202020', THEMES[2]: '#DD2020'}  # bg
+ST_BTN_SELECT  = {THEMES[0]: '#BABABA', THEMES[1]: '#272727', THEMES[2]: '#DD5020'}  # activebackground
+ST_MCM         = {THEMES[0]: '#B0B0B0', THEMES[1]: '#0E0E0E', THEMES[2]: '#CC3333'}  # bg
+ST_MCM_SELECT  = {THEMES[0]: '#9A9A9A', THEMES[1]: '#151515', THEMES[2]: '#CC6333'}  # activebackground
+ST_BTNY        = {THEMES[0]: '#88DD88', THEMES[1]: '#446F44', THEMES[2]: '#CC6633'}  # bg
+ST_BTNY_SELECT = {THEMES[0]: '#77CC77', THEMES[1]: '#558055', THEMES[2]: '#CC9633'}  # activebackground
+ST_BTNN        = {THEMES[0]: '#FF6666', THEMES[1]: '#803333', THEMES[2]: '#CD0000'}  # bg
+ST_BTNN_SELECT = {THEMES[0]: '#EE5555', THEMES[1]: '#904444', THEMES[2]: '#CD3000'}  # activebackground
 
-ST_FG_TEXT    = {'light': '#222222', 'dark': '#979797', 'infernal': '#000000'}  # fg или foreground
-ST_FG_LOGO    = {'light': '#FF7200', 'dark': '#803600', 'infernal': '#FF7200'}  # fg
-ST_FG_FOOTER  = {'light': '#666666', 'dark': '#666666', 'infernal': '#222222'}  # fg
-ST_FG_EXAMPLE = {'light': '#448899', 'dark': '#448899', 'infernal': '#010101'}  # fg
-ST_FG_KEY     = {'light': '#EE0000', 'dark': '#BC4040', 'infernal': '#FF0000'}  # fg
+ST_FG_TEXT     = {THEMES[0]: '#222222', THEMES[1]: '#979797', THEMES[2]: '#000000'}  # fg или foreground
+ST_FG_LOGO     = {THEMES[0]: '#FF7200', THEMES[1]: '#803600', THEMES[2]: '#FF7200'}  # fg
+ST_FG_FOOTER   = {THEMES[0]: '#666666', THEMES[1]: '#666666', THEMES[2]: '#222222'}  # fg
+ST_FG_EXAMPLE  = {THEMES[0]: '#448899', THEMES[1]: '#448899', THEMES[2]: '#010101'}  # fg
+ST_FG_KEY      = {THEMES[0]: '#EE0000', THEMES[1]: '#BC4040', THEMES[2]: '#FF0000'}  # fg
 
-ST_PROG       = {'light': '#06B025', 'dark': '#06B025', 'infernal': '#771111'}  # bg
-ST_PROG_ABORT = {'light': '#FFB050', 'dark': '#FFB040', 'infernal': '#222222'}  # bg
-ST_PROG_DONE  = {'light': '#0077FF', 'dark': '#1133DD', 'infernal': '#AA1166'}  # bg
+ST_PROG        = {THEMES[0]: '#06B025', THEMES[1]: '#06B025', THEMES[2]: '#771111'}  # bg
+ST_PROG_ABORT  = {THEMES[0]: '#FFB050', THEMES[1]: '#FFB040', THEMES[2]: '#222222'}  # bg
+ST_PROG_DONE   = {THEMES[0]: '#0077FF', THEMES[1]: '#1133DD', THEMES[2]: '#AA1166'}  # bg
+
+# Названия стилизуемых элементов
+STYLE_ELEMENTS = ['BG', 'BG_RGB', 'BG_FIELDS', 'BG_ERR', 'BORDER', 'RELIEF', 'SELECT', 'HIGHLIGHT',
+                  'BTN', 'BTN_SELECT', 'MCM', 'MCM_SELECT', 'BTNY', 'BTNY_SELECT', 'BTNN', 'BTNN_SELECT',
+                  'FG_TEXT', 'FG_LOGO', 'FG_FOOTER', 'FG_EXAMPLE', 'FG_KEY', 'ST_PROG', 'ST_PROG_ABORT', 'ST_PROG_DONE']
+
+# Стили для каждого элемента
+STYLES = {STYLE_ELEMENTS[0]:  ST_BG,
+          STYLE_ELEMENTS[1]:  ST_BG_RGB,
+          STYLE_ELEMENTS[2]:  ST_BG_FIELDS,
+          STYLE_ELEMENTS[3]:  ST_BG_ERR,
+          STYLE_ELEMENTS[4]:  ST_BORDER,
+          STYLE_ELEMENTS[5]:  ST_RELIEF,
+          STYLE_ELEMENTS[6]:  ST_SELECT,
+          STYLE_ELEMENTS[7]:  ST_HIGHLIGHT,
+          STYLE_ELEMENTS[8]:  ST_BTN,
+          STYLE_ELEMENTS[9]:  ST_BTN_SELECT,
+          STYLE_ELEMENTS[10]: ST_MCM,
+          STYLE_ELEMENTS[11]: ST_MCM_SELECT,
+          STYLE_ELEMENTS[12]: ST_BTNY,
+          STYLE_ELEMENTS[13]: ST_BTNY_SELECT,
+          STYLE_ELEMENTS[14]: ST_BTNN,
+          STYLE_ELEMENTS[15]: ST_BTNN_SELECT,
+          STYLE_ELEMENTS[16]: ST_FG_TEXT,
+          STYLE_ELEMENTS[17]: ST_FG_LOGO,
+          STYLE_ELEMENTS[18]: ST_FG_FOOTER,
+          STYLE_ELEMENTS[19]: ST_FG_EXAMPLE,
+          STYLE_ELEMENTS[20]: ST_FG_KEY,
+          STYLE_ELEMENTS[21]: ST_PROG,
+          STYLE_ELEMENTS[22]: ST_PROG_ABORT,
+          STYLE_ELEMENTS[23]: ST_PROG_DONE}
 
 """ Ключ """
 
@@ -1166,9 +1200,9 @@ class PopupDialogueW(tk.Toplevel):
 
         self.answer = False
 
-        tk.Label( self, text=msg,     bg=ST_BG[st],     fg=ST_FG_TEXT[st]).grid(row=0, columnspan=2, padx=6, pady=4)
-        tk.Button(self, text=btn_yes, bg=ST_ACCEPT[st], fg=ST_FG_TEXT[st], activebackground=ST_ACC_SELECT[st], highlightbackground=ST_BORDER[st], command=self.yes).grid(row=1, column=0, padx=(6, 10), pady=4, sticky='E')
-        tk.Button(self, text=btn_no,  bg=ST_CLOSE[st],  fg=ST_FG_TEXT[st], activebackground=ST_CLS_SELECT[st], highlightbackground=ST_BORDER[st], command=self.no).grid( row=1, column=1, padx=(10, 6), pady=4, sticky='W')
+        tk.Label( self, text=msg,     bg=ST_BG[st],   fg=ST_FG_TEXT[st]).grid(row=0, columnspan=2, padx=6, pady=4)
+        tk.Button(self, text=btn_yes, bg=ST_BTNY[st], fg=ST_FG_TEXT[st], activebackground=ST_BTNY_SELECT[st], highlightbackground=ST_BORDER[st], command=self.yes).grid(row=1, column=0, padx=(6, 10), pady=4, sticky='E')
+        tk.Button(self, text=btn_no,  bg=ST_BTNN[st], fg=ST_FG_TEXT[st], activebackground=ST_BTNN_SELECT[st], highlightbackground=ST_BORDER[st], command=self.no).grid( row=1, column=1, padx=(10, 6), pady=4, sticky='W')
 
     def yes(self):
         self.answer = True
@@ -1196,7 +1230,7 @@ class PopupChooseW(tk.Toplevel):
         self.st_combo.configure(style='.TCombobox', background=ST_BG[st], foreground=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st])
         self.st_combo.map('.TCombobox', background=[('readonly', ST_BG[st])], foreground=[('readonly', ST_FG_TEXT[st])], highlightbackground=[('readonly', ST_BORDER[st])])
         ttk.Combobox(self, textvariable=self.answer, style='.TCombobox', values=values, state='readonly').grid(row=1, padx=6, pady=1)
-        tk.Button(self, text=btn_text, bg=ST_ACCEPT[st], fg=ST_FG_TEXT[st], activebackground=ST_ACC_SELECT[st], highlightbackground=ST_BORDER[st], command=self.destroy).grid(row=2, padx=6, pady=4)
+        tk.Button(self, text=btn_text, bg=ST_BTNY[st], fg=ST_FG_TEXT[st], activebackground=ST_BTNY_SELECT[st], highlightbackground=ST_BORDER[st], command=self.destroy).grid(row=2, padx=6, pady=4)
 
     def open(self):
         self.grab_set()
@@ -1219,7 +1253,7 @@ class EnterSaveNameW(tk.Toplevel):
 
         tk.Label(self, text='Enter a name for save your custom settings', bg=ST_BG[st], fg=ST_FG_TEXT[st]).grid(row=0, padx=6, pady=(4, 1))
         tk.Entry(self, textvariable=self.name, bg=ST_BG_FIELDS[st], fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], selectbackground=ST_SELECT[st], highlightcolor=ST_HIGHLIGHT[st], validate='key', validatecommand=self.vcmd).grid(row=1, padx=6, pady=1)
-        tk.Button(self, text='Confirm', bg=ST_ACCEPT[st], fg=ST_FG_TEXT[st], activebackground=ST_ACC_SELECT[st], highlightbackground=ST_BORDER[st], command=self.check_and_return).grid(row=2, padx=6, pady=4)
+        tk.Button(self, text='Confirm', bg=ST_BTNY[st], fg=ST_FG_TEXT[st], activebackground=ST_BTNY_SELECT[st], highlightbackground=ST_BORDER[st], command=self.check_and_return).grid(row=2, padx=6, pady=4)
 
     def check_and_return(self):
         filename = self.name.get()
@@ -1518,8 +1552,8 @@ class SettingsW(tk.Toplevel):
         self.btn_remove_custom.grid(row=1, column=3, padx=(0, 4), pady=(0, 4))
 
         # Кнопки окна
-        self.btn_save  = tk.Button(self, text='Accept', command=self.save,  bg=ST_ACCEPT[st], fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_ACC_SELECT[st])
-        self.btn_close = tk.Button(self, text='Close',  command=self.close, bg=ST_CLOSE[st],  fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_CLS_SELECT[st])
+        self.btn_save  = tk.Button(self, text='Accept', command=self.save,  bg=ST_BTNY[st], fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTNY_SELECT[st])
+        self.btn_close = tk.Button(self, text='Close',  command=self.close, bg=ST_BTNN[st], fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTNN_SELECT[st])
         self.btn_save.grid( row=2, column=0, pady=(0, 4))
         self.btn_close.grid(row=2, column=1, pady=(0, 4))
 
@@ -1780,31 +1814,31 @@ class SettingsW(tk.Toplevel):
         self.entry_dst_dir_enc.configure(  bg=ST_BG_FIELDS[st],  fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st])
         self.entry_src_dir_dec.configure(  bg=ST_BG_FIELDS[st],  fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st])
         self.entry_dst_dir_dec.configure(  bg=ST_BG_FIELDS[st],  fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st], selectbackground=ST_SELECT[st])
-        self.lbl_note_count_from.configure(bg=ST_BG[st],     fg=ST_FG_TEXT[st])
-        self.lbl_note_format.configure(    bg=ST_BG[st],     fg=ST_FG_TEXT[st])
-        self.lbl_note_marker_enc.configure(bg=ST_BG[st],     fg=ST_FG_TEXT[st])
-        self.lbl_note_marker_dec.configure(bg=ST_BG[st],     fg=ST_FG_TEXT[st])
-        self.btn_src_enc.configure(        bg=ST_BTN[st],    fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
-        self.btn_dst_enc.configure(        bg=ST_BTN[st],    fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
-        self.btn_src_dec.configure(        bg=ST_BTN[st],    fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
-        self.btn_dst_dec.configure(        bg=ST_BTN[st],    fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
-        self.btn_def.configure(            bg=ST_BTN[st],    fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
-        self.btn_save_custom.configure(    bg=ST_BTN[st],    fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
-        self.btn_load_custom.configure(    bg=ST_BTN[st],    fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
-        self.btn_remove_custom.configure(  bg=ST_BTN[st],    fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
-        self.btn_save.configure(           bg=ST_ACCEPT[st], fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_ACC_SELECT[st])
-        self.btn_close.configure(          bg=ST_CLOSE[st],  fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_CLS_SELECT[st])
+        self.lbl_note_count_from.configure(bg=ST_BG[st],   fg=ST_FG_TEXT[st])
+        self.lbl_note_format.configure(    bg=ST_BG[st],   fg=ST_FG_TEXT[st])
+        self.lbl_note_marker_enc.configure(bg=ST_BG[st],   fg=ST_FG_TEXT[st])
+        self.lbl_note_marker_dec.configure(bg=ST_BG[st],   fg=ST_FG_TEXT[st])
+        self.btn_src_enc.configure(        bg=ST_BTN[st],  fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
+        self.btn_dst_enc.configure(        bg=ST_BTN[st],  fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
+        self.btn_src_dec.configure(        bg=ST_BTN[st],  fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
+        self.btn_dst_dec.configure(        bg=ST_BTN[st],  fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
+        self.btn_def.configure(            bg=ST_BTN[st],  fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
+        self.btn_save_custom.configure(    bg=ST_BTN[st],  fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
+        self.btn_load_custom.configure(    bg=ST_BTN[st],  fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
+        self.btn_remove_custom.configure(  bg=ST_BTN[st],  fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTN_SELECT[st])
+        self.btn_save.configure(           bg=ST_BTNY[st], fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTNY_SELECT[st])
+        self.btn_close.configure(          bg=ST_BTNN[st], fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTNN_SELECT[st])
 
         self.parent.configure(             bg=ST_BG[st])
         self.parent.frame_head.configure(  bg=ST_BG[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
-        self.parent.lbl_header1.configure( bg=ST_BG[st],    fg=ST_FG_TEXT[st])
-        self.parent.lbl_header2.configure( bg=ST_BG[st],    fg=ST_FG_LOGO[st])
-        self.parent.btn_settings.configure(bg=ST_BTN[st],   fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
-        self.parent.btn_encode.configure(  bg=ST_BTN[st],   fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
-        self.parent.btn_decode.configure(  bg=ST_BTN[st],   fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
-        self.parent.btn_mcm.configure(     bg=ST_MCM[st],   fg=ST_FG_TEXT[st], activebackground=ST_MCM_SELECT[st], highlightbackground=ST_BORDER[st])
-        self.parent.btn_close.configure(   bg=ST_CLOSE[st], fg=ST_FG_TEXT[st], activebackground=ST_CLS_SELECT[st], highlightbackground=ST_BORDER[st])
-        self.parent.lbl_footer.configure(  bg=ST_BG[st],    fg=ST_FG_FOOTER[st])
+        self.parent.lbl_header1.configure( bg=ST_BG[st],   fg=ST_FG_TEXT[st])
+        self.parent.lbl_header2.configure( bg=ST_BG[st],   fg=ST_FG_LOGO[st])
+        self.parent.btn_settings.configure(bg=ST_BTN[st],  fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st],  highlightbackground=ST_BORDER[st])
+        self.parent.btn_encode.configure(  bg=ST_BTN[st],  fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st],  highlightbackground=ST_BORDER[st])
+        self.parent.btn_decode.configure(  bg=ST_BTN[st],  fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st],  highlightbackground=ST_BORDER[st])
+        self.parent.btn_mcm.configure(     bg=ST_MCM[st],  fg=ST_FG_TEXT[st], activebackground=ST_MCM_SELECT[st],  highlightbackground=ST_BORDER[st])
+        self.parent.btn_close.configure(   bg=ST_BTNN[st], fg=ST_FG_TEXT[st], activebackground=ST_BTNN_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.parent.lbl_footer.configure(  bg=ST_BG[st],   fg=ST_FG_FOOTER[st])
 
         save_settings_to_file()
 
@@ -2066,12 +2100,13 @@ class LoggerW(tk.Toplevel):
 
         self.scrollbar = tk.Scrollbar(self, bg=ST_BG[st])
         self.log = tk.Text(self, width=70, height=30, state='disabled', yscrollcommand=self.scrollbar.set, bg=ST_BG_FIELDS[st], fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], relief=ST_RELIEF[st])
-        self.btn_abort = tk.Button(self, text='Abort', command=self.abort_process,                         bg=ST_CLOSE[st],     fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_CLS_SELECT[st])
+        self.btn_abort = tk.Button(self, text='Abort', command=self.abort_process, bg=ST_BTNN[st], fg=ST_FG_TEXT[st], highlightbackground=ST_BORDER[st], activebackground=ST_BTNN_SELECT[st])
 
         self.log.grid(        row=1, column=0, sticky='NSEW', padx=(6, 0), pady=0)
         self.scrollbar.grid(  row=1, column=1, sticky='NSW',  padx=(0, 6), pady=0)
-        self.scrollbar.config(command=self.log.yview)
         self.btn_abort.grid(  row=2, columnspan=2, padx=6, pady=(4, 6))
+
+        self.scrollbar.config(command=self.log.yview)
 
     # Прервать обработку
     def abort_process(self):
@@ -2131,11 +2166,11 @@ class MainW(tk.Tk):
         self.lbl_header1.grid(row=0, padx=7, pady=(7, 0))
         self.lbl_header2.grid(row=1, padx=7, pady=(0, 7))
 
-        self.btn_settings = tk.Button(self, text='Settings',       font='StdFont 12', command=self.settings, bg=ST_BTN[st],   fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
-        self.btn_encode   = tk.Button(self, text='Encode',         font='StdFont 12', command=self.encode,   bg=ST_BTN[st],   fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
-        self.btn_decode   = tk.Button(self, text='Decode',         font='StdFont 12', command=self.decode,   bg=ST_BTN[st],   fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
-        self.btn_mcm      = tk.Button(self, text='Manual Control', font='StdFont 12', command=self.mcm,      bg=ST_MCM[st],   fg=ST_FG_TEXT[st], activebackground=ST_MCM_SELECT[st], highlightbackground=ST_BORDER[st])
-        self.btn_close    = tk.Button(self, text='Close',          font='StdFont 12', command=self.quit,     bg=ST_CLOSE[st], fg=ST_FG_TEXT[st], activebackground=ST_CLS_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.btn_settings = tk.Button(self, text='Settings',       font='StdFont 12', command=self.settings, bg=ST_BTN[st],  fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st],  highlightbackground=ST_BORDER[st])
+        self.btn_encode   = tk.Button(self, text='Encode',         font='StdFont 12', command=self.encode,   bg=ST_BTN[st],  fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st],  highlightbackground=ST_BORDER[st])
+        self.btn_decode   = tk.Button(self, text='Decode',         font='StdFont 12', command=self.decode,   bg=ST_BTN[st],  fg=ST_FG_TEXT[st], activebackground=ST_BTN_SELECT[st],  highlightbackground=ST_BORDER[st])
+        self.btn_mcm      = tk.Button(self, text='Manual Control', font='StdFont 12', command=self.mcm,      bg=ST_MCM[st],  fg=ST_FG_TEXT[st], activebackground=ST_MCM_SELECT[st],  highlightbackground=ST_BORDER[st])
+        self.btn_close    = tk.Button(self, text='Close',          font='StdFont 12', command=self.quit,     bg=ST_BTNN[st], fg=ST_FG_TEXT[st], activebackground=ST_BTNN_SELECT[st], highlightbackground=ST_BORDER[st])
         self.btn_settings.grid(row=2, pady=5)
         self.btn_encode.grid(  row=3, pady=5)
         self.btn_decode.grid(  row=4, pady=5)
