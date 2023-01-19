@@ -29,8 +29,8 @@ import wget  # Для загрузки обновления
 import zipfile  # Для распаковки обновления
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v7.0.0_PRE-27'
-PROGRAM_DATE = '19.1.2023  23:50 (UTC+3)'
+PROGRAM_VERSION = 'v7.0.0_PRE-28'
+PROGRAM_DATE = '20.1.2023   0:15 (UTC+3)'
 
 """ Пути и файлы """
 
@@ -76,13 +76,16 @@ FN_SYMBOLS_WITH_RU_NUM = len(FN_SYMBOLS_WITH_RU)
 
 settings = {}
 INT_SETTINGS_NUM = 2  # Количество числовых настроек
-SETTINGS_NUM = 14  # Количество всех настроек
+SETTINGS_NUM = 15  # Количество всех настроек
 
 # Названия настроек
-SETTINGS_NAMES = ['count_from', 'format', 'support_ru', 'processing_ru', 'naming_mode', 'print_info', 'theme',
-                  'marker_enc', 'marker_dec', 'src_dir_enc', 'dst_dir_enc', 'src_dir_dec', 'dst_dir_dec', 'example_key']
+SETTINGS_NAMES = ['count_from', 'format', 'show_updates', 'support_ru', 'processing_ru',
+                  'naming_mode', 'print_info', 'theme',
+                  'marker_enc', 'marker_dec', 'src_dir_enc', 'dst_dir_enc',
+                  'src_dir_dec', 'dst_dir_dec', 'example_key']
 
 # Варианты значений настроек с перечислимым типом
+SHOW_UPDATES_MODES = ['yes', 'no']  # Варианты поддержки кириллических букв
 SUPPORT_RU_MODES = ['yes', 'no']  # Варианты поддержки кириллических букв
 PROCESSING_RU_MODES = ['don`t change', 'transliterate to latin']  # Варианты обработки кириллических букв
 NAMING_MODES = ['don`t change', 'encryption', 'numbering', 'add prefix', 'add postfix']  # Варианты именования выходных файлов
@@ -92,6 +95,7 @@ STYLE_MODES = ['light', 'dark', 'infernal']  # Варианты стиля
 # Значения настроек по умолчанию
 DEFAULT_SETTINGS = {'count_from': 1,
                     'format': 1,
+                    'show_updates': 'yes',
                     'support_ru': 'no',
                     'processing_ru': 'transliterate to latin',
                     'naming_mode': 'encryption',
@@ -255,6 +259,8 @@ def correct_settings():
         settings['format'] = DEFAULT_SETTINGS['format']
     if settings['support_ru'] not in SUPPORT_RU_MODES:
         settings['support_ru'] = DEFAULT_SETTINGS['support_ru']
+    if settings['show_updates'] not in SHOW_UPDATES_MODES:
+        settings['show_updates'] = DEFAULT_SETTINGS['show_updates']
     if settings['processing_ru'] not in PROCESSING_RU_MODES:
         settings['processing_ru'] = DEFAULT_SETTINGS['processing_ru']
     if settings['print_info'] not in PRINT_INFO_MODES:
@@ -1565,6 +1571,7 @@ class SettingsW(tk.Toplevel):
 
         # Переменные, к которым привязаны настройки
         self.inp_style         = tk.StringVar(value=settings['theme'])
+        self.inp_show_updates  = tk.BooleanVar(value=(settings['show_updates'] == 'yes'))
         self.inp_support_ru    = tk.BooleanVar(value=(settings['support_ru'] == 'yes'))
         self.inp_processing_ru = tk.StringVar(value=settings['processing_ru'])
         self.inp_naming_mode   = tk.StringVar(value=settings['naming_mode'])
@@ -1607,6 +1614,7 @@ class SettingsW(tk.Toplevel):
 
         # Названия настроек
         self.lbl_style =         tk.Label(self.frame_fields, text='Style',                                        bg=ST_BG[th], fg=ST_FG_TEXT[th])
+        self.lbl_show_updates =  tk.Label(self.frame_fields, text='Show update notifications',                    bg=ST_BG[th], fg=ST_FG_TEXT[th])
         self.lbl_support_ru =    tk.Label(self.frame_fields, text='Russian letters in filenames support',         bg=ST_BG[th], fg=ST_FG_TEXT[th])
         self.lbl_processing_ru = tk.Label(self.frame_fields, text='Russian letters in filenames processing mode', bg=ST_BG[th], fg=ST_FG_TEXT[th])
         self.lbl_naming_mode =   tk.Label(self.frame_fields, text='File names conversion mode',                   bg=ST_BG[th], fg=ST_FG_TEXT[th])
@@ -1621,19 +1629,20 @@ class SettingsW(tk.Toplevel):
         self.lbl_example_key =   tk.Label(self.frame_fields, text='Example of a key',                             bg=ST_BG[th], fg=ST_FG_TEXT[th])
         self.lbl_print_info =    tk.Label(self.frame_fields, text='Whether to print info',                        bg=ST_BG[th], fg=ST_FG_TEXT[th])
         self.lbl_style.grid(        row=0,  column=0, padx=(6, 1), pady=(4, 1), sticky='E')
-        self.lbl_support_ru.grid(   row=1,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_processing_ru.grid(row=2,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_naming_mode.grid(  row=3,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_count_from.grid(   row=4,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_format.grid(       row=5,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_marker_enc.grid(   row=6,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_marker_dec.grid(   row=7,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_src_dir_enc.grid(  row=8,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_dst_dir_enc.grid(  row=9,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_src_dir_dec.grid(  row=10, column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_dst_dir_dec.grid(  row=11, column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_example_key.grid(  row=12, column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_print_info.grid(   row=13, column=0, padx=(6, 1), pady=(1, 4), sticky='E')
+        self.lbl_show_updates.grid( row=1,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_support_ru.grid(   row=2,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_processing_ru.grid(row=3,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_naming_mode.grid(  row=4,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_count_from.grid(   row=5,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_format.grid(       row=6,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_marker_enc.grid(   row=7,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_marker_dec.grid(   row=8,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_src_dir_enc.grid(  row=9,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_dst_dir_enc.grid(  row=10, column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_src_dir_dec.grid(  row=11, column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_dst_dir_dec.grid(  row=12, column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_example_key.grid(  row=13, column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_print_info.grid(   row=14, column=0, padx=(6, 1), pady=(1, 4), sticky='E')
 
         # Стили для некоторых настроек
         self.st_combo = ttk.Style()
@@ -1645,6 +1654,7 @@ class SettingsW(tk.Toplevel):
 
         # Сами настройки
         self.combo_style         = ttk.Combobox(   self.frame_fields, textvariable=self.inp_style,         values=STYLE_MODES,               state='readonly', style='.TCombobox')
+        self.check_show_updates  = ttk.Checkbutton(self.frame_fields,     variable=self.inp_show_updates,                                                      style='.TCheckbutton')
         self.check_support_ru    = ttk.Checkbutton(self.frame_fields,     variable=self.inp_support_ru,    command=self.processing_ru_state,                   style='.TCheckbutton')
         self.combo_processing_ru = ttk.Combobox(   self.frame_fields, textvariable=self.inp_processing_ru, values=PROCESSING_RU_MODES,       state='readonly', style='.TCombobox')
         self.combo_naming_mode   = ttk.Combobox(   self.frame_fields, textvariable=self.inp_naming_mode,   values=NAMING_MODES,              state='readonly', style='.TCombobox')
@@ -1664,19 +1674,20 @@ class SettingsW(tk.Toplevel):
 
         # Расположение настроек
         self.combo_style.grid(        row=0,  column=1, padx=(0, 6), pady=(4, 1), sticky='W')
-        self.check_support_ru.grid(   row=1,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.combo_processing_ru.grid(row=2,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.combo_naming_mode.grid(  row=3,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frame_count_from.grid(   row=4,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frame_format.grid(       row=5,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frame_marker_enc.grid(   row=6,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frame_marker_dec.grid(   row=7,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frame_src_dir_enc.grid(  row=8,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frame_dst_dir_enc.grid(  row=9,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frame_src_dir_dec.grid(  row=10, column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frame_dst_dir_dec.grid(  row=11, column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.entry_example_key.grid(  row=12, column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.combo_print_info.grid(   row=13, column=1, padx=(0, 6), pady=(1, 4), sticky='W')
+        self.check_show_updates.grid( row=1,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.check_support_ru.grid(   row=2,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.combo_processing_ru.grid(row=3,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.combo_naming_mode.grid(  row=4,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_count_from.grid(   row=5,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_format.grid(       row=6,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_marker_enc.grid(   row=7,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_marker_dec.grid(   row=8,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_src_dir_enc.grid(  row=9,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_dst_dir_enc.grid(  row=10, column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_src_dir_dec.grid(  row=11, column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_dst_dir_dec.grid(  row=12, column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.entry_example_key.grid(  row=13, column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.combo_print_info.grid(   row=14, column=1, padx=(0, 6), pady=(1, 4), sticky='W')
 
         # Содержимое и расположение настроек с фреймами
         min_len_marker = 10
@@ -1758,6 +1769,7 @@ class SettingsW(tk.Toplevel):
     def has_changes(self):
         return str(settings['count_from']) != self.inp_count_from.get() or\
             str(settings['format']) != self.inp_format.get() or \
+            (settings['show_updates'] == 'yes') != self.inp_show_updates.get() or\
             (settings['support_ru'] == 'yes') != self.inp_support_ru.get() or\
             settings['processing_ru'] != self.inp_processing_ru.get() or\
             settings['naming_mode'] != self.inp_naming_mode.get() or\
@@ -1795,7 +1807,8 @@ class SettingsW(tk.Toplevel):
     def set_default_settings(self):
         self.inp_count_from.set(str(DEFAULT_SETTINGS['count_from']))
         self.inp_format.set(str(DEFAULT_SETTINGS['format']))
-        self.inp_support_ru.set(False)
+        self.inp_show_updates.set(DEFAULT_SETTINGS['show_updates'] == 'yes')
+        self.inp_support_ru.set(DEFAULT_SETTINGS['support_ru'] == 'yes')
         self.inp_processing_ru.set(DEFAULT_SETTINGS['processing_ru'])
         self.inp_naming_mode.set(DEFAULT_SETTINGS['naming_mode'])
         self.inp_print_info.set(DEFAULT_SETTINGS['print_info'])
@@ -1940,8 +1953,12 @@ class SettingsW(tk.Toplevel):
         if has_errors:
             return
 
-        settings['count_from']    = int(self.inp_count_from.get())
-        settings['format']        = int(self.inp_format.get())
+        settings['count_from'] = int(self.inp_count_from.get())
+        settings['format']     = int(self.inp_format.get())
+        if self.inp_show_updates.get():
+            settings['show_updates'] = 'yes'
+        else:
+            settings['show_updates'] = 'no'
         if self.inp_support_ru.get():
             settings['support_ru'] = 'yes'
         else:
@@ -2396,8 +2413,7 @@ except FileNotFoundError:  # Если файл с настройками отс�
 th = settings['theme']
 
 gui = MainW()
-_0_global_show_updates = True
-_0_global_window_last_version = check_updates(gui, _0_global_show_updates)  # Проверяем наличие обновлений
+_0_global_window_last_version = check_updates(gui, settings['show_updates'] == 'yes')  # Проверяем наличие обновлений
 gui.mainloop()
 
 # v1.0.0
@@ -2416,6 +2432,4 @@ gui.mainloop()
 # цвета в журнале
 
 # показывать общее время выполнения
-
-# настройки: показывать обновления
 # save and close/dont save and close/cancel
