@@ -30,8 +30,8 @@ import wget  # Для загрузки обновления
 import zipfile  # Для распаковки обновления
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v7.0.0_PRE-32'
-PROGRAM_DATE = '20.1.2023   2:48 (UTC+3)'
+PROGRAM_VERSION = 'v7.0.0_PRE-33'
+PROGRAM_DATE = '20.1.2023   2:39 (UTC+3)'
 
 """ Пути и файлы """
 
@@ -1166,6 +1166,14 @@ def encode(cmd):
     op_mode = 'E'
     input_dir = settings['src_dir_enc']
     output_dir = settings['dst_dir_enc']
+    if not os.path.exists(input_dir):
+        PopupMsgW(gui, f'Исходная папка "{input_dir}" не найдена!', title='Warning')
+        gui.logger.destroy()
+        return
+    if not os.path.exists(output_dir):
+        PopupMsgW(gui, f'Папка назначения "{output_dir}" не найдена!', title='Warning')
+        gui.logger.destroy()
+        return
     marker = settings['marker_enc']
     formats = ['.png', '.jpg', '.jpeg', '.jfif', '.bmp', '.gif', '.avi', '.mp4', '.webm', '.mov']
     count_start = 0
@@ -1195,6 +1203,14 @@ def decode(cmd):
     op_mode = 'D'
     input_dir = settings['src_dir_dec']
     output_dir = settings['dst_dir_dec']
+    if not os.path.exists(input_dir):
+        PopupMsgW(gui, f'Исходная папка "{input_dir}" не найдена!', title='Warning')
+        gui.logger.destroy()
+        return
+    if not os.path.exists(output_dir):
+        PopupMsgW(gui, f'Папка назначения "{output_dir}" не найдена!', title='Warning')
+        gui.logger.destroy()
+        return
     marker = settings['marker_dec']
     formats = ['.png']
     count_start = 0
@@ -2488,4 +2504,3 @@ gui.mainloop()
 # цвета в журнале
 
 # показывать общее время выполнения
-# если путь с папкой для кодировки не найден, то except
