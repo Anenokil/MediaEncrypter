@@ -29,8 +29,8 @@ import wget  # Для загрузки обновления
 import zipfile  # Для распаковки обновления
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v7.0.0_PRE-29'
-PROGRAM_DATE = '20.1.2023   0:32 (UTC+3)'
+PROGRAM_VERSION = 'v7.0.0_PRE-30'
+PROGRAM_DATE = '20.1.2023   0:44 (UTC+3)'
 
 """ Пути и файлы """
 
@@ -1268,12 +1268,13 @@ class PopupDialogueW(tk.Toplevel):
 
 # Всплывающее окно с полем Combobox
 class PopupChooseW(tk.Toplevel):
-    def __init__(self, parent, values, msg='Choose the one of these', btn_text='Confirm', title=PROGRAM_NAME):
+    def __init__(self, parent, values, msg='Choose the one of these', btn_text='Confirm',
+                 default_value=None, title=PROGRAM_NAME):
         super().__init__(parent)
         self.title(title)
         self.configure(bg=ST_BG[th])
 
-        self.answer = tk.StringVar()
+        self.answer = tk.StringVar(value=default_value)
 
         tk.Label(self, text=msg, bg=ST_BG[th], fg=ST_FG_TEXT[th]).grid(row=0, padx=6, pady=(4, 1))
         self.st_combo = ttk.Style()
@@ -1861,10 +1862,8 @@ class SettingsW(tk.Toplevel):
             PopupMsgW(self, 'There are no saves!', title='Error')
             return False, ''
         else:
-            window = PopupChooseW(self, csf_list, f'Choose a save you want to {cmd_name}')
+            window = PopupChooseW(self, csf_list, f'Choose a save you want to {cmd_name}', default_value=csf_list[0])
             filename = window.open()
-            if filename == '':
-                return False, ''
             return True, f'{filename}.txt'
 
     # Загрузить пользовательские настройки
@@ -2448,4 +2447,3 @@ gui.mainloop()
 # показывать общее время выполнения
 # save and close/dont save and close/cancel
 # файлы со стилями
-# значения по умолчанию в комбобоксах
