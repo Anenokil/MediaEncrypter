@@ -1605,6 +1605,15 @@ class SettingsW(tk.Toplevel):
         self.vcmd_num     = (self.register(validate_num), '%P')
         self.vcmd_key     = (self.register(validate_key), '%P')
 
+        # Стили для некоторых настроек
+        self.st_combo = ttk.Style()
+        self.st_combo.configure(style='.TCombobox', background=ST_BG[th], foreground=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th])
+        self.st_combo.map('.TCombobox', background=[('readonly', ST_BG[th])], foreground=[('readonly', ST_FG_TEXT[th])], highlightbackground=[('readonly', ST_BORDER[th])])
+
+        self.st_check = ttk.Style()
+        self.st_check.configure(style='.TCheckbutton', background=ST_BG[th])
+        self.st_check.map('.TCheckbutton', background=[('active', ST_SELECT[th])])
+
         """
         *---TOPLEVEL-------------------------------------------------*
         |  *---FRAME-ALL------------------------------------------*  |
@@ -1623,48 +1632,23 @@ class SettingsW(tk.Toplevel):
         # Внешние фреймы
         self.frame_all    = tk.LabelFrame(self,           bg=ST_BG[th], highlightbackground=ST_BORDER[th], relief=ST_RELIEF[th])
         self.frame_fields = tk.LabelFrame(self.frame_all, bg=ST_BG[th], highlightbackground=ST_BORDER[th], relief=ST_RELIEF[th])
-        self.frame_all.grid(   row=0, column=0, columnspan=2, padx=4, pady=4)
-        self.frame_fields.grid(row=0, column=0, columnspan=4, padx=4, pady=4)
 
         # Названия настроек
-        self.lbl_style =         tk.Label(self.frame_fields, text='Style',                                        bg=ST_BG[th], fg=ST_FG_TEXT[th])
-        self.lbl_show_updates =  tk.Label(self.frame_fields, text='Show update notifications',                    bg=ST_BG[th], fg=ST_FG_TEXT[th])
-        self.lbl_support_ru =    tk.Label(self.frame_fields, text='Russian letters in filenames support',         bg=ST_BG[th], fg=ST_FG_TEXT[th])
+        self.lbl_style         = tk.Label(self.frame_fields, text='Style',                                        bg=ST_BG[th], fg=ST_FG_TEXT[th])
+        self.lbl_show_updates  = tk.Label(self.frame_fields, text='Show update notifications',                    bg=ST_BG[th], fg=ST_FG_TEXT[th])
+        self.lbl_support_ru    = tk.Label(self.frame_fields, text='Russian letters in filenames support',         bg=ST_BG[th], fg=ST_FG_TEXT[th])
         self.lbl_processing_ru = tk.Label(self.frame_fields, text='Russian letters in filenames processing mode', bg=ST_BG[th], fg=ST_FG_TEXT[th])
-        self.lbl_naming_mode =   tk.Label(self.frame_fields, text='File names conversion mode',                   bg=ST_BG[th], fg=ST_FG_TEXT[th])
-        self.lbl_count_from =    tk.Label(self.frame_fields, text='Start numbering files from',                   bg=ST_BG[th], fg=ST_FG_TEXT[th])
-        self.lbl_format =        tk.Label(self.frame_fields, text='Minimal number of characters in number',       bg=ST_BG[th], fg=ST_FG_TEXT[th])
-        self.lbl_marker_enc =    tk.Label(self.frame_fields, text='Marker for encoded files',                     bg=ST_BG[th], fg=ST_FG_TEXT[th])
-        self.lbl_marker_dec =    tk.Label(self.frame_fields, text='Marker for decoded files',                     bg=ST_BG[th], fg=ST_FG_TEXT[th])
-        self.lbl_src_dir_enc =   tk.Label(self.frame_fields, text='Source folder when encoding',                  bg=ST_BG[th], fg=ST_FG_TEXT[th])
-        self.lbl_dst_dir_enc =   tk.Label(self.frame_fields, text='Destination folder when encoding',             bg=ST_BG[th], fg=ST_FG_TEXT[th])
-        self.lbl_src_dir_dec =   tk.Label(self.frame_fields, text='Source folder when decoding',                  bg=ST_BG[th], fg=ST_FG_TEXT[th])
-        self.lbl_dst_dir_dec =   tk.Label(self.frame_fields, text='Destination folder when decoding',             bg=ST_BG[th], fg=ST_FG_TEXT[th])
-        self.lbl_example_key =   tk.Label(self.frame_fields, text='Example of a key',                             bg=ST_BG[th], fg=ST_FG_TEXT[th])
-        self.lbl_print_info =    tk.Label(self.frame_fields, text='Whether to print info',                        bg=ST_BG[th], fg=ST_FG_TEXT[th])
-        self.lbl_style.grid(        row=0,  column=0, padx=(6, 1), pady=(4, 1), sticky='E')
-        self.lbl_show_updates.grid( row=1,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_support_ru.grid(   row=2,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_processing_ru.grid(row=3,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_naming_mode.grid(  row=4,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_count_from.grid(   row=5,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_format.grid(       row=6,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_marker_enc.grid(   row=7,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_marker_dec.grid(   row=8,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_src_dir_enc.grid(  row=9,  column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_dst_dir_enc.grid(  row=10, column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_src_dir_dec.grid(  row=11, column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_dst_dir_dec.grid(  row=12, column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_example_key.grid(  row=13, column=0, padx=(6, 1), pady=1,      sticky='E')
-        self.lbl_print_info.grid(   row=14, column=0, padx=(6, 1), pady=(1, 4), sticky='E')
-
-        # Стили для некоторых настроек
-        self.st_combo = ttk.Style()
-        self.st_combo.configure(style='.TCombobox', background=ST_BG[th], foreground=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th])
-        self.st_combo.map('.TCombobox', background=[('readonly', ST_BG[th])], foreground=[('readonly', ST_FG_TEXT[th])], highlightbackground=[('readonly', ST_BORDER[th])])
-        self.st_check = ttk.Style()
-        self.st_check.configure(style='.TCheckbutton', background=ST_BG[th])
-        self.st_check.map('.TCheckbutton', background=[('active', ST_SELECT[th])])
+        self.lbl_naming_mode   = tk.Label(self.frame_fields, text='File names conversion mode',                   bg=ST_BG[th], fg=ST_FG_TEXT[th])
+        self.lbl_count_from    = tk.Label(self.frame_fields, text='Start numbering files from',                   bg=ST_BG[th], fg=ST_FG_TEXT[th])
+        self.lbl_format        = tk.Label(self.frame_fields, text='Minimal number of characters in number',       bg=ST_BG[th], fg=ST_FG_TEXT[th])
+        self.lbl_marker_enc    = tk.Label(self.frame_fields, text='Marker for encoded files',                     bg=ST_BG[th], fg=ST_FG_TEXT[th])
+        self.lbl_marker_dec    = tk.Label(self.frame_fields, text='Marker for decoded files',                     bg=ST_BG[th], fg=ST_FG_TEXT[th])
+        self.lbl_src_dir_enc   = tk.Label(self.frame_fields, text='Source folder when encoding',                  bg=ST_BG[th], fg=ST_FG_TEXT[th])
+        self.lbl_dst_dir_enc   = tk.Label(self.frame_fields, text='Destination folder when encoding',             bg=ST_BG[th], fg=ST_FG_TEXT[th])
+        self.lbl_src_dir_dec   = tk.Label(self.frame_fields, text='Source folder when decoding',                  bg=ST_BG[th], fg=ST_FG_TEXT[th])
+        self.lbl_dst_dir_dec   = tk.Label(self.frame_fields, text='Destination folder when decoding',             bg=ST_BG[th], fg=ST_FG_TEXT[th])
+        self.lbl_example_key   = tk.Label(self.frame_fields, text='Example of a key',                             bg=ST_BG[th], fg=ST_FG_TEXT[th])
+        self.lbl_print_info    = tk.Label(self.frame_fields, text='Whether to print info',                        bg=ST_BG[th], fg=ST_FG_TEXT[th])
 
         # Сами настройки
         self.combo_style         = ttk.Combobox(   self.frame_fields, textvariable=self.inp_style,         values=STYLE_MODES,               state='readonly', style='.TCombobox')
@@ -1686,24 +1670,7 @@ class SettingsW(tk.Toplevel):
         if not self.inp_support_ru.get():
             self.combo_processing_ru['state'] = 'disabled'
 
-        # Расположение настроек
-        self.combo_style.grid(        row=0,  column=1, padx=(0, 6), pady=(4, 1), sticky='W')
-        self.check_show_updates.grid( row=1,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.check_support_ru.grid(   row=2,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.combo_processing_ru.grid(row=3,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.combo_naming_mode.grid(  row=4,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frame_count_from.grid(   row=5,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frame_format.grid(       row=6,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frame_marker_enc.grid(   row=7,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frame_marker_dec.grid(   row=8,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frame_src_dir_enc.grid(  row=9,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frame_dst_dir_enc.grid(  row=10, column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frame_src_dir_dec.grid(  row=11, column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frame_dst_dir_dec.grid(  row=12, column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.entry_example_key.grid(  row=13, column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.combo_print_info.grid(   row=14, column=1, padx=(0, 6), pady=(1, 4), sticky='W')
-
-        # Содержимое и расположение настроек с фреймами
+        # Содержимое настроек с фреймами
         min_len_marker = 10
         max_len_marker = 70
         min_len_dir = 50
@@ -1722,14 +1689,6 @@ class SettingsW(tk.Toplevel):
         self.entry_dst_dir_enc['validatecommand'] = (self.register(lambda value: validate_expand(value, self.entry_dst_dir_enc, min_len_dir,    max_len_dir)),    '%P')
         self.entry_src_dir_dec['validatecommand'] = (self.register(lambda value: validate_expand(value, self.entry_src_dir_dec, min_len_dir,    max_len_dir)),    '%P')
         self.entry_dst_dir_dec['validatecommand'] = (self.register(lambda value: validate_expand(value, self.entry_dst_dir_dec, min_len_dir,    max_len_dir)),    '%P')
-        self.entry_count_from.grid( row=0, column=0, padx=(0, 1))
-        self.entry_format.grid(     row=0, column=0, padx=(0, 1))
-        self.entry_marker_enc.grid( row=0, column=0, padx=(0, 1))
-        self.entry_marker_dec.grid( row=0, column=0, padx=(0, 1))
-        self.entry_src_dir_enc.grid(row=0, column=0, padx=(0, 1))
-        self.entry_dst_dir_enc.grid(row=0, column=0, padx=(0, 1))
-        self.entry_src_dir_dec.grid(row=0, column=0, padx=(0, 1))
-        self.entry_dst_dir_dec.grid(row=0, column=0, padx=(0, 1))
 
         self.lbl_note_count_from = tk.Label(self.frame_count_from, text='(if the numbering name processing mode is selected)',      bg=ST_BG[th], fg=ST_FG_TEXT[th])
         self.lbl_note_format     = tk.Label(self.frame_format,     text='(if the numbering name processing mode is selected)',      bg=ST_BG[th], fg=ST_FG_TEXT[th])
@@ -1746,28 +1705,77 @@ class SettingsW(tk.Toplevel):
             self.btn_dst_enc = tk.Button(self.frame_dst_dir_enc, text='Search', command=self.choose_dest_enc,   bg=ST_BTN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
             self.btn_src_dec = tk.Button(self.frame_src_dir_dec, text='Search', command=self.choose_source_dec, bg=ST_BTN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
             self.btn_dst_dec = tk.Button(self.frame_dst_dir_dec, text='Search', command=self.choose_dest_dec,   bg=ST_BTN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
-        self.lbl_note_count_from.grid(row=0, column=1)
-        self.lbl_note_format.grid(    row=0, column=1)
-        self.lbl_note_marker_enc.grid(row=0, column=1)
-        self.lbl_note_marker_dec.grid(row=0, column=1)
-        self.btn_src_enc.grid(row=0, column=1)
-        self.btn_dst_enc.grid(row=0, column=1)
-        self.btn_src_dec.grid(row=0, column=1)
-        self.btn_dst_dec.grid(row=0, column=1)
 
         # Кнопки общего фрейма
         self.btn_def           = tk.Button(self.frame_all, text='Set default settings',                          command=self.set_default_settings,   bg=ST_BTN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
         self.btn_save_custom   = tk.Button(self.frame_all, text='Save current settings as your custom settings', command=self.save_custom_settings,   bg=ST_BTN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
         self.btn_load_custom   = tk.Button(self.frame_all, text='Load your custom settings',                     command=self.load_custom_settings,   bg=ST_BTN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
         self.btn_remove_custom = tk.Button(self.frame_all, text='Remove your custom settings',                   command=self.remove_custom_settings, bg=ST_BTN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
+
+        # Кнопки окна
+        self.btn_save  = tk.Button(self, text='Accept', command=self.save,  bg=ST_BTNY[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTNY_SELECT[th])
+        self.btn_close = tk.Button(self, text='Close',  command=self.close, bg=ST_BTNN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTNN_SELECT[th])
+
+        # Расположение настроек
+        self.frame_all.grid(   row=0, column=0, columnspan=2, padx=4, pady=4)
+        self.frame_fields.grid(row=0, column=0, columnspan=4, padx=4, pady=4)
+
+        self.lbl_style.grid(        row=0,  column=0, padx=(6, 1), pady=(4, 1), sticky='E')
+        self.lbl_show_updates.grid( row=1,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_support_ru.grid(   row=2,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_processing_ru.grid(row=3,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_naming_mode.grid(  row=4,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_count_from.grid(   row=5,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_format.grid(       row=6,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_marker_enc.grid(   row=7,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_marker_dec.grid(   row=8,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_src_dir_enc.grid(  row=9,  column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_dst_dir_enc.grid(  row=10, column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_src_dir_dec.grid(  row=11, column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_dst_dir_dec.grid(  row=12, column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_example_key.grid(  row=13, column=0, padx=(6, 1), pady=1,      sticky='E')
+        self.lbl_print_info.grid(   row=14, column=0, padx=(6, 1), pady=(1, 4), sticky='E')
+
+        self.combo_style.grid(        row=0,  column=1, padx=(0, 6), pady=(4, 1), sticky='W')
+        self.check_show_updates.grid( row=1,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.check_support_ru.grid(   row=2,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.combo_processing_ru.grid(row=3,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.combo_naming_mode.grid(  row=4,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_count_from.grid(   row=5,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_format.grid(       row=6,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_marker_enc.grid(   row=7,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_marker_dec.grid(   row=8,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_src_dir_enc.grid(  row=9,  column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_dst_dir_enc.grid(  row=10, column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_src_dir_dec.grid(  row=11, column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_dst_dir_dec.grid(  row=12, column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.entry_example_key.grid(  row=13, column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.combo_print_info.grid(   row=14, column=1, padx=(0, 6), pady=(1, 4), sticky='W')
+
+        self.entry_count_from.grid( row=0, column=0, padx=(0, 1))
+        self.entry_format.grid(     row=0, column=0, padx=(0, 1))
+        self.entry_marker_enc.grid( row=0, column=0, padx=(0, 1))
+        self.entry_marker_dec.grid( row=0, column=0, padx=(0, 1))
+        self.entry_src_dir_enc.grid(row=0, column=0, padx=(0, 1))
+        self.entry_dst_dir_enc.grid(row=0, column=0, padx=(0, 1))
+        self.entry_src_dir_dec.grid(row=0, column=0, padx=(0, 1))
+        self.entry_dst_dir_dec.grid(row=0, column=0, padx=(0, 1))
+
+        self.lbl_note_count_from.grid(row=0, column=1)
+        self.lbl_note_format.grid(    row=0, column=1)
+        self.lbl_note_marker_enc.grid(row=0, column=1)
+        self.lbl_note_marker_dec.grid(row=0, column=1)
+
+        self.btn_src_enc.grid(row=0, column=1)
+        self.btn_dst_enc.grid(row=0, column=1)
+        self.btn_src_dec.grid(row=0, column=1)
+        self.btn_dst_dec.grid(row=0, column=1)
+
         self.btn_def.grid(          row=1, column=0, padx=4,      pady=(0, 4))
         self.btn_save_custom.grid(  row=1, column=1, padx=(0, 4), pady=(0, 4))
         self.btn_load_custom.grid(  row=1, column=2, padx=(0, 4), pady=(0, 4))
         self.btn_remove_custom.grid(row=1, column=3, padx=(0, 4), pady=(0, 4))
 
-        # Кнопки окна
-        self.btn_save  = tk.Button(self, text='Accept', command=self.save,  bg=ST_BTNY[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTNY_SELECT[th])
-        self.btn_close = tk.Button(self, text='Close',  command=self.close, bg=ST_BTNN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTNN_SELECT[th])
         self.btn_save.grid( row=2, column=0, pady=(0, 4))
         self.btn_close.grid(row=2, column=1, pady=(0, 4))
 
@@ -2445,5 +2453,4 @@ gui.mainloop()
 # цвета в журнале
 
 # показывать общее время выполнения
-# save and close/dont save and close/cancel
 # файлы со стилями
