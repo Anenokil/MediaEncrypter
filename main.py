@@ -29,8 +29,8 @@ import wget  # Для загрузки обновления
 import zipfile  # Для распаковки обновления
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v7.0.0_PRE-26'
-PROGRAM_DATE = '19.1.2023  23:41 (UTC+3)'
+PROGRAM_VERSION = 'v7.0.0_PRE-27'
+PROGRAM_DATE = '19.1.2023  23:50 (UTC+3)'
 
 """ Пути и файлы """
 
@@ -2029,6 +2029,23 @@ class SettingsW(tk.Toplevel):
         self.parent.btn_close.configure(   bg=ST_BTNN[th], fg=ST_FG_TEXT[th], activebackground=ST_BTNN_SELECT[th], highlightbackground=ST_BORDER[th])
         self.parent.lbl_footer.configure(  bg=ST_BG[th],   fg=ST_FG_FOOTER[th])
 
+        try:
+            _0_global_window_last_version.configure(bg=ST_BG[th])
+            _0_global_window_last_version.lbl_msg.configure(bg=ST_BG[th], fg=ST_FG_TEXT[th])
+            _0_global_window_last_version.entry_url.configure(bg=ST_BG_FIELDS[th], fg=ST_FG_TEXT[th],
+                                                              highlightbackground=ST_BORDER[th],
+                                                              highlightcolor=ST_HIGHLIGHT[th],
+                                                              selectbackground=ST_SELECT[th],
+                                                              readonlybackground=ST_BG_FIELDS[th])
+            _0_global_window_last_version.btn_update.configure(bg=ST_BTN[th], fg=ST_FG_TEXT[th],
+                                                               activebackground=ST_BTN_SELECT[th],
+                                                               highlightbackground=ST_BORDER[th])
+            _0_global_window_last_version.btn_close.configure(bg=ST_BTN[th], fg=ST_FG_TEXT[th],
+                                                              activebackground=ST_BTN_SELECT[th],
+                                                              highlightbackground=ST_BORDER[th])
+        except:  # Если окно обновления не открыто
+            return
+
         save_settings_to_file()
 
     # Закрыть окно без сохранения
@@ -2399,5 +2416,6 @@ gui.mainloop()
 # цвета в журнале
 
 # показывать общее время выполнения
+
 # настройки: показывать обновления
 # save and close/dont save and close/cancel
