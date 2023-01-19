@@ -29,8 +29,8 @@ import wget  # Для загрузки обновления
 import zipfile  # Для распаковки обновления
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v7.0.0_PRE-28'
-PROGRAM_DATE = '20.1.2023   0:15 (UTC+3)'
+PROGRAM_VERSION = 'v7.0.0_PRE-29'
+PROGRAM_DATE = '20.1.2023   0:32 (UTC+3)'
 
 """ Пути и файлы """
 
@@ -188,6 +188,19 @@ KEY_SYMBOLS = '0123456789-abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 KEY_LEN = 40  # Длина ключа
 
 """ Общие функции """
+
+
+# Перевод 'yes'/'no' в bool
+def str_to_bool(line):
+    return line == 'yes'
+
+
+# Перевод bool в 'yes'/'no'
+def bool_to_str(boolean):
+    if boolean:
+        return 'yes'
+    else:
+        return 'no'
 
 
 # Печать с отступом
@@ -1571,8 +1584,8 @@ class SettingsW(tk.Toplevel):
 
         # Переменные, к которым привязаны настройки
         self.inp_style         = tk.StringVar(value=settings['theme'])
-        self.inp_show_updates  = tk.BooleanVar(value=(settings['show_updates'] == 'yes'))
-        self.inp_support_ru    = tk.BooleanVar(value=(settings['support_ru'] == 'yes'))
+        self.inp_show_updates  = tk.BooleanVar(value=str_to_bool(settings['show_updates']))
+        self.inp_support_ru    = tk.BooleanVar(value=str_to_bool(settings['support_ru']))
         self.inp_processing_ru = tk.StringVar(value=settings['processing_ru'])
         self.inp_naming_mode   = tk.StringVar(value=settings['naming_mode'])
         self.inp_count_from    = tk.StringVar(value=str(settings['count_from']))
@@ -1769,8 +1782,8 @@ class SettingsW(tk.Toplevel):
     def has_changes(self):
         return str(settings['count_from']) != self.inp_count_from.get() or\
             str(settings['format']) != self.inp_format.get() or \
-            (settings['show_updates'] == 'yes') != self.inp_show_updates.get() or\
-            (settings['support_ru'] == 'yes') != self.inp_support_ru.get() or\
+            str_to_bool(settings['show_updates']) != self.inp_show_updates.get() or\
+            str_to_bool(settings['support_ru']) != self.inp_support_ru.get() or\
             settings['processing_ru'] != self.inp_processing_ru.get() or\
             settings['naming_mode'] != self.inp_naming_mode.get() or\
             settings['print_info'] != self.inp_print_info.get() or\
@@ -1807,8 +1820,8 @@ class SettingsW(tk.Toplevel):
     def set_default_settings(self):
         self.inp_count_from.set(str(DEFAULT_SETTINGS['count_from']))
         self.inp_format.set(str(DEFAULT_SETTINGS['format']))
-        self.inp_show_updates.set(DEFAULT_SETTINGS['show_updates'] == 'yes')
-        self.inp_support_ru.set(DEFAULT_SETTINGS['support_ru'] == 'yes')
+        self.inp_show_updates.set(str_to_bool(DEFAULT_SETTINGS['show_updates']))
+        self.inp_support_ru.set(str_to_bool(DEFAULT_SETTINGS['support_ru']))
         self.inp_processing_ru.set(DEFAULT_SETTINGS['processing_ru'])
         self.inp_naming_mode.set(DEFAULT_SETTINGS['naming_mode'])
         self.inp_print_info.set(DEFAULT_SETTINGS['print_info'])
@@ -1872,10 +1885,15 @@ class SettingsW(tk.Toplevel):
                 tmp = DEFAULT_SETTINGS['format']
             self.inp_format.set(tmp)
 
+            tmp = file.readline().strip()
+            if tmp not in SHOW_UPDATES_MODES:
+                tmp = DEFAULT_SETTINGS['show_updates']
+            self.inp_show_updates.set(str_to_bool(tmp))
+
             tmp_ = file.readline().strip()
             if tmp_ not in SUPPORT_RU_MODES:
                 tmp_ = DEFAULT_SETTINGS['support_ru']
-            self.inp_support_ru.set(tmp_ == 'yes')
+            self.inp_support_ru.set(str_to_bool(tmp_))
 
             tmp = file.readline().strip()
             if tmp_ == DEFAULT_SETTINGS['support_ru']:
@@ -1953,16 +1971,10 @@ class SettingsW(tk.Toplevel):
         if has_errors:
             return
 
-        settings['count_from'] = int(self.inp_count_from.get())
-        settings['format']     = int(self.inp_format.get())
-        if self.inp_show_updates.get():
-            settings['show_updates'] = 'yes'
-        else:
-            settings['show_updates'] = 'no'
-        if self.inp_support_ru.get():
-            settings['support_ru'] = 'yes'
-        else:
-            settings['support_ru'] = 'no'
+        settings['count_from']    = int(self.inp_count_from.get())
+        settings['format']        = int(self.inp_format.get())
+        settings['show_updates']  = bool_to_str(self.inp_show_updates.get())
+        settings['support_ru']    = bool_to_str(self.inp_support_ru.get())
         settings['processing_ru'] = self.inp_processing_ru.get()
         settings['naming_mode']   = self.inp_naming_mode.get()
         settings['print_info']    = self.inp_print_info.get()
@@ -2047,19 +2059,19 @@ class SettingsW(tk.Toplevel):
         self.parent.lbl_footer.configure(  bg=ST_BG[th],   fg=ST_FG_FOOTER[th])
 
         try:
-            _0_global_window_last_version.configure(bg=ST_BG[th])
-            _0_global_window_last_version.lbl_msg.configure(bg=ST_BG[th], fg=ST_FG_TEXT[th])
-            _0_global_window_last_version.entry_url.configure(bg=ST_BG_FIELDS[th], fg=ST_FG_TEXT[th],
-                                                              highlightbackground=ST_BORDER[th],
-                                                              highlightcolor=ST_HIGHLIGHT[th],
-                                                              selectbackground=ST_SELECT[th],
-                                                              readonlybackground=ST_BG_FIELDS[th])
-            _0_global_window_last_version.btn_update.configure(bg=ST_BTN[th], fg=ST_FG_TEXT[th],
-                                                               activebackground=ST_BTN_SELECT[th],
-                                                               highlightbackground=ST_BORDER[th])
-            _0_global_window_last_version.btn_close.configure(bg=ST_BTN[th], fg=ST_FG_TEXT[th],
-                                                              activebackground=ST_BTN_SELECT[th],
-                                                              highlightbackground=ST_BORDER[th])
+            window_last_version.configure(bg=ST_BG[th])
+            window_last_version.lbl_msg.configure(bg=ST_BG[th], fg=ST_FG_TEXT[th])
+            window_last_version.entry_url.configure(bg=ST_BG_FIELDS[th], fg=ST_FG_TEXT[th],
+                                                    highlightbackground=ST_BORDER[th],
+                                                    highlightcolor=ST_HIGHLIGHT[th],
+                                                    selectbackground=ST_SELECT[th],
+                                                    readonlybackground=ST_BG_FIELDS[th])
+            window_last_version.btn_update.configure(bg=ST_BTN[th], fg=ST_FG_TEXT[th],
+                                                     activebackground=ST_BTN_SELECT[th],
+                                                     highlightbackground=ST_BORDER[th])
+            window_last_version.btn_close.configure(bg=ST_BTN[th], fg=ST_FG_TEXT[th],
+                                                    activebackground=ST_BTN_SELECT[th],
+                                                    highlightbackground=ST_BORDER[th])
         except:  # Если окно обновления не открыто
             return
 
@@ -2413,7 +2425,7 @@ except FileNotFoundError:  # Если файл с настройками отс�
 th = settings['theme']
 
 gui = MainW()
-_0_global_window_last_version = check_updates(gui, settings['show_updates'] == 'yes')  # Проверяем наличие обновлений
+window_last_version = check_updates(gui, str_to_bool(settings['show_updates']))  # Проверка наличия обновлений
 gui.mainloop()
 
 # v1.0.0
@@ -2433,3 +2445,5 @@ gui.mainloop()
 
 # показывать общее время выполнения
 # save and close/dont save and close/cancel
+# файлы со стилями
+# значения по умолчанию в комбобоксах
