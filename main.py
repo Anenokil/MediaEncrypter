@@ -24,13 +24,14 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     import ctypes
     kernel32 = ctypes.windll.kernel32
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+import re  # Несколько разделителей в split
 import urllib.request as urllib2  # Для проверки наличия обновлений
 import wget  # Для загрузки обновления
 import zipfile  # Для распаковки обновления
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v7.0.0_PRE-30'
-PROGRAM_DATE = '20.1.2023   0:44 (UTC+3)'
+PROGRAM_VERSION = 'v7.0.0_PRE-32'
+PROGRAM_DATE = '20.1.2023   2:48 (UTC+3)'
 
 """ Пути и файлы """
 
@@ -52,6 +53,9 @@ SETTINGS_PATH = os.path.join(RESOURCES_DIR, SETTINGS_FILENAME)
 TMP_FILENAME = 'tmp.png'  # Временный файл для обработки gif-изображений и видео
 TMP_PATH = os.path.join(RESOURCES_DIR, TMP_FILENAME)
 IMAGES_DIR = 'img'  # Папка с изображениями
+# IMAGES_PATH = os.path.join(RESOURCES_DIR, IMAGES_DIR)
+CUSTOM_THEMES_DIR = 'themes'  # Папка с пользовательскими темами
+CUSTOM_THEMES_PATH = os.path.join(RESOURCES_DIR, CUSTOM_THEMES_DIR)
 
 # Если нет папки с ресурсами
 if RESOURCES_DIR not in os.listdir(os.curdir):
@@ -65,6 +69,8 @@ if TMP_FILENAME in os.listdir(RESOURCES_DIR):
 # Если нет папки с сохранёнными пользовательскими настройками
 if CUSTOM_SETTINGS_DIR not in os.listdir(RESOURCES_DIR):
     os.mkdir(CUSTOM_SETTINGS_PATH)
+if CUSTOM_THEMES_DIR not in os.listdir(RESOURCES_DIR):
+    os.mkdir(CUSTOM_THEMES_PATH)
 
 # Допустимые в названии файлов символы (Windows)
 FN_SYMBOLS_WITHOUT_RU = '#\' 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@$%^&()[]{}-=_+`~;,.'
@@ -90,7 +96,7 @@ SUPPORT_RU_MODES = ['yes', 'no']  # Варианты поддержки кири
 PROCESSING_RU_MODES = ['don`t change', 'transliterate to latin']  # Варианты обработки кириллических букв
 NAMING_MODES = ['don`t change', 'encryption', 'numbering', 'add prefix', 'add postfix']  # Варианты именования выходных файлов
 PRINT_INFO_MODES = ['don`t print', 'print']  # Варианты печати информации
-STYLE_MODES = ['light', 'dark', 'infernal']  # Варианты стиля
+THEME_MODES = ['light', 'dark']  # Варианты тем
 
 # Значения настроек по умолчанию
 DEFAULT_SETTINGS = {'count_from': 1,
@@ -111,8 +117,8 @@ DEFAULT_SETTINGS = {'count_from': 1,
 
 """ Стандартные темы """
 
-LAST_THEME_VERSION = 1
-THEMES = ['light', 'dark', 'infernal']  # Названия тем
+REQUIRED_THEME_VERSION = 1
+THEMES = THEME_MODES  # Названия тем
 
 # Все: bg
 # Все, кроме frame: fg
@@ -121,35 +127,35 @@ THEMES = ['light', 'dark', 'infernal']  # Названия тем
 # Кнопки: activebackground
 # Entry: selectbackground, highlightcolor
 
-ST_BG          = {THEMES[0]: '#EEEEEE', THEMES[1]: '#222222', THEMES[2]: '#DD1515'}  # bg или background
-ST_BG_RGB      = {THEMES[0]: '#EEEEEE', THEMES[1]: '#222222', THEMES[2]: '#993333'}  # bg
-ST_BG_FIELDS   = {THEMES[0]: '#FFFFFF', THEMES[1]: '#171717', THEMES[2]: '#FFAAAA'}  # bg
-ST_BG_ERR      = {THEMES[0]: '#EE6666', THEMES[1]: '#773333', THEMES[2]: '#FF0000'}  # bg
+ST_BG          = {THEMES[0]: '#EEEEEE', THEMES[1]: '#222222'}  # bg или background
+ST_BG_RGB      = {THEMES[0]: '#EEEEEE', THEMES[1]: '#222222'}  # bg
+ST_BG_FIELDS   = {THEMES[0]: '#FFFFFF', THEMES[1]: '#171717'}  # bg
+ST_BG_ERR      = {THEMES[0]: '#EE6666', THEMES[1]: '#773333'}  # bg
 
-ST_BORDER      = {THEMES[0]: '#222222', THEMES[1]: '#111111', THEMES[2]: '#330000'}  # highlightbackground
-ST_RELIEF      = {THEMES[0]: 'groove',  THEMES[1]: 'solid',   THEMES[2]: 'groove' }  # relief
+ST_BORDER      = {THEMES[0]: '#222222', THEMES[1]: '#111111'}  # highlightbackground
+ST_RELIEF      = {THEMES[0]: 'groove',  THEMES[1]: 'solid'  }  # relief
 
-ST_SELECT      = {THEMES[0]: '#BBBBBB', THEMES[1]: '#444444', THEMES[2]: '#FF5500'}  # selectbackground
-ST_HIGHLIGHT   = {THEMES[0]: '#00DD00', THEMES[1]: '#007700', THEMES[2]: '#EEEEEE'}  # highlightcolor
+ST_SELECT      = {THEMES[0]: '#BBBBBB', THEMES[1]: '#444444'}  # selectbackground
+ST_HIGHLIGHT   = {THEMES[0]: '#00DD00', THEMES[1]: '#007700'}  # highlightcolor
 
-ST_BTN         = {THEMES[0]: '#D0D0D0', THEMES[1]: '#202020', THEMES[2]: '#DD2020'}  # bg
-ST_BTN_SELECT  = {THEMES[0]: '#BABABA', THEMES[1]: '#272727', THEMES[2]: '#DD5020'}  # activebackground
-ST_MCM         = {THEMES[0]: '#B0B0B0', THEMES[1]: '#0E0E0E', THEMES[2]: '#CC3333'}  # bg
-ST_MCM_SELECT  = {THEMES[0]: '#9A9A9A', THEMES[1]: '#151515', THEMES[2]: '#CC6333'}  # activebackground
-ST_BTNY        = {THEMES[0]: '#88DD88', THEMES[1]: '#446F44', THEMES[2]: '#CC6633'}  # bg
-ST_BTNY_SELECT = {THEMES[0]: '#77CC77', THEMES[1]: '#558055', THEMES[2]: '#CC9633'}  # activebackground
-ST_BTNN        = {THEMES[0]: '#FF6666', THEMES[1]: '#803333', THEMES[2]: '#CD0000'}  # bg
-ST_BTNN_SELECT = {THEMES[0]: '#EE5555', THEMES[1]: '#904444', THEMES[2]: '#CD3000'}  # activebackground
+ST_BTN         = {THEMES[0]: '#D0D0D0', THEMES[1]: '#202020'}  # bg
+ST_BTN_SELECT  = {THEMES[0]: '#BABABA', THEMES[1]: '#272727'}  # activebackground
+ST_MCM         = {THEMES[0]: '#B0B0B0', THEMES[1]: '#0E0E0E'}  # bg
+ST_MCM_SELECT  = {THEMES[0]: '#9A9A9A', THEMES[1]: '#151515'}  # activebackground
+ST_BTNY        = {THEMES[0]: '#88DD88', THEMES[1]: '#446F44'}  # bg
+ST_BTNY_SELECT = {THEMES[0]: '#77CC77', THEMES[1]: '#558055'}  # activebackground
+ST_BTNN        = {THEMES[0]: '#FF6666', THEMES[1]: '#803333'}  # bg
+ST_BTNN_SELECT = {THEMES[0]: '#EE5555', THEMES[1]: '#904444'}  # activebackground
 
-ST_FG_TEXT     = {THEMES[0]: '#222222', THEMES[1]: '#979797', THEMES[2]: '#000000'}  # fg или foreground
-ST_FG_LOGO     = {THEMES[0]: '#FF7200', THEMES[1]: '#803600', THEMES[2]: '#FF7200'}  # fg
-ST_FG_FOOTER   = {THEMES[0]: '#666666', THEMES[1]: '#666666', THEMES[2]: '#222222'}  # fg
-ST_FG_EXAMPLE  = {THEMES[0]: '#448899', THEMES[1]: '#448899', THEMES[2]: '#010101'}  # fg
-ST_FG_KEY      = {THEMES[0]: '#EE0000', THEMES[1]: '#BC4040', THEMES[2]: '#FF0000'}  # fg
+ST_FG_TEXT     = {THEMES[0]: '#222222', THEMES[1]: '#979797'}  # fg или foreground
+ST_FG_LOGO     = {THEMES[0]: '#FF7200', THEMES[1]: '#803600'}  # fg
+ST_FG_FOOTER   = {THEMES[0]: '#666666', THEMES[1]: '#666666'}  # fg
+ST_FG_EXAMPLE  = {THEMES[0]: '#448899', THEMES[1]: '#448899'}  # fg
+ST_FG_KEY      = {THEMES[0]: '#EE0000', THEMES[1]: '#BC4040'}  # fg
 
-ST_PROG        = {THEMES[0]: '#06B025', THEMES[1]: '#06B025', THEMES[2]: '#771111'}  # bg
-ST_PROG_ABORT  = {THEMES[0]: '#FFB050', THEMES[1]: '#FFB040', THEMES[2]: '#222222'}  # bg
-ST_PROG_DONE   = {THEMES[0]: '#0077FF', THEMES[1]: '#1133DD', THEMES[2]: '#AA1166'}  # bg
+ST_PROG        = {THEMES[0]: '#06B025', THEMES[1]: '#06B025'}  # bg
+ST_PROG_ABORT  = {THEMES[0]: '#FFB050', THEMES[1]: '#FFB040'}  # bg
+ST_PROG_DONE   = {THEMES[0]: '#0077FF', THEMES[1]: '#1133DD'}  # bg
 
 # Названия стилизуемых элементов
 STYLE_ELEMENTS = ['BG', 'BG_RGB', 'BG_FIELDS', 'BG_ERR', 'BORDER', 'RELIEF', 'SELECT', 'HIGHLIGHT',
@@ -270,17 +276,17 @@ def correct_settings():
         settings['count_from'] = DEFAULT_SETTINGS['count_from']
     if not settings['format'].isnumeric():
         settings['format'] = DEFAULT_SETTINGS['format']
-    if settings['support_ru'] not in SUPPORT_RU_MODES:
-        settings['support_ru'] = DEFAULT_SETTINGS['support_ru']
     if settings['show_updates'] not in SHOW_UPDATES_MODES:
         settings['show_updates'] = DEFAULT_SETTINGS['show_updates']
+    if settings['support_ru'] not in SUPPORT_RU_MODES:
+        settings['support_ru'] = DEFAULT_SETTINGS['support_ru']
     if settings['processing_ru'] not in PROCESSING_RU_MODES:
         settings['processing_ru'] = DEFAULT_SETTINGS['processing_ru']
     if settings['print_info'] not in PRINT_INFO_MODES:
         settings['print_info'] = DEFAULT_SETTINGS['print_info']
     if settings['naming_mode'] not in NAMING_MODES:
         settings['naming_mode'] = DEFAULT_SETTINGS['naming_mode']
-    if settings['theme'] not in STYLE_MODES:
+    if settings['theme'] not in THEME_MODES:
         settings['theme'] = DEFAULT_SETTINGS['theme']
     if check_key(settings['example_key'])[0] != '+':
         settings['example_key'] = DEFAULT_SETTINGS['example_key']
@@ -388,6 +394,33 @@ def check_updates(window_parent, show_updates):
     except:
         print('Ошибка, возможно отсутствует соединение')
     return window_last_version
+
+
+# Загрузка пользовательских тем
+def upload_themes(themes):
+    if os.listdir(CUSTOM_THEMES_PATH):
+        print('\nЗагрузка тем...')
+    for file_name in os.listdir(CUSTOM_THEMES_PATH):
+        base_name, ext = os.path.splitext(file_name)
+        theme = base_name
+        file_path = os.path.join(CUSTOM_THEMES_PATH, file_name)
+        try:
+            with open(file_path, 'r', encoding='utf-8') as theme_file:
+                line = theme_file.readline().strip()
+                theme_version = int(re.split(' |//', line)[0])  # После // идут комментарии
+                if theme_version != REQUIRED_THEME_VERSION:  # Проверка версии темы
+                    print(f'Не удалось загрузить тему "{theme}", т. к. она устарела!')
+                    continue
+                themes += [theme]  # Добавляем название новой темы
+                for style_elem in STYLE_ELEMENTS:  # Проходимся по стилизуемым элементам
+                    line = theme_file.readline().strip()
+                    style = re.split(' |//', line)[0]  # После // идут комментарии
+                    element = STYLES[style_elem]
+                    element[theme] = style  # Добавляем новый стиль для элемента, соответствующий теме theme
+        except:
+            print(f'Не удалось загрузить тему "{theme}" из-за ошибки!')
+        else:
+            print(f'Тема "{theme}" успешно загружена')
 
 
 """ Алгоритм шифровки/дешифровки """
@@ -1651,7 +1684,7 @@ class SettingsW(tk.Toplevel):
         self.lbl_print_info    = tk.Label(self.frame_fields, text='Whether to print info',                        bg=ST_BG[th], fg=ST_FG_TEXT[th])
 
         # Сами настройки
-        self.combo_style         = ttk.Combobox(   self.frame_fields, textvariable=self.inp_style,         values=STYLE_MODES,               state='readonly', style='.TCombobox')
+        self.combo_style         = ttk.Combobox(   self.frame_fields, textvariable=self.inp_style,         values=THEME_MODES,              state='readonly', style='.TCombobox')
         self.check_show_updates  = ttk.Checkbutton(self.frame_fields,     variable=self.inp_show_updates,                                                      style='.TCheckbutton')
         self.check_support_ru    = ttk.Checkbutton(self.frame_fields,     variable=self.inp_support_ru,    command=self.processing_ru_state,                   style='.TCheckbutton')
         self.combo_processing_ru = ttk.Combobox(   self.frame_fields, textvariable=self.inp_processing_ru, values=PROCESSING_RU_MODES,       state='readonly', style='.TCombobox')
@@ -1923,7 +1956,7 @@ class SettingsW(tk.Toplevel):
             self.inp_print_info.set(tmp)
 
             tmp = file.readline().strip()
-            if tmp not in STYLE_MODES:
+            if tmp not in THEME_MODES:
                 tmp = DEFAULT_SETTINGS['theme']
             self.inp_style.set(tmp)
 
@@ -2426,6 +2459,8 @@ print( '                            ' + (30 - len(PROGRAM_NAME) - len(PROGRAM_VE
 print( '                            ' + (30 - len(PROGRAM_DATE)) // 2 * ' ' + PROGRAM_DATE + '\n')
 print( '======================================================================================')
 
+upload_themes(THEMES)  # Загружаем темы
+
 try:
     load_settings(SETTINGS_PATH)
 except FileNotFoundError:  # Если файл с настройками отсутствует, то устанавливаются настройки по умолчанию
@@ -2453,4 +2488,4 @@ gui.mainloop()
 # цвета в журнале
 
 # показывать общее время выполнения
-# файлы со стилями
+# если путь с папкой для кодировки не найден, то except
