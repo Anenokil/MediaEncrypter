@@ -29,8 +29,8 @@ import wget  # Для загрузки обновления
 import zipfile  # Для распаковки обновления
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v7.0.0_PRE-25'
-PROGRAM_DATE = '19.1.2023  23:37 (UTC+3)'
+PROGRAM_VERSION = 'v7.0.0_PRE-26'
+PROGRAM_DATE = '19.1.2023  23:41 (UTC+3)'
 
 """ Пути и файлы """
 
@@ -1394,6 +1394,164 @@ class EnterKeyW(tk.Toplevel):
         return self.has_key, self.key.get(), self.cmd
 
 
+# Окно журнала
+class LoggerW(tk.Toplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title('Media encrypter - Progress')
+        self.resizable(width=False, height=False)
+        self.configure(bg=ST_BG[th])
+
+        self.str_progress_f_d = tk.StringVar(value='Calculation...')
+        self.str_progress_fr = tk.StringVar(value='Calculation...')
+
+        self.st_progress = ttk.Style()
+        self.st_progress.theme_use('winnative')
+        self.st_progress.configure('normal.Horizontal.TProgressbar', troughcolor=ST_BG_FIELDS[th], background=ST_PROG[th])
+        self.st_progress_aborted = ttk.Style()
+        self.st_progress_aborted.theme_use('winnative')
+        self.st_progress_aborted.configure('abort.Horizontal.TProgressbar', troughcolor=ST_BG_FIELDS[th], background=ST_PROG_ABORT[th])
+        self.st_progress_done = ttk.Style()
+        self.st_progress_done.theme_use('winnative')
+        self.st_progress_done.configure('done.Horizontal.TProgressbar', troughcolor=ST_BG_FIELDS[th], background=ST_PROG_DONE[th])
+
+        self.frame_progress = tk.LabelFrame(self, bg=ST_BG[th], highlightbackground=ST_BORDER[th], relief=ST_RELIEF[th])
+        self.frame_progress.grid(row=0, columnspan=2, padx=6, pady=(6, 4))
+
+        tk.Label(self.frame_progress, text='Progress (files and dirs):', bg=ST_BG[th], fg=ST_FG_TEXT[th]).grid(row=0, column=0, padx=(6, 0), pady=4, sticky='E')
+        tk.Label(self.frame_progress, text='Progress (with frames):',    bg=ST_BG[th], fg=ST_FG_TEXT[th]).grid(row=1, column=0, padx=(6, 0), pady=4, sticky='E')
+        self.progressbar_f_d = ttk.Progressbar(self.frame_progress, value=0, length=450, style='normal.Horizontal.TProgressbar', orient='horizontal')
+        self.progressbar_fr  = ttk.Progressbar(self.frame_progress, value=0, length=450, style='normal.Horizontal.TProgressbar', orient='horizontal')
+        self.lbl_progress_f_d = tk.Label(self.frame_progress, textvariable=self.str_progress_f_d, bg=ST_BG[th], fg=ST_FG_TEXT[th])
+        self.lbl_progress_fr  = tk.Label(self.frame_progress, textvariable=self.str_progress_fr,  bg=ST_BG[th], fg=ST_FG_TEXT[th])
+
+        self.progressbar_f_d.grid( row=0, column=1, padx=4,      pady=4)
+        self.progressbar_fr.grid(  row=1, column=1, padx=4,      pady=4)
+        self.lbl_progress_f_d.grid(row=0, column=2, padx=(0, 6), pady=4)
+        self.lbl_progress_fr.grid( row=1, column=2, padx=(0, 6), pady=4)
+
+        self.scrollbar = tk.Scrollbar(self, bg=ST_BG[th])
+        self.log = tk.Text(self, width=70, height=30, state='disabled', yscrollcommand=self.scrollbar.set, bg=ST_BG_FIELDS[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], relief=ST_RELIEF[th])
+        self.btn_abort = tk.Button(self, text='Abort', command=self.abort_process, bg=ST_BTNN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTNN_SELECT[th])
+
+        self.log.grid(        row=1, column=0, sticky='NSEW', padx=(6, 0), pady=0)
+        self.scrollbar.grid(  row=1, column=1, sticky='NSW',  padx=(0, 6), pady=0)
+        self.btn_abort.grid(  row=2, columnspan=2, padx=6, pady=(4, 6))
+
+        self.scrollbar.config(command=self.log.yview)
+
+    # Прервать обработку
+    def abort_process(self):
+        global process_status
+        process_status = 'abort'
+        self.btn_abort['state'] = 'disabled'
+        self.progressbar_f_d['style'] = 'abort.Horizontal.TProgressbar'
+        self.progressbar_fr['style'] = 'abort.Horizontal.TProgressbar'
+
+    # Завершение обработки
+    def done(self):
+        global process_status
+        process_status = 'done'
+        self.btn_abort['state'] = 'disabled'
+        self.progressbar_f_d['style'] = 'done.Horizontal.TProgressbar'
+        self.progressbar_fr['style'] = 'done.Horizontal.TProgressbar'
+
+    # Добавить запись в журнал
+    def add_log(self, msg='', tab=0, end='\n'):
+        self.log['state'] = 'normal'
+        if self.log.yview()[1] == 1.0:
+            self.log.insert(tk.END, '~ ' * tab + str(msg) + end)
+            self.log.yview_moveto(1.0)
+        else:
+            self.log.insert(tk.END, '~ ' * tab + str(msg) + end)
+        self.log['state'] = 'disabled'
+
+    # Установить прогресс (файлы и папки)
+    def set_progress_f_d(self, num, den):
+        self.progressbar_f_d['value'] = 100 * num / den
+        self.str_progress_f_d.set(f'{num}/{den}')
+
+    # Установить прогресс (кадры)
+    def set_progress_fr(self, num, den):
+        self.progressbar_fr['value'] = 100 * num / den
+        self.str_progress_fr.set(f'{num}/{den}')
+
+    def open(self):
+        self.grab_set()
+        self.wait_window()
+
+
+# Окно уведомления о выходе новой версии
+class LastVersionW(tk.Toplevel):
+    def __init__(self, parent, last_version):
+        super().__init__(parent)
+        self.title('New version available')
+        self.configure(bg=ST_BG[th])
+
+        self.var_url = tk.StringVar(value=URL_GITHUB)  # Ссылка, для загрузки новой версии
+
+        self.lbl_msg = tk.Label(self, text=f'Доступна новая версия программы\n'
+                                           f'{last_version}',
+                                bg=ST_BG[th], fg=ST_FG_TEXT[th])
+        self.entry_url = tk.Entry(self, textvariable=self.var_url, state='readonly', width=45, justify='center',
+                                  relief='solid', bg=ST_BG_FIELDS[th], fg=ST_FG_TEXT[th],
+                                  highlightbackground=ST_BORDER[th], highlightcolor=ST_HIGHLIGHT[th],
+                                  selectbackground=ST_SELECT[th], readonlybackground=ST_BG_FIELDS[th])
+        self.btn_update = tk.Button(self, text='Обновить', command=self.download_and_install, overrelief='groove',
+                                    bg=ST_BTN[th], fg=ST_FG_TEXT[th],
+                                    activebackground=ST_BTN_SELECT[th], highlightbackground=ST_BORDER[th])
+        self.btn_close = tk.Button(self, text='Закрыть', command=self.destroy, overrelief='groove',
+                                   bg=ST_BTN[th], fg=ST_FG_TEXT[th],
+                                   activebackground=ST_BTN_SELECT[th], highlightbackground=ST_BORDER[th])
+
+        self.lbl_msg.grid(   row=1, columnspan=2, padx=6, pady=(4, 0))
+        self.entry_url.grid( row=2, columnspan=2, padx=6, pady=(0, 4))
+        self.btn_update.grid(row=3, column=0,     padx=6, pady=4)
+        self.btn_close.grid( row=3, column=1,     padx=6, pady=4)
+
+    # Скачать и установить обновление
+    def download_and_install(self):
+        try:  # Загрузка
+            print('download zip')
+            wget.download(URL_DOWNLOAD_ZIP, out=os.path.dirname(__file__))  # Скачиваем архив с обновлением
+        except:
+            PopupMsgW(self, 'Не удалось загрузить обновление!', title='Warning').open()
+            self.destroy()
+        try:  # Установка
+            # Распаковываем архив во временную папку
+            print('\nextracting')
+            with zipfile.ZipFile(NEW_VERSION_ZIP, 'r') as zip_file:
+                zip_file.extractall(os.path.dirname(__file__))
+            # Удаляем архив
+            print('delete zip')
+            os.remove(NEW_VERSION_ZIP)
+            # Удаляем файлы текущей версии
+            print('delete old files')
+            os.remove('ver')
+            os.remove('README.txt')
+            os.remove('README.md')
+            os.remove('main.py')
+            # Из временной папки достаём файлы новой версии
+            print('set new files')
+            os.replace(os.path.join(NEW_VERSION_DIR, 'ver'), 'ver')
+            os.replace(os.path.join(NEW_VERSION_DIR, 'README.txt'), 'README.txt')
+            os.replace(os.path.join(NEW_VERSION_DIR, 'README.md'), 'README.md')
+            os.replace(os.path.join(NEW_VERSION_DIR, 'main.py'), 'main.py')
+            # Удаляем временную папку
+            print('delete tmp dir')
+            os.rmdir(NEW_VERSION_DIR)
+            PopupMsgW(self, 'Обновление успешно установлено\nПрограмма закроется').open()
+        except:
+            PopupMsgW(self, 'Не удалось установить обновление!', title='Warning').open()
+            self.destroy()
+        else:
+            exit(777)
+
+    def open(self):
+        self.grab_set()
+        self.wait_window()
+
+
 # Окно настроек
 class SettingsW(tk.Toplevel):
     def __init__(self, parent):
@@ -2091,164 +2249,6 @@ class ManualW(tk.Toplevel):
             return self.mode, 1
         else:
             return self.mode, 2
-
-
-# Окно уведомления о выходе новой версии
-class LastVersionW(tk.Toplevel):
-    def __init__(self, parent, last_version):
-        super().__init__(parent)
-        self.title('New version available')
-        self.configure(bg=ST_BG[th])
-
-        self.var_url = tk.StringVar(value=URL_GITHUB)  # Ссылка, для загрузки новой версии
-
-        self.lbl_msg = tk.Label(self, text=f'Доступна новая версия программы\n'
-                                           f'{last_version}',
-                                bg=ST_BG[th], fg=ST_FG_TEXT[th])
-        self.entry_url = tk.Entry(self, textvariable=self.var_url, state='readonly', width=45, justify='center',
-                                  relief='solid', bg=ST_BG_FIELDS[th], fg=ST_FG_TEXT[th],
-                                  highlightbackground=ST_BORDER[th], highlightcolor=ST_HIGHLIGHT[th],
-                                  selectbackground=ST_SELECT[th], readonlybackground=ST_BG_FIELDS[th])
-        self.btn_update = tk.Button(self, text='Обновить', command=self.download_and_install, overrelief='groove',
-                                    bg=ST_BTN[th], fg=ST_FG_TEXT[th],
-                                    activebackground=ST_BTN_SELECT[th], highlightbackground=ST_BORDER[th])
-        self.btn_close = tk.Button(self, text='Закрыть', command=self.destroy, overrelief='groove',
-                                   bg=ST_BTN[th], fg=ST_FG_TEXT[th],
-                                   activebackground=ST_BTN_SELECT[th], highlightbackground=ST_BORDER[th])
-
-        self.lbl_msg.grid(   row=1, columnspan=2, padx=6, pady=(4, 0))
-        self.entry_url.grid( row=2, columnspan=2, padx=6, pady=(0, 4))
-        self.btn_update.grid(row=3, column=0,     padx=6, pady=4)
-        self.btn_close.grid( row=3, column=1,     padx=6, pady=4)
-
-    # Скачать и установить обновление
-    def download_and_install(self):
-        try:  # Загрузка
-            print('download zip')
-            wget.download(URL_DOWNLOAD_ZIP, out=os.path.dirname(__file__))  # Скачиваем архив с обновлением
-        except:
-            PopupMsgW(self, 'Не удалось загрузить обновление!', title='Warning').open()
-            self.destroy()
-        try:  # Установка
-            # Распаковываем архив во временную папку
-            print('\nextracting')
-            with zipfile.ZipFile(NEW_VERSION_ZIP, 'r') as zip_file:
-                zip_file.extractall(os.path.dirname(__file__))
-            # Удаляем архив
-            print('delete zip')
-            os.remove(NEW_VERSION_ZIP)
-            # Удаляем файлы текущей версии
-            print('delete old files')
-            os.remove('ver')
-            os.remove('README.txt')
-            os.remove('README.md')
-            os.remove('main.py')
-            # Из временной папки достаём файлы новой версии
-            print('set new files')
-            os.replace(os.path.join(NEW_VERSION_DIR, 'ver'), 'ver')
-            os.replace(os.path.join(NEW_VERSION_DIR, 'README.txt'), 'README.txt')
-            os.replace(os.path.join(NEW_VERSION_DIR, 'README.md'), 'README.md')
-            os.replace(os.path.join(NEW_VERSION_DIR, 'main.py'), 'main.py')
-            # Удаляем временную папку
-            print('delete tmp dir')
-            os.rmdir(NEW_VERSION_DIR)
-            PopupMsgW(self, 'Обновление успешно установлено\nПрограмма закроется').open()
-        except:
-            PopupMsgW(self, 'Не удалось установить обновление!', title='Warning').open()
-            self.destroy()
-        else:
-            exit(777)
-
-    def open(self):
-        self.grab_set()
-        self.wait_window()
-
-
-# Окно журнала
-class LoggerW(tk.Toplevel):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.title('Media encrypter - Progress')
-        self.resizable(width=False, height=False)
-        self.configure(bg=ST_BG[th])
-
-        self.str_progress_f_d = tk.StringVar(value='Calculation...')
-        self.str_progress_fr = tk.StringVar(value='Calculation...')
-
-        self.st_progress = ttk.Style()
-        self.st_progress.theme_use('winnative')
-        self.st_progress.configure('normal.Horizontal.TProgressbar', troughcolor=ST_BG_FIELDS[th], background=ST_PROG[th])
-        self.st_progress_aborted = ttk.Style()
-        self.st_progress_aborted.theme_use('winnative')
-        self.st_progress_aborted.configure('abort.Horizontal.TProgressbar', troughcolor=ST_BG_FIELDS[th], background=ST_PROG_ABORT[th])
-        self.st_progress_done = ttk.Style()
-        self.st_progress_done.theme_use('winnative')
-        self.st_progress_done.configure('done.Horizontal.TProgressbar', troughcolor=ST_BG_FIELDS[th], background=ST_PROG_DONE[th])
-
-        self.frame_progress = tk.LabelFrame(self, bg=ST_BG[th], highlightbackground=ST_BORDER[th], relief=ST_RELIEF[th])
-        self.frame_progress.grid(row=0, columnspan=2, padx=6, pady=(6, 4))
-
-        tk.Label(self.frame_progress, text='Progress (files and dirs):', bg=ST_BG[th], fg=ST_FG_TEXT[th]).grid(row=0, column=0, padx=(6, 0), pady=4, sticky='E')
-        tk.Label(self.frame_progress, text='Progress (with frames):',    bg=ST_BG[th], fg=ST_FG_TEXT[th]).grid(row=1, column=0, padx=(6, 0), pady=4, sticky='E')
-        self.progressbar_f_d = ttk.Progressbar(self.frame_progress, value=0, length=450, style='normal.Horizontal.TProgressbar', orient='horizontal')
-        self.progressbar_fr  = ttk.Progressbar(self.frame_progress, value=0, length=450, style='normal.Horizontal.TProgressbar', orient='horizontal')
-        self.lbl_progress_f_d = tk.Label(self.frame_progress, textvariable=self.str_progress_f_d, bg=ST_BG[th], fg=ST_FG_TEXT[th])
-        self.lbl_progress_fr  = tk.Label(self.frame_progress, textvariable=self.str_progress_fr,  bg=ST_BG[th], fg=ST_FG_TEXT[th])
-
-        self.progressbar_f_d.grid( row=0, column=1, padx=4,      pady=4)
-        self.progressbar_fr.grid(  row=1, column=1, padx=4,      pady=4)
-        self.lbl_progress_f_d.grid(row=0, column=2, padx=(0, 6), pady=4)
-        self.lbl_progress_fr.grid( row=1, column=2, padx=(0, 6), pady=4)
-
-        self.scrollbar = tk.Scrollbar(self, bg=ST_BG[th])
-        self.log = tk.Text(self, width=70, height=30, state='disabled', yscrollcommand=self.scrollbar.set, bg=ST_BG_FIELDS[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], relief=ST_RELIEF[th])
-        self.btn_abort = tk.Button(self, text='Abort', command=self.abort_process, bg=ST_BTNN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTNN_SELECT[th])
-
-        self.log.grid(        row=1, column=0, sticky='NSEW', padx=(6, 0), pady=0)
-        self.scrollbar.grid(  row=1, column=1, sticky='NSW',  padx=(0, 6), pady=0)
-        self.btn_abort.grid(  row=2, columnspan=2, padx=6, pady=(4, 6))
-
-        self.scrollbar.config(command=self.log.yview)
-
-    # Прервать обработку
-    def abort_process(self):
-        global process_status
-        process_status = 'abort'
-        self.btn_abort['state'] = 'disabled'
-        self.progressbar_f_d['style'] = 'abort.Horizontal.TProgressbar'
-        self.progressbar_fr['style'] = 'abort.Horizontal.TProgressbar'
-
-    # Завершение обработки
-    def done(self):
-        global process_status
-        process_status = 'done'
-        self.btn_abort['state'] = 'disabled'
-        self.progressbar_f_d['style'] = 'done.Horizontal.TProgressbar'
-        self.progressbar_fr['style'] = 'done.Horizontal.TProgressbar'
-
-    # Добавить запись в журнал
-    def add_log(self, msg='', tab=0, end='\n'):
-        self.log['state'] = 'normal'
-        if self.log.yview()[1] == 1.0:
-            self.log.insert(tk.END, '~ ' * tab + str(msg) + end)
-            self.log.yview_moveto(1.0)
-        else:
-            self.log.insert(tk.END, '~ ' * tab + str(msg) + end)
-        self.log['state'] = 'disabled'
-
-    # Установить прогресс (файлы и папки)
-    def set_progress_f_d(self, num, den):
-        self.progressbar_f_d['value'] = 100 * num / den
-        self.str_progress_f_d.set(f'{num}/{den}')
-
-    # Установить прогресс (кадры)
-    def set_progress_fr(self, num, den):
-        self.progressbar_fr['value'] = 100 * num / den
-        self.str_progress_fr.set(f'{num}/{den}')
-
-    def open(self):
-        self.grab_set()
-        self.wait_window()
 
 
 # Главное окно
