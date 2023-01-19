@@ -24,12 +24,25 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
     import ctypes
     kernel32 = ctypes.windll.kernel32
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+import urllib.request as urllib2  # Для проверки наличия обновлений
+import wget  # Для загрузки обновления
+import zipfile  # Для распаковки обновления
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = ' v7.0.0-PRE_23'
-PROGRAM_DATE = '15.1.2023  20:46'
+PROGRAM_VERSION = 'v7.0.0_PRE-24'
+PROGRAM_DATE = '19.1.2023  23:23 (UTC+3)'
 
 """ Пути и файлы """
+
+# Ссылка на страницу программы на GitHub
+URL_GITHUB = 'https://github.com/Anenokil/MediaEncrypter'
+# Ссылка на файл с названием последней версией
+URL_LAST_VERSION = 'https://raw.githubusercontent.com/Anenokil/MediaEncrypter/master/ver'
+# Ссылка для установки последней версии
+URL_DOWNLOAD_ZIP = 'https://github.com/Anenokil/MediaEncrypter/archive/refs/heads/master.zip'
+
+NEW_VERSION_DIR = f'{PROGRAM_NAME}-master'  # Временная папка с обновлением
+NEW_VERSION_ZIP = f'{NEW_VERSION_DIR}.zip'  # Архив с обновлением
 
 RESOURCES_DIR = 'resources'  # Главная папка с ресурсами
 CUSTOM_SETTINGS_DIR = 'custom_settings'  # Папка с сохранёнными пользовательскими настройками
@@ -338,6 +351,24 @@ def extract_key_values(b):
         print(f'  ML  N: {mult_name}')
         print(f'  ORDER: {order}')
         print('======================================================================================')
+
+
+# Проверка наличия обновлений программы
+def check_updates(window_parent, show_updates):
+    print('\nПроверка наличия обновлений...')
+    window_last_version = None
+    try:
+        data = urllib2.urlopen(URL_LAST_VERSION)
+        last_version = str(data.read().decode('utf-8')).strip()
+        if PROGRAM_VERSION == last_version:
+            print('Установлена последняя доступная версия')
+        else:
+            print(f'Доступна новая версия: {last_version}')
+            if show_updates:
+                window_last_version = LastVersionW(window_parent, last_version)
+    except:
+        print('Ошибка, возможно отсутствует соединение')
+    return window_last_version
 
 
 """ Алгоритм шифровки/дешифровки """
@@ -2062,6 +2093,77 @@ class ManualW(tk.Toplevel):
             return self.mode, 2
 
 
+# Окно уведомления о выходе новой версии
+class LastVersionW(tk.Toplevel):
+    def __init__(self, parent, last_version):
+        super().__init__(parent)
+        self.title('New version available')
+        self.configure(bg=ST_BG[st])
+
+        self.var_url = tk.StringVar(value=URL_GITHUB)  # Ссылка, для загрузки новой версии
+
+        self.lbl_msg = tk.Label(self, text=f'Доступна новая версия программы\n'
+                                           f'{last_version}',
+                                bg=ST_BG[st], fg=ST_FG_TEXT[st])
+        self.entry_url = tk.Entry(self, textvariable=self.var_url, state='readonly', width=40, justify='center',
+                                  relief='solid', bg=ST_BG_FIELDS[st], fg=ST_FG_TEXT[st],
+                                  highlightbackground=ST_BORDER[st], highlightcolor=ST_HIGHLIGHT[st],
+                                  selectbackground=ST_SELECT[st], readonlybackground=ST_BG_FIELDS[st])
+        self.btn_update = tk.Button(self, text='Обновить', command=self.download_and_install, overrelief='groove',
+                                    bg=ST_BTN[st], fg=ST_FG_TEXT[st],
+                                    activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
+        self.btn_close = tk.Button(self, text='Закрыть', command=self.destroy, overrelief='groove',
+                                   bg=ST_BTN[st], fg=ST_FG_TEXT[st],
+                                   activebackground=ST_BTN_SELECT[st], highlightbackground=ST_BORDER[st])
+
+        self.lbl_msg.grid(   row=1, columnspan=2, padx=6, pady=(4, 0))
+        self.entry_url.grid( row=2, columnspan=2, padx=6, pady=(0, 4))
+        self.btn_update.grid(row=3, column=0,     padx=6, pady=4)
+        self.btn_close.grid( row=3, column=1,     padx=6, pady=4)
+
+    # Скачать и установить обновление
+    def download_and_install(self):
+        try:  # Загрузка
+            print('download zip')
+            wget.download(URL_DOWNLOAD_ZIP, out=os.path.dirname(__file__))  # Скачиваем архив с обновлением
+        except:
+            PopupMsgW(self, 'Не удалось загрузить обновление!', title='Warning').open()
+            self.destroy()
+        try:  # Установка
+            # Распаковываем архив во временную папку
+            print('\nextracting')
+            with zipfile.ZipFile(NEW_VERSION_ZIP, 'r') as zip_file:
+                zip_file.extractall(os.path.dirname(__file__))
+            # Удаляем архив
+            print('delete zip')
+            os.remove(NEW_VERSION_ZIP)
+            # Удаляем файлы текущей версии
+            print('delete old files')
+            os.remove('ver')
+            os.remove('README.txt')
+            os.remove('README.md')
+            os.remove('main.py')
+            # Из временной папки достаём файлы новой версии
+            print('set new files')
+            os.replace(os.path.join(NEW_VERSION_DIR, 'ver'), 'ver')
+            os.replace(os.path.join(NEW_VERSION_DIR, 'README.txt'), 'README.txt')
+            os.replace(os.path.join(NEW_VERSION_DIR, 'README.md'), 'README.md')
+            os.replace(os.path.join(NEW_VERSION_DIR, 'main.py'), 'main.py')
+            # Удаляем временную папку
+            print('delete tmp dir')
+            os.rmdir(NEW_VERSION_DIR)
+            PopupMsgW(self, 'Обновление успешно установлено\nПрограмма закроется').open()
+        except:
+            PopupMsgW(self, 'Не удалось установить обновление!', title='Warning').open()
+            self.destroy()
+        else:
+            exit(777)
+
+    def open(self):
+        self.grab_set()
+        self.wait_window()
+
+
 # Окно журнала
 class LoggerW(tk.Toplevel):
     def __init__(self, parent):
@@ -2263,11 +2365,11 @@ class MainW(tk.Tk):
 
 
 # Вывод информации о программе
-print('======================================================================================\n')
+print( '======================================================================================\n')
 print(f'                            {Fore.RED}Anenokil development{Style.RESET_ALL}  presents')
-print('                            ' + (30 - len(PROGRAM_NAME) - len(PROGRAM_VERSION) - 1) // 2 * ' ' + f'{Fore.MAGENTA}{PROGRAM_NAME}{Style.RESET_ALL} {PROGRAM_VERSION}')
-print('                            ' + (30 - len(PROGRAM_DATE)) // 2 * ' ' + PROGRAM_DATE + '\n')
-print('======================================================================================')
+print( '                            ' + (30 - len(PROGRAM_NAME) - len(PROGRAM_VERSION) - 2) // 2 * ' ' + f'{Fore.MAGENTA}{PROGRAM_NAME}{Style.RESET_ALL}  {PROGRAM_VERSION}')
+print( '                            ' + (30 - len(PROGRAM_DATE)) // 2 * ' ' + PROGRAM_DATE + '\n')
+print( '======================================================================================')
 
 try:
     load_settings(SETTINGS_PATH)
@@ -2277,6 +2379,8 @@ except FileNotFoundError:  # Если файл с настройками отс�
 st = settings['style']
 
 gui = MainW()
+_0_global_show_updates = True
+_0_global_window_last_version = check_updates(gui, _0_global_show_updates)  # Проверяем наличие обновлений
 gui.mainloop()
 
 # v1.0.0
@@ -2294,6 +2398,4 @@ gui.mainloop()
 # - всплывающие подсказки
 # цвета в журнале
 
-# контроль версий
 # показывать общее время выполнения
-# tk.INSERT -> tk.END
