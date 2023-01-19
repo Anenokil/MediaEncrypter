@@ -30,8 +30,8 @@ import wget  # Для загрузки обновления
 import zipfile  # Для распаковки обновления
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v7.0.0_PRE-33'
-PROGRAM_DATE = '20.1.2023   2:39 (UTC+3)'
+PROGRAM_VERSION = 'v7.0.0_PRE-34'
+PROGRAM_DATE = '20.1.2023   2:58 (UTC+3)'
 
 """ Пути и файлы """
 
@@ -53,7 +53,7 @@ SETTINGS_PATH = os.path.join(RESOURCES_DIR, SETTINGS_FILENAME)
 TMP_FILENAME = 'tmp.png'  # Временный файл для обработки gif-изображений и видео
 TMP_PATH = os.path.join(RESOURCES_DIR, TMP_FILENAME)
 IMAGES_DIR = 'img'  # Папка с изображениями
-# IMAGES_PATH = os.path.join(RESOURCES_DIR, IMAGES_DIR)
+IMAGES_PATH = os.path.join(RESOURCES_DIR, IMAGES_DIR)
 CUSTOM_THEMES_DIR = 'themes'  # Папка с пользовательскими темами
 CUSTOM_THEMES_PATH = os.path.join(RESOURCES_DIR, CUSTOM_THEMES_DIR)
 
@@ -1744,7 +1744,7 @@ class SettingsW(tk.Toplevel):
         self.lbl_note_marker_enc = tk.Label(self.frame_marker_enc, text='(if the prefix/postfix name processing mode is selected)', bg=ST_BG[th], fg=ST_FG_TEXT[th])
         self.lbl_note_marker_dec = tk.Label(self.frame_marker_dec, text='(if the prefix/postfix name processing mode is selected)', bg=ST_BG[th], fg=ST_FG_TEXT[th])
         try:
-            self.img_search  = tk.PhotoImage(file=os.path.join(RESOURCES_DIR, IMAGES_DIR, 'search.png'))
+            self.img_search  = tk.PhotoImage(file=os.path.join(IMAGES_PATH, 'search.png'))
             self.btn_src_enc = tk.Button(self.frame_src_dir_enc, image=self.img_search, command=self.choose_source_enc, bg=ST_BTN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
             self.btn_dst_enc = tk.Button(self.frame_dst_dir_enc, image=self.img_search, command=self.choose_dest_enc,   bg=ST_BTN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
             self.btn_src_dec = tk.Button(self.frame_src_dir_dec, image=self.img_search, command=self.choose_source_dec, bg=ST_BTN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
@@ -2494,7 +2494,7 @@ gui.mainloop()
 # v4.0.0 - добавлена обработка видео
 # v5.0.0 - добавлена обработка вложенных папок
 # v6.0.0 - добавлен графический интерфейс
-# v7.0.0 - добавлен журнал
+# v7.0.0 - добавлены журнал, загрузка обновлений и пользовательские темы
 
 # заменить abort на pause
 # добавить выбор расширений
