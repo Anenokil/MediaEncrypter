@@ -26,10 +26,3 @@ Supported file extensions:
 |:---:|:---:|:---:|
 | **When encrypting** | f_src | f_enc |
 | **When decrypting** | f_enc | d_dec |
-
----
-
-The program has GUI and 3 styles:
-1. *light*
-2. *dark*
-3. *infernal*
