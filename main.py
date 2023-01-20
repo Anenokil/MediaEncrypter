@@ -30,8 +30,8 @@ import wget  # Для загрузки обновления
 import zipfile  # Для распаковки обновления
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v7.0.0_PRE-34'
-PROGRAM_DATE = '20.1.2023   2:58 (UTC+3)'
+PROGRAM_VERSION = 'v7.0.0_PRE-35'
+PROGRAM_DATE = '20.1.2023   3:13 (UTC+3)'
 
 """ Пути и файлы """
 
@@ -2045,9 +2045,11 @@ class SettingsW(tk.Toplevel):
 
         th = settings['theme']
 
-        self.configure(                  bg=ST_BG[th])
+        self.configure(bg=ST_BG[th])
+
         self.frame_all.configure(        bg=ST_BG[th], highlightbackground=ST_BORDER[th], relief=ST_RELIEF[th])
         self.frame_fields.configure(     bg=ST_BG[th], highlightbackground=ST_BORDER[th], relief=ST_RELIEF[th])
+
         self.lbl_style.configure(        bg=ST_BG[th], fg=ST_FG_TEXT[th])
         self.lbl_naming_mode.configure(  bg=ST_BG[th], fg=ST_FG_TEXT[th])
         self.lbl_count_from.configure(   bg=ST_BG[th], fg=ST_FG_TEXT[th])
@@ -2063,6 +2065,7 @@ class SettingsW(tk.Toplevel):
         self.lbl_dst_dir_dec.configure(  bg=ST_BG[th], fg=ST_FG_TEXT[th])
         self.lbl_example_key.configure(  bg=ST_BG[th], fg=ST_FG_TEXT[th])
         self.lbl_print_info.configure(   bg=ST_BG[th], fg=ST_FG_TEXT[th])
+
         self.st_combo.configure(style='.TCombobox', background=ST_BG[th], foreground=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th])
         self.st_combo.map('.TCombobox', background=[('readonly', ST_BG[th])], foreground=[('readonly', ST_FG_TEXT[th])], highlightbackground=[('readonly', ST_BORDER[th])])
         self.st_check.configure(style='.TCheckbutton', background=ST_BG[th])
@@ -2082,28 +2085,33 @@ class SettingsW(tk.Toplevel):
         self.frame_dst_dir_dec.configure(  bg=ST_BG[th])
         self.entry_example_key.configure(  bg=ST_BG_FIELDS[th],  fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], highlightcolor=ST_HIGHLIGHT[th], selectbackground=ST_SELECT[th])
         self.combo_print_info.configure(   style='.TCombobox')
-        self.entry_count_from.configure(   bg=ST_BG_FIELDS[th],  fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], highlightcolor=ST_HIGHLIGHT[th], selectbackground=ST_SELECT[th])
-        self.entry_format.configure(       bg=ST_BG_FIELDS[th],  fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], highlightcolor=ST_HIGHLIGHT[th], selectbackground=ST_SELECT[th])
-        self.entry_marker_enc.configure(   bg=ST_BG_FIELDS[th],  fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], highlightcolor=ST_HIGHLIGHT[th], selectbackground=ST_SELECT[th])
-        self.entry_marker_dec.configure(   bg=ST_BG_FIELDS[th],  fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], highlightcolor=ST_HIGHLIGHT[th], selectbackground=ST_SELECT[th])
-        self.entry_src_dir_enc.configure(  bg=ST_BG_FIELDS[th],  fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], highlightcolor=ST_HIGHLIGHT[th], selectbackground=ST_SELECT[th])
-        self.entry_dst_dir_enc.configure(  bg=ST_BG_FIELDS[th],  fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], highlightcolor=ST_HIGHLIGHT[th], selectbackground=ST_SELECT[th])
-        self.entry_src_dir_dec.configure(  bg=ST_BG_FIELDS[th],  fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], highlightcolor=ST_HIGHLIGHT[th], selectbackground=ST_SELECT[th])
-        self.entry_dst_dir_dec.configure(  bg=ST_BG_FIELDS[th],  fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], highlightcolor=ST_HIGHLIGHT[th], selectbackground=ST_SELECT[th])
-        self.lbl_note_count_from.configure(bg=ST_BG[th],   fg=ST_FG_TEXT[th])
-        self.lbl_note_format.configure(    bg=ST_BG[th],   fg=ST_FG_TEXT[th])
-        self.lbl_note_marker_enc.configure(bg=ST_BG[th],   fg=ST_FG_TEXT[th])
-        self.lbl_note_marker_dec.configure(bg=ST_BG[th],   fg=ST_FG_TEXT[th])
-        self.btn_src_enc.configure(        bg=ST_BTN[th],  fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
-        self.btn_dst_enc.configure(        bg=ST_BTN[th],  fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
-        self.btn_src_dec.configure(        bg=ST_BTN[th],  fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
-        self.btn_dst_dec.configure(        bg=ST_BTN[th],  fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
-        self.btn_def.configure(            bg=ST_BTN[th],  fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
-        self.btn_save_custom.configure(    bg=ST_BTN[th],  fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
-        self.btn_load_custom.configure(    bg=ST_BTN[th],  fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
-        self.btn_remove_custom.configure(  bg=ST_BTN[th],  fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
-        self.btn_save.configure(           bg=ST_BTNY[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTNY_SELECT[th])
-        self.btn_close.configure(          bg=ST_BTNN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTNN_SELECT[th])
+
+        self.entry_count_from.configure( bg=ST_BG_FIELDS[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], highlightcolor=ST_HIGHLIGHT[th], selectbackground=ST_SELECT[th])
+        self.entry_format.configure(     bg=ST_BG_FIELDS[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], highlightcolor=ST_HIGHLIGHT[th], selectbackground=ST_SELECT[th])
+        self.entry_marker_enc.configure( bg=ST_BG_FIELDS[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], highlightcolor=ST_HIGHLIGHT[th], selectbackground=ST_SELECT[th])
+        self.entry_marker_dec.configure( bg=ST_BG_FIELDS[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], highlightcolor=ST_HIGHLIGHT[th], selectbackground=ST_SELECT[th])
+        self.entry_src_dir_enc.configure(bg=ST_BG_FIELDS[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], highlightcolor=ST_HIGHLIGHT[th], selectbackground=ST_SELECT[th])
+        self.entry_dst_dir_enc.configure(bg=ST_BG_FIELDS[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], highlightcolor=ST_HIGHLIGHT[th], selectbackground=ST_SELECT[th])
+        self.entry_src_dir_dec.configure(bg=ST_BG_FIELDS[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], highlightcolor=ST_HIGHLIGHT[th], selectbackground=ST_SELECT[th])
+        self.entry_dst_dir_dec.configure(bg=ST_BG_FIELDS[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], highlightcolor=ST_HIGHLIGHT[th], selectbackground=ST_SELECT[th])
+
+        self.lbl_note_count_from.configure(bg=ST_BG[th], fg=ST_FG_TEXT[th])
+        self.lbl_note_format.configure(    bg=ST_BG[th], fg=ST_FG_TEXT[th])
+        self.lbl_note_marker_enc.configure(bg=ST_BG[th], fg=ST_FG_TEXT[th])
+        self.lbl_note_marker_dec.configure(bg=ST_BG[th], fg=ST_FG_TEXT[th])
+
+        self.btn_src_enc.configure(bg=ST_BTN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
+        self.btn_dst_enc.configure(bg=ST_BTN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
+        self.btn_src_dec.configure(bg=ST_BTN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
+        self.btn_dst_dec.configure(bg=ST_BTN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
+
+        self.btn_def.configure(          bg=ST_BTN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
+        self.btn_save_custom.configure(  bg=ST_BTN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
+        self.btn_load_custom.configure(  bg=ST_BTN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
+        self.btn_remove_custom.configure(bg=ST_BTN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
+
+        self.btn_save.configure( bg=ST_BTNY[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTNY_SELECT[th])
+        self.btn_close.configure(bg=ST_BTNN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTNN_SELECT[th])
 
         self.parent.configure(             bg=ST_BG[th])
         self.parent.frame_head.configure(  bg=ST_BG[th], highlightbackground=ST_BORDER[th], relief=ST_RELIEF[th])
@@ -2131,7 +2139,7 @@ class SettingsW(tk.Toplevel):
                                                     activebackground=ST_BTN_SELECT[th],
                                                     highlightbackground=ST_BORDER[th])
         except:  # Если окно обновления не открыто
-            return
+            pass
 
         save_settings_to_file()
 
