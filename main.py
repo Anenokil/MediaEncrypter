@@ -29,10 +29,12 @@ import urllib.request as urllib2  # Для проверки наличия об�
 import wget  # Для загрузки обновления
 import zipfile  # Для распаковки обновления
 
+""" Информация о программе """
+
 PROGRAM_NAME_SHOWED = 'Media encrypter'
 PROGRAM_NAME = 'MediaEncrypter'
-PROGRAM_VERSION = 'v7.0.0_PRE-41'
-PROGRAM_DATE = '20.1.2023   4:21 (UTC+3)'
+PROGRAM_VERSION = 'v7.0.0_PRE-42'
+PROGRAM_DATE = '20.1.2023  19:26 (UTC+3)'
 
 """ Пути и файлы """
 
@@ -1504,7 +1506,7 @@ class LoggerW(tk.Toplevel):
         self.lbl_progress_fr.grid( row=1, column=2, padx=(0, 6), pady=4)
 
         self.scrollbar = tk.Scrollbar(self, bg=ST_BG[th])
-        self.log = tk.Text(self, width=70, height=30, state='disabled', yscrollcommand=self.scrollbar.set, bg=ST_BG_FIELDS[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], relief=ST_RELIEF[th])
+        self.log = tk.Text(self, width=70, height=30, state='disabled', yscrollcommand=self.scrollbar.set, bg=ST_BG_FIELDS[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], selectbackground=ST_SELECT[th], relief=ST_RELIEF[th])
         self.btn_abort = tk.Button(self, text='Abort', command=self.abort_process, bg=ST_BTNN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTNN_SELECT[th])
 
         self.log.grid(        row=1, column=0, sticky='NSEW', padx=(6, 0), pady=0)
@@ -1717,7 +1719,7 @@ class SettingsW(tk.Toplevel):
         self.frame_dst_dir_enc   = tk.Frame(self.frame_fields, borderwidth=0, bg=ST_BG[th])
         self.frame_src_dir_dec   = tk.Frame(self.frame_fields, borderwidth=0, bg=ST_BG[th])
         self.frame_dst_dir_dec   = tk.Frame(self.frame_fields, borderwidth=0, bg=ST_BG[th])
-        self.entry_example_key   = tk.Entry(    self.frame_fields, textvariable=self.inp_example_key, relief='solid', width=KEY_LEN, font='TkFixedFont', validate='key', validatecommand=self.vcmd_key, bg=ST_BG_FIELDS[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], highlightcolor=ST_HIGHLIGHT[th], selectbackground=ST_SELECT[th])
+        self.entry_example_key   = tk.Entry(    self.frame_fields, textvariable=self.inp_example_key, width=KEY_LEN, font='TkFixedFont', validate='key', validatecommand=self.vcmd_key, bg=ST_BG_FIELDS[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], highlightcolor=ST_HIGHLIGHT[th], selectbackground=ST_SELECT[th])
         self.combo_print_info    = ttk.Combobox(self.frame_fields, textvariable=self.inp_print_info, values=PRINT_INFO_MODES, state='readonly', style='.TCombobox')
 
         if not self.inp_support_ru.get():
@@ -2516,5 +2518,5 @@ gui.mainloop()
 # цвета в журнале
 # показывать общее время выполнения
 
-# при наведении на кнопку overrelief
+# при наведении на кнопку - overrelief
 # is closed
