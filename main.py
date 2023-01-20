@@ -31,8 +31,8 @@ import zipfile  # Для распаковки обновления
 
 PROGRAM_NAME_SHOWED = 'Media encrypter'
 PROGRAM_NAME = 'MediaEncrypter'
-PROGRAM_VERSION = 'v7.0.0_PRE-39'
-PROGRAM_DATE = '20.1.2023   4:14 (UTC+3)'
+PROGRAM_VERSION = 'v7.0.0_PRE-40'
+PROGRAM_DATE = '20.1.2023   4:16 (UTC+3)'
 
 """ Пути и файлы """
 
@@ -1363,7 +1363,7 @@ class EnterSaveNameW(tk.Toplevel):
     def check_and_return(self):
         filename = self.name.get()
         if filename == '':
-            PopupMsgW(self, 'Incorrect name for save', title='Error').open()
+            PopupMsgW(self, 'Incorrect name for save', title='Warning').open()
             return
         self.name_is_correct = True
         if f'{filename}.txt' in os.listdir(CUSTOM_SETTINGS_PATH):  # Если уже есть сохранение с таким названием
@@ -1446,7 +1446,7 @@ class EnterKeyW(tk.Toplevel):
         key = self.key.get()
         code, cause = check_key(key)
         if code == 'L':  # Если неверная длина ключа
-            PopupMsgW(self, f'Invalid key length: {cause}!\nMust be {KEY_LEN}', title='Error').open()
+            PopupMsgW(self, f'Invalid key length: {cause}!\nMust be {KEY_LEN}', title='Warning').open()
             return
         self.has_key = True
         self.destroy()
@@ -1920,7 +1920,7 @@ class SettingsW(tk.Toplevel):
                 csf_list += [base_name]
                 csf_count += 1
         if csf_count == 0:  # Если нет сохранённых настроек
-            PopupMsgW(self, 'There are no saves!', title='Error').open()
+            PopupMsgW(self, 'There are no saves!', title='Warning').open()
             return False, ''
         else:
             window = PopupChooseW(self, csf_list, f'Choose a save you want to {cmd_name}', default_value=csf_list[0])
@@ -2008,21 +2008,21 @@ class SettingsW(tk.Toplevel):
         has_errors = False
 
         if self.inp_count_from.get() in ['', '-']:
-            PopupMsgW(self, 'Incorrect "start counting files from" value!', title='Error').open()
+            PopupMsgW(self, 'Incorrect "start counting files from" value!', title='Warning').open()
             self.entry_count_from['background'] = ST_BG_ERR[th]
             has_errors = True
         else:
             self.entry_count_from['background'] = ST_BG_FIELDS[th]
 
         if self.inp_format.get() == '':
-            PopupMsgW(self, 'Incorrect "number of digits in numbers" value!', title='Error').open()
+            PopupMsgW(self, 'Incorrect "number of digits in numbers" value!', title='Warning').open()
             self.entry_format['background'] = ST_BG_ERR[th]
             has_errors = True
         else:
             self.entry_format['background'] = ST_BG_FIELDS[th]
 
         if len(self.inp_example_key.get()) != KEY_LEN:
-            PopupMsgW(self, f'Incorrect "example of a key" value!\nShould has {KEY_LEN} symbols', title='Error').open()
+            PopupMsgW(self, f'Incorrect "example of a key" value!\nShould has {KEY_LEN} symbols', title='Warning').open()
             self.entry_example_key['background'] = ST_BG_ERR[th]
             has_errors = True
         else:
@@ -2314,7 +2314,7 @@ class ManualW(tk.Toplevel):
             self.inp_shift2_g.get() == '' or\
             self.inp_shift2_b.get() == '' or\
             self.inp_mult_name.get() == '':
-            PopupMsgW(self, 'All fields must be filled', title='Error').open()
+            PopupMsgW(self, 'All fields must be filled', title='Warning').open()
             return False
 
         mult_blocks_h_r = int(self.inp_mult_blocks_h_r.get())
