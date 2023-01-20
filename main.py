@@ -31,8 +31,8 @@ import zipfile  # Для распаковки обновления
 
 PROGRAM_NAME_SHOWED = 'Media encrypter'
 PROGRAM_NAME = 'MediaEncrypter'
-PROGRAM_VERSION = 'v7.0.0_PRE-38'
-PROGRAM_DATE = '20.1.2023   4:08 (UTC+3)'
+PROGRAM_VERSION = 'v7.0.0_PRE-39'
+PROGRAM_DATE = '20.1.2023   4:14 (UTC+3)'
 
 """ Пути и файлы """
 
@@ -1168,11 +1168,11 @@ def encode(cmd):
     input_dir = settings['src_dir_enc']
     output_dir = settings['dst_dir_enc']
     if not os.path.exists(input_dir):
-        PopupMsgW(gui, f'Исходная папка "{input_dir}" не найдена!', title='Warning')
+        PopupMsgW(gui, f'Исходная папка "{input_dir}" не найдена!', title='Warning').open()
         gui.logger.destroy()
         return
     if not os.path.exists(output_dir):
-        PopupMsgW(gui, f'Папка назначения "{output_dir}" не найдена!', title='Warning')
+        PopupMsgW(gui, f'Папка назначения "{output_dir}" не найдена!', title='Warning').open()
         gui.logger.destroy()
         return
     marker = settings['marker_enc']
@@ -1205,11 +1205,11 @@ def decode(cmd):
     input_dir = settings['src_dir_dec']
     output_dir = settings['dst_dir_dec']
     if not os.path.exists(input_dir):
-        PopupMsgW(gui, f'Исходная папка "{input_dir}" не найдена!', title='Warning')
+        PopupMsgW(gui, f'Исходная папка "{input_dir}" не найдена!', title='Warning').open()
         gui.logger.destroy()
         return
     if not os.path.exists(output_dir):
-        PopupMsgW(gui, f'Папка назначения "{output_dir}" не найдена!', title='Warning')
+        PopupMsgW(gui, f'Папка назначения "{output_dir}" не найдена!', title='Warning').open()
         gui.logger.destroy()
         return
     marker = settings['marker_dec']
@@ -1290,6 +1290,10 @@ class PopupMsgW(tk.Toplevel):
         tk.Label( self, text=msg,      bg=ST_BG[th],  fg=ST_FG_TEXT[th]).grid(row=0, column=0, padx=6, pady=4)
         tk.Button(self, text=btn_text, bg=ST_BTN[th], fg=ST_FG_TEXT[th], activebackground=ST_BTN_SELECT[th], highlightbackground=ST_BORDER[th], command=self.destroy).grid(row=1, column=0, padx=6, pady=4)
 
+    def open(self):
+        self.grab_set()
+        self.wait_window()
+
 
 # Всплывающее окно с сообщением и двумя кнопками
 class PopupDialogueW(tk.Toplevel):
@@ -1359,8 +1363,7 @@ class EnterSaveNameW(tk.Toplevel):
     def check_and_return(self):
         filename = self.name.get()
         if filename == '':
-            w = PopupMsgW(self, 'Incorrect name for save', title='Error')
-            self.wait_window(w)
+            PopupMsgW(self, 'Incorrect name for save', title='Error').open()
             return
         self.name_is_correct = True
         if f'{filename}.txt' in os.listdir(CUSTOM_SETTINGS_PATH):  # Если уже есть сохранение с таким названием
@@ -1443,7 +1446,7 @@ class EnterKeyW(tk.Toplevel):
         key = self.key.get()
         code, cause = check_key(key)
         if code == 'L':  # Если неверная длина ключа
-            PopupMsgW(self, f'Invalid key length: {cause}!\nMust be {KEY_LEN}', title='Error')
+            PopupMsgW(self, f'Invalid key length: {cause}!\nMust be {KEY_LEN}', title='Error').open()
             return
         self.has_key = True
         self.destroy()
@@ -1585,7 +1588,7 @@ class LastVersionW(tk.Toplevel):
             print('\ndownload zip')
             wget.download(URL_DOWNLOAD_ZIP, out=os.path.dirname(__file__))  # Скачиваем архив с обновлением
         except:
-            PopupMsgW(self, 'Не удалось загрузить обновление!', title='Warning')#.open()
+            PopupMsgW(self, 'Не удалось загрузить обновление!', title='Warning').open()
             self.destroy()
         try:  # Установка
             # Распаковываем архив во временную папку
@@ -1610,9 +1613,9 @@ class LastVersionW(tk.Toplevel):
             # Удаляем временную папку
             print('delete tmp dir')
             os.rmdir(NEW_VERSION_DIR)
-            PopupMsgW(self, 'Обновление успешно установлено\nПрограмма закроется')#.open()
+            PopupMsgW(self, 'Обновление успешно установлено\nПрограмма закроется').open()
         except:
-            PopupMsgW(self, 'Не удалось установить обновление!', title='Warning')#.open()
+            PopupMsgW(self, 'Не удалось установить обновление!', title='Warning').open()
             self.destroy()
         else:
             exit(777)
@@ -1917,7 +1920,7 @@ class SettingsW(tk.Toplevel):
                 csf_list += [base_name]
                 csf_count += 1
         if csf_count == 0:  # Если нет сохранённых настроек
-            PopupMsgW(self, 'There are no saves!', title='Error')
+            PopupMsgW(self, 'There are no saves!', title='Error').open()
             return False, ''
         else:
             window = PopupChooseW(self, csf_list, f'Choose a save you want to {cmd_name}', default_value=csf_list[0])
@@ -2005,21 +2008,21 @@ class SettingsW(tk.Toplevel):
         has_errors = False
 
         if self.inp_count_from.get() in ['', '-']:
-            PopupMsgW(self, 'Incorrect "start counting files from" value!', title='Error')
+            PopupMsgW(self, 'Incorrect "start counting files from" value!', title='Error').open()
             self.entry_count_from['background'] = ST_BG_ERR[th]
             has_errors = True
         else:
             self.entry_count_from['background'] = ST_BG_FIELDS[th]
 
         if self.inp_format.get() == '':
-            PopupMsgW(self, 'Incorrect "number of digits in numbers" value!', title='Error')
+            PopupMsgW(self, 'Incorrect "number of digits in numbers" value!', title='Error').open()
             self.entry_format['background'] = ST_BG_ERR[th]
             has_errors = True
         else:
             self.entry_format['background'] = ST_BG_FIELDS[th]
 
         if len(self.inp_example_key.get()) != KEY_LEN:
-            PopupMsgW(self, f'Incorrect "example of a key" value!\nShould has {KEY_LEN} symbols', title='Error')
+            PopupMsgW(self, f'Incorrect "example of a key" value!\nShould has {KEY_LEN} symbols', title='Error').open()
             self.entry_example_key['background'] = ST_BG_ERR[th]
             has_errors = True
         else:
@@ -2311,7 +2314,7 @@ class ManualW(tk.Toplevel):
             self.inp_shift2_g.get() == '' or\
             self.inp_shift2_b.get() == '' or\
             self.inp_mult_name.get() == '':
-            PopupMsgW(self, 'All fields must be filled', title='Error')
+            PopupMsgW(self, 'All fields must be filled', title='Error').open()
             return False
 
         mult_blocks_h_r = int(self.inp_mult_blocks_h_r.get())
@@ -2514,3 +2517,4 @@ gui.mainloop()
 # показывать общее время выполнения
 
 # при наведении на кнопку overrelief
+# is closed
