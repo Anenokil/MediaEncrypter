@@ -29,18 +29,19 @@ import urllib.request as urllib2  # Для проверки наличия об�
 import wget  # Для загрузки обновления
 import zipfile  # Для распаковки обновления
 
-PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v7.0.0_PRE-36'
-PROGRAM_DATE = '20.1.2023   3:45 (UTC+3)'
+PROGRAM_NAME_SHOWED = 'Media encrypter'
+PROGRAM_NAME = 'MediaEncrypter'
+PROGRAM_VERSION = 'v7.0.0_PRE-37'
+PROGRAM_DATE = '20.1.2023   3:58 (UTC+3)'
 
 """ Пути и файлы """
 
 # Ссылка на страницу программы на GitHub
-URL_GITHUB = 'https://github.com/Anenokil/MediaEncrypter'
+URL_GITHUB = f'https://github.com/Anenokil/{PROGRAM_NAME}'
 # Ссылка на файл с названием последней версией
-URL_LAST_VERSION = 'https://raw.githubusercontent.com/Anenokil/MediaEncrypter/master/ver'
+URL_LAST_VERSION = f'https://raw.githubusercontent.com/Anenokil/{PROGRAM_NAME}/master/ver'
 # Ссылка для установки последней версии
-URL_DOWNLOAD_ZIP = 'https://github.com/Anenokil/MediaEncrypter/archive/refs/heads/master.zip'
+URL_DOWNLOAD_ZIP = f'https://github.com/Anenokil/{PROGRAM_NAME}/archive/refs/heads/master.zip'
 
 NEW_VERSION_DIR = f'{PROGRAM_NAME}-master'  # Временная папка с обновлением
 NEW_VERSION_ZIP = f'{NEW_VERSION_DIR}.zip'  # Архив с обновлением
@@ -1281,7 +1282,7 @@ def validate_expand(value, entry, min_len, max_len):
 
 # Всплывающее окно с сообщением
 class PopupMsgW(tk.Toplevel):
-    def __init__(self, parent, msg, btn_text='OK', title=PROGRAM_NAME):
+    def __init__(self, parent, msg, btn_text='OK', title=PROGRAM_NAME_SHOWED):
         super().__init__(parent)
         self.title(title)
         self.configure(bg=ST_BG[th])
@@ -1292,7 +1293,7 @@ class PopupMsgW(tk.Toplevel):
 
 # Всплывающее окно с сообщением и двумя кнопками
 class PopupDialogueW(tk.Toplevel):
-    def __init__(self, parent, msg='Are you sure?', btn_yes='Yes', btn_no='Cancel', title=PROGRAM_NAME):
+    def __init__(self, parent, msg='Are you sure?', btn_yes='Yes', btn_no='Cancel', title=PROGRAM_NAME_SHOWED):
         super().__init__(parent)
         self.title(title)
         self.configure(bg=ST_BG[th])
@@ -1318,7 +1319,7 @@ class PopupDialogueW(tk.Toplevel):
 # Всплывающее окно с полем Combobox
 class PopupChooseW(tk.Toplevel):
     def __init__(self, parent, values, msg='Choose the one of these', btn_text='Confirm',
-                 default_value=None, title=PROGRAM_NAME):
+                 default_value=None, title=PROGRAM_NAME_SHOWED):
         super().__init__(parent)
         self.title(title)
         self.configure(bg=ST_BG[th])
@@ -1342,7 +1343,7 @@ class PopupChooseW(tk.Toplevel):
 class EnterSaveNameW(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
-        self.title(PROGRAM_NAME)
+        self.title(PROGRAM_NAME_SHOWED)
         self.configure(bg=ST_BG[th])
 
         self.name_is_correct = False
@@ -2367,7 +2368,7 @@ class ManualW(tk.Toplevel):
 class MainW(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title(PROGRAM_NAME)
+        self.title(PROGRAM_NAME_SHOWED)
         self.eval('tk::PlaceWindow . center')
         self.resizable(width=False, height=False)
         self.configure(bg=ST_BG[th])
@@ -2376,7 +2377,7 @@ class MainW(tk.Tk):
         self.frame_head.grid(row=0, padx=6, pady=4)
 
         self.lbl_header1 = tk.Label(self.frame_head, text='Anenokil development presents', font='StdFont 15', bg=ST_BG[th], fg=ST_FG_TEXT[th])
-        self.lbl_header2 = tk.Label(self.frame_head, text=PROGRAM_NAME,                    font='Times 21',   bg=ST_BG[th], fg=ST_FG_LOGO[th])
+        self.lbl_header2 = tk.Label(self.frame_head, text=PROGRAM_NAME_SHOWED,             font='Times 21',   bg=ST_BG[th], fg=ST_FG_LOGO[th])
         self.lbl_header1.grid(row=0, padx=7, pady=(7, 0))
         self.lbl_header2.grid(row=1, padx=7, pady=(0, 7))
 
@@ -2479,7 +2480,7 @@ class MainW(tk.Tk):
 # Вывод информации о программе
 print( '======================================================================================\n')
 print(f'                            {Fore.RED}Anenokil development{Style.RESET_ALL}  presents')
-print( '                            ' + (30 - len(PROGRAM_NAME) - len(PROGRAM_VERSION) - 2) // 2 * ' ' + f'{Fore.MAGENTA}{PROGRAM_NAME}{Style.RESET_ALL}  {PROGRAM_VERSION}')
+print( '                            ' + (30 - len(PROGRAM_NAME_SHOWED) - len(PROGRAM_VERSION) - 2) // 2 * ' ' + f'{Fore.MAGENTA}{PROGRAM_NAME_SHOWED}{Style.RESET_ALL}  {PROGRAM_VERSION}')
 print( '                            ' + (30 - len(PROGRAM_DATE)) // 2 * ' ' + PROGRAM_DATE + '\n')
 print( '======================================================================================')
 
@@ -2510,5 +2511,4 @@ gui.mainloop()
 # - больше картинок
 # - всплывающие подсказки
 # цвета в журнале
-
 # показывать общее время выполнения
