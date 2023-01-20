@@ -30,8 +30,8 @@ import wget  # Для загрузки обновления
 import zipfile  # Для распаковки обновления
 
 PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v7.0.0_PRE-35'
-PROGRAM_DATE = '20.1.2023   3:13 (UTC+3)'
+PROGRAM_VERSION = 'v7.0.0_PRE-36'
+PROGRAM_DATE = '20.1.2023   3:45 (UTC+3)'
 
 """ Пути и файлы """
 
@@ -1581,14 +1581,14 @@ class LastVersionW(tk.Toplevel):
     # Скачать и установить обновление
     def download_and_install(self):
         try:  # Загрузка
-            print('download zip')
+            print('\ndownload zip')
             wget.download(URL_DOWNLOAD_ZIP, out=os.path.dirname(__file__))  # Скачиваем архив с обновлением
         except:
-            PopupMsgW(self, 'Не удалось загрузить обновление!', title='Warning').open()
+            PopupMsgW(self, 'Не удалось загрузить обновление!', title='Warning')#.open()
             self.destroy()
         try:  # Установка
             # Распаковываем архив во временную папку
-            print('\nextracting')
+            print('extracting')
             with zipfile.ZipFile(NEW_VERSION_ZIP, 'r') as zip_file:
                 zip_file.extractall(os.path.dirname(__file__))
             # Удаляем архив
@@ -1597,21 +1597,21 @@ class LastVersionW(tk.Toplevel):
             # Удаляем файлы текущей версии
             print('delete old files')
             os.remove('ver')
-            os.remove('README.txt')
+            os.remove('README_ru.txt')
             os.remove('README.md')
             os.remove('main.py')
             # Из временной папки достаём файлы новой версии
             print('set new files')
             os.replace(os.path.join(NEW_VERSION_DIR, 'ver'), 'ver')
-            os.replace(os.path.join(NEW_VERSION_DIR, 'README.txt'), 'README.txt')
+            os.replace(os.path.join(NEW_VERSION_DIR, 'README_ru.txt'), 'README_ru.txt')
             os.replace(os.path.join(NEW_VERSION_DIR, 'README.md'), 'README.md')
             os.replace(os.path.join(NEW_VERSION_DIR, 'main.py'), 'main.py')
             # Удаляем временную папку
             print('delete tmp dir')
             os.rmdir(NEW_VERSION_DIR)
-            PopupMsgW(self, 'Обновление успешно установлено\nПрограмма закроется').open()
+            PopupMsgW(self, 'Обновление успешно установлено\nПрограмма закроется')#.open()
         except:
-            PopupMsgW(self, 'Не удалось установить обновление!', title='Warning').open()
+            PopupMsgW(self, 'Не удалось установить обновление!', title='Warning')#.open()
             self.destroy()
         else:
             exit(777)
