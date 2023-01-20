@@ -31,8 +31,8 @@ import zipfile  # Для распаковки обновления
 
 PROGRAM_NAME_SHOWED = 'Media encrypter'
 PROGRAM_NAME = 'MediaEncrypter'
-PROGRAM_VERSION = 'v7.0.0_PRE-37'
-PROGRAM_DATE = '20.1.2023   3:58 (UTC+3)'
+PROGRAM_VERSION = 'v7.0.0_PRE-38'
+PROGRAM_DATE = '20.1.2023   4:08 (UTC+3)'
 
 """ Пути и файлы """
 
@@ -1598,14 +1598,14 @@ class LastVersionW(tk.Toplevel):
             # Удаляем файлы текущей версии
             print('delete old files')
             os.remove('ver')
-            os.remove('README_ru.txt')
             os.remove('README.md')
+            os.remove('README_ru.txt')
             os.remove('main.py')
             # Из временной папки достаём файлы новой версии
             print('set new files')
             os.replace(os.path.join(NEW_VERSION_DIR, 'ver'), 'ver')
-            os.replace(os.path.join(NEW_VERSION_DIR, 'README_ru.txt'), 'README_ru.txt')
             os.replace(os.path.join(NEW_VERSION_DIR, 'README.md'), 'README.md')
+            os.replace(os.path.join(NEW_VERSION_DIR, 'README_ru.txt'), 'README_ru.txt')
             os.replace(os.path.join(NEW_VERSION_DIR, 'main.py'), 'main.py')
             # Удаляем временную папку
             print('delete tmp dir')
@@ -2512,3 +2512,5 @@ gui.mainloop()
 # - всплывающие подсказки
 # цвета в журнале
 # показывать общее время выполнения
+
+# при наведении на кнопку overrelief
