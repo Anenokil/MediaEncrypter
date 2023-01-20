@@ -1,6 +1,6 @@
 import sys
 import os
-from shutil import copyfile  # Копирование файлов
+from shutil import copyfile, rmtree
 from time import perf_counter
 from threading import Thread
 from numpy import dstack, uint8, arange
@@ -31,8 +31,8 @@ import zipfile  # Для распаковки обновления
 
 PROGRAM_NAME_SHOWED = 'Media encrypter'
 PROGRAM_NAME = 'MediaEncrypter'
-PROGRAM_VERSION = 'v7.0.0_PRE-40'
-PROGRAM_DATE = '20.1.2023   4:16 (UTC+3)'
+PROGRAM_VERSION = 'v7.0.0_PRE-41'
+PROGRAM_DATE = '20.1.2023   4:21 (UTC+3)'
 
 """ Пути и файлы """
 
@@ -1612,7 +1612,7 @@ class LastVersionW(tk.Toplevel):
             os.replace(os.path.join(NEW_VERSION_DIR, 'main.py'), 'main.py')
             # Удаляем временную папку
             print('delete tmp dir')
-            os.rmdir(NEW_VERSION_DIR)
+            rmtree(NEW_VERSION_DIR)
             PopupMsgW(self, 'Обновление успешно установлено\nПрограмма закроется').open()
         except:
             PopupMsgW(self, 'Не удалось установить обновление!', title='Warning').open()
