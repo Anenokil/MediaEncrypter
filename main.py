@@ -33,8 +33,8 @@ import zipfile  # Для распаковки обновления
 
 PROGRAM_NAME_SHOWED = 'Media encrypter'
 PROGRAM_NAME = 'MediaEncrypter'
-PROGRAM_VERSION = 'v7.0.0_PRE-42'
-PROGRAM_DATE = '20.1.2023  19:26 (UTC+3)'
+PROGRAM_VERSION = 'v7.0.0_PRE-43'
+PROGRAM_DATE = '27.1.2023  23:50 (UTC+3)'
 
 """ Пути и файлы """
 
@@ -1750,7 +1750,7 @@ class SettingsW(tk.Toplevel):
         self.lbl_note_marker_enc = tk.Label(self.frame_marker_enc, text='(if the prefix/postfix name processing mode is selected)', bg=ST_BG[th], fg=ST_FG_TEXT[th])
         self.lbl_note_marker_dec = tk.Label(self.frame_marker_dec, text='(if the prefix/postfix name processing mode is selected)', bg=ST_BG[th], fg=ST_FG_TEXT[th])
         try:
-            self.img_search  = tk.PhotoImage(file=os.path.join(IMAGES_PATH, 'search.png'))
+            self.img_search = tk.PhotoImage(file=os.path.join(IMAGES_PATH, 'search.png'))
             self.btn_src_enc = tk.Button(self.frame_src_dir_enc, image=self.img_search, command=self.choose_source_enc, bg=ST_BTN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
             self.btn_dst_enc = tk.Button(self.frame_dst_dir_enc, image=self.img_search, command=self.choose_dest_enc,   bg=ST_BTN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
             self.btn_src_dec = tk.Button(self.frame_src_dir_dec, image=self.img_search, command=self.choose_source_dec, bg=ST_BTN[th], fg=ST_FG_TEXT[th], highlightbackground=ST_BORDER[th], activebackground=ST_BTN_SELECT[th])
@@ -2397,7 +2397,9 @@ class MainW(tk.Tk):
         self.btn_mcm.grid(     row=5, pady=5)
         self.btn_close.grid(   row=6, pady=5)
 
-        self.lbl_footer = tk.Label(self, text=f'{PROGRAM_VERSION} - {PROGRAM_DATE}', font='StdFont 8', bg=ST_BG[th], fg=ST_FG_FOOTER[th])
+        self.lbl_footer = tk.Label(self, text=f'{PROGRAM_VERSION}\n'
+                                              f'{PROGRAM_DATE}',
+                                   font='StdFont 8', bg=ST_BG[th], fg=ST_FG_FOOTER[th])
         self.lbl_footer.grid(row=7, padx=7, pady=(0, 3), sticky='S')
 
     # Перейти в настройки
