@@ -11,14 +11,9 @@ from PIL import Image  # Разбиение gif-изображений на ка
 import imageio.v2 as io  # Составление gif-изображений из кадров
 from moviepy.editor import VideoFileClip  # Разбиение видео на кадры
 import cv2  # Составление видео из кадров
-if sys.version_info[0] == 3:
-    import tkinter as tk
-    import tkinter.ttk as ttk
-    from tkinter.filedialog import askdirectory
-else:
-    import Tkinter as tk
-    import Tkinter.ttk as ttk
-    from Tkinter.filedialog import askdirectory
+import tkinter as tk
+import tkinter.ttk as ttk
+from tkinter.filedialog import askdirectory
 from colorama import Fore, Style  # Цвета в консоли
 if sys.platform == 'win32':  # Для цветного текста в консоли Windows
     import ctypes
@@ -31,97 +26,14 @@ import zipfile  # Для распаковки обновления
 
 """ Информация о программе """
 
-PROGRAM_NAME_SHOWED = 'Media encrypter'
-PROGRAM_NAME = 'MediaEncrypter'
-PROGRAM_VERSION = 'v7.0.0_PRE-43'
-PROGRAM_DATE = '27.1.2023  23:50 (UTC+3)'
+PROGRAM_NAME = 'Media encrypter'
+PROGRAM_VERSION = 'v7.0.0_PRE-44'
+PROGRAM_DATE = '3.2.2023  6:08 (UTC+3)'
 
-""" Пути и файлы """
-
-# Ссылка на страницу программы на GitHub
-URL_GITHUB = f'https://github.com/Anenokil/{PROGRAM_NAME}'
-# Ссылка на файл с названием последней версией
-URL_LAST_VERSION = f'https://raw.githubusercontent.com/Anenokil/{PROGRAM_NAME}/master/ver'
-# Ссылка для установки последней версии
-URL_DOWNLOAD_ZIP = f'https://github.com/Anenokil/{PROGRAM_NAME}/archive/refs/heads/master.zip'
-
-NEW_VERSION_DIR = f'{PROGRAM_NAME}-master'  # Временная папка с обновлением
-NEW_VERSION_ZIP = f'{NEW_VERSION_DIR}.zip'  # Архив с обновлением
-
-RESOURCES_DIR = 'resources'  # Главная папка с ресурсами
-CUSTOM_SETTINGS_DIR = 'custom_settings'  # Папка с сохранёнными пользовательскими настройками
-CUSTOM_SETTINGS_PATH = os.path.join(RESOURCES_DIR, CUSTOM_SETTINGS_DIR)
-SETTINGS_FILENAME = 'settings.txt'  # Файл с настройками
-SETTINGS_PATH = os.path.join(RESOURCES_DIR, SETTINGS_FILENAME)
-TMP_FILENAME = 'tmp.png'  # Временный файл для обработки gif-изображений и видео
-TMP_PATH = os.path.join(RESOURCES_DIR, TMP_FILENAME)
-IMAGES_DIR = 'img'  # Папка с изображениями
-IMAGES_PATH = os.path.join(RESOURCES_DIR, IMAGES_DIR)
-CUSTOM_THEMES_DIR = 'themes'  # Папка с пользовательскими темами
-CUSTOM_THEMES_PATH = os.path.join(RESOURCES_DIR, CUSTOM_THEMES_DIR)
-
-# Если нет папки с ресурсами
-if RESOURCES_DIR not in os.listdir(os.curdir):
-    os.mkdir(RESOURCES_DIR)
-
-# Затирание временного файла при запуске программы, если он остался с прошлого сеанса
-if TMP_FILENAME in os.listdir(RESOURCES_DIR):
-    open(TMP_PATH, 'w')
-    os.remove(TMP_PATH)
-
-# Если нет папки с сохранёнными пользовательскими настройками
-if CUSTOM_SETTINGS_DIR not in os.listdir(RESOURCES_DIR):
-    os.mkdir(CUSTOM_SETTINGS_PATH)
-if CUSTOM_THEMES_DIR not in os.listdir(RESOURCES_DIR):
-    os.mkdir(CUSTOM_THEMES_PATH)
-
-# Допустимые в названии файлов символы (Windows)
-FN_SYMBOLS_WITHOUT_RU = '#\' 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@$%^&()[]{}-=_+`~;,.'
-FN_SYMBOLS_WITH_RU = FN_SYMBOLS_WITHOUT_RU + 'абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ'
-FN_SYMBOLS_WITHOUT_RU_NUM = len(FN_SYMBOLS_WITHOUT_RU)
-FN_SYMBOLS_WITH_RU_NUM = len(FN_SYMBOLS_WITH_RU)
-
-""" Настройки """
-
-settings = {}
-INT_SETTINGS_NUM = 2  # Количество числовых настроек
-SETTINGS_NUM = 15  # Количество всех настроек
-
-# Названия настроек
-SETTINGS_NAMES = ['count_from', 'format', 'show_updates', 'support_ru', 'processing_ru',
-                  'naming_mode', 'print_info', 'theme',
-                  'marker_enc', 'marker_dec', 'src_dir_enc', 'dst_dir_enc',
-                  'src_dir_dec', 'dst_dir_dec', 'example_key']
-
-# Варианты значений настроек с перечислимым типом
-SHOW_UPDATES_MODES = ['yes', 'no']  # Варианты поддержки кириллических букв
-SUPPORT_RU_MODES = ['yes', 'no']  # Варианты поддержки кириллических букв
-PROCESSING_RU_MODES = ['don`t change', 'transliterate to latin']  # Варианты обработки кириллических букв
-NAMING_MODES = ['don`t change', 'encryption', 'numbering', 'add prefix', 'add postfix']  # Варианты именования выходных файлов
-PRINT_INFO_MODES = ['don`t print', 'print']  # Варианты печати информации
-THEME_MODES = ['light', 'dark']  # Варианты тем
-
-# Значения настроек по умолчанию
-DEFAULT_SETTINGS = {'count_from': 1,
-                    'format': 1,
-                    'show_updates': 'yes',
-                    'support_ru': 'no',
-                    'processing_ru': 'transliterate to latin',
-                    'naming_mode': 'encryption',
-                    'print_info': 'don`t print',
-                    'theme': 'light',
-                    'marker_enc': '_ENC_',
-                    'marker_dec': '_DEC_',
-                    'src_dir_enc': 'f_src',
-                    'dst_dir_enc': 'f_enc',
-                    'src_dir_dec': 'f_enc',
-                    'dst_dir_dec': 'f_dec',
-                    'example_key': '_123456789_123456789_123456789_123456789'}
-
-""" Стандартные темы """
+""" Темы """
 
 REQUIRED_THEME_VERSION = 1
-THEMES = THEME_MODES  # Названия тем
+THEMES = ['light', 'dark']  # Названия тем
 
 # Все: bg
 # Все, кроме frame: fg
@@ -191,6 +103,90 @@ STYLES = {STYLE_ELEMENTS[0]:  ST_BG,
           STYLE_ELEMENTS[22]: ST_PROG_ABORT,
           STYLE_ELEMENTS[23]: ST_PROG_DONE}
 
+""" Пути, файлы, ссылки """
+
+MAIN_PATH = os.path.dirname(__file__)  # Папка с программой
+RESOURCES_DIR = 'resources'  # Главная папка с ресурсами
+CUSTOM_SETTINGS_DIR = 'custom_settings'  # Папка с сохранёнными пользовательскими настройками
+CUSTOM_SETTINGS_PATH = os.path.join(RESOURCES_DIR, CUSTOM_SETTINGS_DIR)
+SETTINGS_FILENAME = 'settings.txt'  # Файл с настройками
+SETTINGS_PATH = os.path.join(RESOURCES_DIR, SETTINGS_FILENAME)
+TMP_FILENAME = 'tmp.png'  # Временный файл для обработки gif-изображений и видео
+TMP_PATH = os.path.join(RESOURCES_DIR, TMP_FILENAME)
+IMAGES_DIR = 'img'  # Папка с изображениями
+IMAGES_PATH = os.path.join(RESOURCES_DIR, IMAGES_DIR)
+CUSTOM_THEMES_DIR = 'themes'  # Папка с пользовательскими темами
+CUSTOM_THEMES_PATH = os.path.join(RESOURCES_DIR, CUSTOM_THEMES_DIR)
+
+# Если нет папки с ресурсами
+if RESOURCES_DIR not in os.listdir(os.curdir):
+    os.mkdir(RESOURCES_DIR)
+if CUSTOM_SETTINGS_DIR not in os.listdir(RESOURCES_DIR):
+    os.mkdir(CUSTOM_SETTINGS_PATH)
+if CUSTOM_THEMES_DIR not in os.listdir(RESOURCES_DIR):
+    os.mkdir(CUSTOM_THEMES_PATH)
+
+# Затирание временного файла при запуске программы, если он остался с прошлого сеанса
+if TMP_FILENAME in os.listdir(RESOURCES_DIR):
+    open(TMP_PATH, 'w')
+    os.remove(TMP_PATH)
+
+# Название репозитория на GitHub
+REPOSITORY_NAME = 'MediaEncrypter'
+
+# Ссылка на репозиторий программы на GitHub
+URL_GITHUB = f'https://github.com/Anenokil/{REPOSITORY_NAME}'
+# Ссылка на файл с названием последней версии
+URL_LAST_VERSION = f'https://raw.githubusercontent.com/Anenokil/{REPOSITORY_NAME}/master/ver'
+# Ссылка для установки последней версии
+URL_DOWNLOAD_ZIP = f'https://github.com/Anenokil/{REPOSITORY_NAME}/archive/refs/heads/master.zip'
+
+NEW_VERSION_DIR = f'{REPOSITORY_NAME}-master'  # Временная папка с обновлением
+NEW_VERSION_ZIP = f'{NEW_VERSION_DIR}.zip'  # Архив с обновлением
+
+# Допустимые в названии файлов символы (Windows)
+FN_SYMBOLS_WITHOUT_RU = '#\' 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@$%^&()[]{}-=_+`~;,.'
+FN_SYMBOLS_WITH_RU = FN_SYMBOLS_WITHOUT_RU + 'абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ'
+FN_SYMBOLS_WITHOUT_RU_NUM = len(FN_SYMBOLS_WITHOUT_RU)
+FN_SYMBOLS_WITH_RU_NUM = len(FN_SYMBOLS_WITH_RU)
+
+""" Настройки """
+
+settings = {}
+INT_SETTINGS_NUM = 2  # Количество числовых настроек
+SETTINGS_NUM = 15  # Количество всех настроек
+
+# Названия настроек
+SETTINGS_NAMES = ['count_from', 'format', 'show_updates', 'support_ru', 'processing_ru',
+                  'naming_mode', 'print_info', 'theme',
+                  'marker_enc', 'marker_dec', 'src_dir_enc', 'dst_dir_enc',
+                  'src_dir_dec', 'dst_dir_dec', 'example_key']
+
+# Варианты значений настроек с перечислимым типом
+SHOW_UPDATES_MODES = ['yes', 'no']  # Варианты поддержки кириллических букв
+SUPPORT_RU_MODES = ['yes', 'no']  # Варианты поддержки кириллических букв
+PROCESSING_RU_MODES = ['don`t change', 'transliterate to latin']  # Варианты обработки кириллических букв
+NAMING_MODES = ['don`t change', 'encryption', 'numbering', 'add prefix', 'add postfix']  # Варианты именования выходных файлов
+PRINT_INFO_MODES = ['don`t print', 'print']  # Варианты печати информации
+THEME_MODES = THEMES  # Варианты тем
+
+# Значения настроек по умолчанию
+DEFAULT_SETTINGS = {'count_from': 1,
+                    'format': 1,
+                    'show_updates': 'yes',
+                    'support_ru': 'no',
+                    'processing_ru': 'transliterate to latin',
+                    'naming_mode': 'encryption',
+                    'print_info': 'don`t print',
+                    'theme': 'light',
+                    'marker_enc': '_ENC_',
+                    'marker_dec': '_DEC_',
+                    'src_dir_enc': 'f_src',
+                    'dst_dir_enc': 'f_enc',
+                    'src_dir_dec': 'f_enc',
+                    'dst_dir_dec': 'f_dec',
+                    'example_key': '_123456789_123456789_123456789_123456789'}
+
 """ Ключ """
 
 KEY_SYMBOLS = '0123456789-abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ'  # Допустимые в ключе символы
@@ -200,12 +196,12 @@ KEY_LEN = 40  # Длина ключа
 
 
 # Перевод 'yes'/'no' в bool
-def str_to_bool(line):
+def str_to_bool(line: str):
     return line == 'yes'
 
 
 # Перевод bool в 'yes'/'no'
-def bool_to_str(boolean):
+def bool_to_str(boolean: bool):
     if boolean:
         return 'yes'
     else:
@@ -227,7 +223,7 @@ def add_log(msg='', tab=0, end='\n'):
 
 
 # Обновить прогресс обработки (файлы и папки)
-def set_progress_f_d(num, den):
+def set_progress_f_d(num: int, den: int):
     try:
         gui.logger.set_progress_f_d(num, den)
     except:
@@ -236,7 +232,7 @@ def set_progress_f_d(num, den):
 
 
 # Обновить прогресс обработки (кадры)
-def set_progress_fr(num, den):
+def set_progress_fr(num: int, den: int):
     try:
         gui.logger.set_progress_fr(num, den)
     except:
@@ -245,18 +241,18 @@ def set_progress_fr(num, den):
 
 
 # Вывод предупреждения в консоль и в журнал
-def print_warn(text):
-    print(f'{Fore.RED}[!!!] {text} [!!!]{Style.RESET_ALL}')
-    add_log(f'[!!!] {text} [!!!]')
+def print_warn(msg: str):
+    print(f'{Fore.RED}[!!!] {msg} [!!!]{Style.RESET_ALL}')
+    add_log(f'[!!!] {msg} [!!!]')
 
 
 # Является ли строка целым числом
-def is_num(line):
+def is_num(line: str):
     return line.isnumeric() or (len(line) > 1 and line[0] == '-' and line[1:].isnumeric())
 
 
 # Проверка ключа на корректность
-def check_key(key):
+def check_key(key: str):
     length = len(key)
     if length != KEY_LEN:  # Если ключ имеет неверную длину
         return 'L', length
@@ -299,7 +295,7 @@ def correct_settings():
 
 
 # Загрузка настроек из файла
-def load_settings(filename):
+def load_settings(filename: str):
     with open(filename, 'r') as file:
         for i in range(SETTINGS_NUM):
             settings[SETTINGS_NAMES[i]] = file.readline().strip()
@@ -316,7 +312,7 @@ def save_settings_to_file(filename=SETTINGS_PATH):
 
 
 # Преобразование ключа в массив битов (каждый символ - в 6 битов)
-def key_to_bites(key):
+def key_to_bites(key: str):
     bits = [[0] * KEY_LEN for _ in range(6)]
     for i in range(KEY_LEN):
         symbol = KEY_SYMBOLS.find(key[i])
@@ -326,19 +322,19 @@ def key_to_bites(key):
 
 
 # Нахождение числа по его битам
-def bites_sum(*bites):
+def bites_sum(*bites: int | list[int]):
     res = 0
     for i in bites:
-        if type(i) == list:  # Можно передавать массивы
+        if type(i) == list:
             for j in i:
                 res = 2 * res + j
-        else:  # А можно числа
+        else:
             res = 2 * res + i
     return res
 
 
 # Извлечение ключевых значений
-def extract_key_values(b):
+def extract_key_values(b: list[list[int]]):
     global mult_blocks_h_r, mult_blocks_h_g, mult_blocks_h_b, mult_blocks_w_r, mult_blocks_w_g, mult_blocks_w_b,\
         shift_h_r, shift_h_g, shift_h_b, shift_w_r, shift_w_g, shift_w_b, shift_r, shift_g, shift_b, mult_r,\
         mult_g, mult_b, shift2_r, shift2_g, shift2_b, order, mult_name
@@ -382,7 +378,7 @@ def extract_key_values(b):
 
 
 # Проверка наличия обновлений программы
-def check_updates(window_parent, show_updates):
+def check_updates(window_parent, show_updates: bool):
     print('\nПроверка наличия обновлений...')
     window_last_version = None
     try:
@@ -400,7 +396,7 @@ def check_updates(window_parent, show_updates):
 
 
 # Загрузка пользовательских тем
-def upload_themes(themes):
+def upload_themes(themes: list[str]):
     if os.listdir(CUSTOM_THEMES_PATH):
         print('\nЗагрузка тем...')
     for file_name in os.listdir(CUSTOM_THEMES_PATH):
@@ -430,7 +426,7 @@ def upload_themes(themes):
 
 
 # Разделение полотна на блоки и их перемешивание
-def mix_blocks(img, mult_h, mult_w, shift_h, shift_w, depth):
+def mix_blocks(img, mult_h: int, mult_w: int, shift_h: int, shift_w: int, depth: int):
     h = img.shape[0]  # Высота изображения
     w = img.shape[1]  # Ширина изображения
 
@@ -456,7 +452,7 @@ def mix_blocks(img, mult_h, mult_w, shift_h, shift_w, depth):
 
 
 # Шифровка файла
-def encode_file(img, depth):
+def encode_file(img, depth: int):
     # Разделение изображения на RGB-каналы
     if len(img.shape) < 3:  # Если в изображении меньше трёх каналов
         red, green, blue = img.copy(), img.copy(), img.copy()
@@ -504,7 +500,7 @@ def encode_file(img, depth):
 
 
 # Вычисление параметров для recover_blocks
-def recover_blocks_calc(h, w, mult_h, mult_w, depth):
+def recover_blocks_calc(h: int, w: int, mult_h: int, mult_w: int, depth: int):
     # Нахождение наименьшего числа, взаимно-простого с h, большего чем mult_h, дающего при делении на h в остатке 1
     while gcd(mult_h, h) != 1 or mult_h % h == 1:
         mult_h += 1
@@ -527,7 +523,7 @@ def recover_blocks_calc(h, w, mult_h, mult_w, depth):
 
 
 # Разделение полотна на блоки и восстановление из них исходного изображения
-def recover_blocks(img, h, w, shift_h, shift_w, dec_h, dec_w):
+def recover_blocks(img, h: int, w: int, shift_h: int, shift_w: int, dec_h: list[int], dec_w: list[int]):
     img_tmp = img.copy()
     for i in range(h):
         for j in range(w):
@@ -539,7 +535,7 @@ def recover_blocks(img, h, w, shift_h, shift_w, dec_h, dec_w):
 
 
 # Вычисление параметров для decode_file
-def decode_file_calc(img, depth):
+def decode_file_calc(img, depth: int):
     h = img.shape[0]  # Высота изображения
     w = img.shape[1]  # Ширина изображения
 
@@ -551,7 +547,8 @@ def decode_file_calc(img, depth):
 
 
 # Дешифровка файла
-def decode_file(img, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b):
+def decode_file(img, h: int, w: int, dec_h_r: list[int], dec_w_r: list[int], dec_h_g: list[int], dec_w_g: list[int],
+                dec_h_b: list[int], dec_w_b: list[int]):
     # Разделение изображения на RGB-каналы и отмена их перемешивания
     if len(img.shape) < 3:  # Если в изображении меньше трёх каналов
         red, green, blue = img.copy(), img.copy(), img.copy()
@@ -601,7 +598,7 @@ def decode_file(img, h, w, dec_h_r, dec_w_r, dec_h_g, dec_w_g, dec_h_b, dec_w_b)
 
 
 # Шифровка имени файла
-def encode_filename(name):
+def encode_filename(name: str):
     if settings['processing_ru'] == 'transliterate to latin':  # Транслитерация кириллицы
         name = translit(name, language_code='ru', reversed=True)
 
@@ -619,7 +616,7 @@ def encode_filename(name):
 
 
 # Дешифровка имени файла
-def decode_filename(name):
+def decode_filename(name: str):
     name = name[1:-1]  # Защита от потери крайних пробелов
 
     # Нахождение наименьшего числа, взаимно-простого с fn_symbols_num, большего чем mult_name + len(name)
@@ -643,7 +640,8 @@ def decode_filename(name):
 
 
 # Преобразование имени файла
-def filename_processing(op_mode, naming_mode, base_name, ext, output_dir, marker, count_correct):
+def filename_processing(op_mode: str, naming_mode: str, base_name: str, ext: str, output_dir: str, marker: str,
+                        count_correct: int):
     if op_mode == 'E':  # При шифровке
         count_same = 1  # Счётчик файлов с таким же именем
         counter = ''
@@ -686,7 +684,7 @@ def filename_processing(op_mode, naming_mode, base_name, ext, output_dir, marker
 
 
 # Подсчёт всех файлов и папок, всех кадров
-def count_all(op_mode, inp_dir, count_f_d, count_fr):
+def count_all(op_mode: str, inp_dir: str, count_f_d: int, count_fr: int):
     for filename in os.listdir(inp_dir):  # Проход по файлам
         _, ext = os.path.splitext(filename)
         pth = os.path.join(inp_dir, filename)
@@ -728,7 +726,8 @@ def count_all(op_mode, inp_dir, count_f_d, count_fr):
 
 
 # Обработка папки с файлами
-def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files, count_all_frames, depth):
+def converse_dir(op_mode: str, marker: str, formats: list[str], inp_dir: str, output_dir: str, count_all_files: int,
+                 count_all_frames: int, depth: int):
     count_correct = settings['count_from'] - 1  # Счётчик количества обработанных файлов
     for filename in os.listdir(inp_dir):  # Проход по файлам
         base_name, ext = os.path.splitext(filename)
@@ -980,7 +979,8 @@ def converse_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files,
 
 
 # Диагностика папки с файлами
-def diagnostic_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_files, count_all_frames, depth):
+def diagnostic_dir(op_mode: str, marker: str, formats: list[str], inp_dir: str, output_dir: str, count_all_files: int,
+                   count_all_frames: int, depth: int):
     count_correct = settings['count_from'] - 1  # Счётчик количества обработанных файлов
     for filename in os.listdir(inp_dir):  # Проход по файлам
         base_name, ext = os.path.splitext(filename)
@@ -1165,7 +1165,7 @@ def diagnostic_dir(op_mode, marker, formats, inp_dir, output_dir, count_all_file
 
 
 # Шифровка
-def encode(cmd):
+def encode(cmd: int):
     op_mode = 'E'
     input_dir = settings['src_dir_enc']
     output_dir = settings['dst_dir_enc']
@@ -1193,7 +1193,7 @@ def encode(cmd):
 
 
 # Дешифровка
-def decode(cmd):
+def decode(cmd: int):
     global DEC_R, DEC_G, DEC_B
     DEC_R = [0] * 256  # Массив для отмены цветового множителя для красного канала
     DEC_G = [0] * 256  # Массив для отмены цветового множителя для зелёного канала
@@ -1229,11 +1229,11 @@ def decode(cmd):
     print('=============================== PROCESSING IS FINISHED ===============================')
 
 
-""" Графический интерфейс """
+""" Графический интерфейс - функции валидации """
 
 
 # Ввод только заданных символов
-def validate_symbols(value, allowed_symbols):
+def validate_symbols(value: str, allowed_symbols: str):
     for c in value:
         if c not in allowed_symbols:
             return False
@@ -1241,37 +1241,37 @@ def validate_symbols(value, allowed_symbols):
 
 
 # Ввод только натуральных чисел
-def validate_natural(value):
+def validate_natural(value: str):
     return value == '' or value.isnumeric()
 
 
 # Ввод только целых чисел
-def validate_num(value):
+def validate_num(value: str):
     return value in ['', '-'] or value.isnumeric() or (value[0] == '-' and value[1:].isnumeric())
 
 
 # Ввод только до заданной длины
-def validate_len(value, max_len):
+def validate_len(value: str, max_len: int):
     return len(value) <= max_len
 
 
 # Ввод только натуральных чисел до заданной длины
-def validate_natural_and_len(value, max_len):
+def validate_natural_and_len(value: str, max_len: int):
     return validate_natural(value) and validate_len(value, max_len)
 
 
 # Ввод только целых чисел до заданной длины
-def validate_num_and_len(value, max_len):
+def validate_num_and_len(value: str, max_len: int):
     return validate_num(value) and validate_len(value, max_len)
 
 
 # Ввод только символов подходящих для ключа и до длины ключа
-def validate_key(value):
+def validate_key(value: str):
     return validate_symbols(value, KEY_SYMBOLS) and validate_len(value, KEY_LEN)
 
 
 # Расширение поля ввода для длинных строк
-def validate_expand(value, entry, min_len, max_len):
+def validate_expand(value: str, entry: tk.Entry | ttk.Entry, min_len: int, max_len: int):
     len_value = len(value)
     if len_value <= min_len:
         entry['width'] = min_len
@@ -1282,9 +1282,12 @@ def validate_expand(value, entry, min_len, max_len):
     return True
 
 
+""" Графический интерфейс - всплывающие окна """
+
+
 # Всплывающее окно с сообщением
 class PopupMsgW(tk.Toplevel):
-    def __init__(self, parent, msg, btn_text='OK', title=PROGRAM_NAME_SHOWED):
+    def __init__(self, parent, msg: str, btn_text='OK', title=PROGRAM_NAME):
         super().__init__(parent)
         self.title(title)
         self.configure(bg=ST_BG[th])
@@ -1299,7 +1302,7 @@ class PopupMsgW(tk.Toplevel):
 
 # Всплывающее окно с сообщением и двумя кнопками
 class PopupDialogueW(tk.Toplevel):
-    def __init__(self, parent, msg='Are you sure?', btn_yes='Yes', btn_no='Cancel', title=PROGRAM_NAME_SHOWED):
+    def __init__(self, parent, msg='Are you sure?', btn_yes='Yes', btn_no='Cancel', title=PROGRAM_NAME):
         super().__init__(parent)
         self.title(title)
         self.configure(bg=ST_BG[th])
@@ -1324,8 +1327,8 @@ class PopupDialogueW(tk.Toplevel):
 
 # Всплывающее окно с полем Combobox
 class PopupChooseW(tk.Toplevel):
-    def __init__(self, parent, values, msg='Choose the one of these', btn_text='Confirm',
-                 default_value=None, title=PROGRAM_NAME_SHOWED):
+    def __init__(self, parent, values: list | tuple, msg='Choose the one of these', btn_text='Confirm',
+                 default_value=None, title=PROGRAM_NAME):
         super().__init__(parent)
         self.title(title)
         self.configure(bg=ST_BG[th])
@@ -1345,11 +1348,14 @@ class PopupChooseW(tk.Toplevel):
         return self.answer.get()
 
 
+""" Графический интерфейс - вспомогательные окна """
+
+
 # Всплывающее окно для ввода названия сохранения
 class EnterSaveNameW(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
-        self.title(PROGRAM_NAME_SHOWED)
+        self.title(PROGRAM_NAME)
         self.configure(bg=ST_BG[th])
 
         self.name_is_correct = False
@@ -1385,7 +1391,7 @@ class EnterSaveNameW(tk.Toplevel):
 
 # Всплывающее окно для ввода пароля
 class EnterKeyW(tk.Toplevel):
-    def __init__(self, parent, action):
+    def __init__(self, parent, action: str):
         super().__init__(parent)
         self.title('Media encrypter - Key')
         self.configure(bg=ST_BG[th])
@@ -1542,12 +1548,12 @@ class LoggerW(tk.Toplevel):
         self.log['state'] = 'disabled'
 
     # Установить прогресс (файлы и папки)
-    def set_progress_f_d(self, num, den):
+    def set_progress_f_d(self, num: int, den: int):
         self.progressbar_f_d['value'] = 100 * num / den
         self.str_progress_f_d.set(f'{num}/{den}')
 
     # Установить прогресс (кадры)
-    def set_progress_fr(self, num, den):
+    def set_progress_fr(self, num: int, den: int):
         self.progressbar_fr['value'] = 100 * num / den
         self.str_progress_fr.set(f'{num}/{den}')
 
@@ -1558,7 +1564,7 @@ class LoggerW(tk.Toplevel):
 
 # Окно уведомления о выходе новой версии
 class LastVersionW(tk.Toplevel):
-    def __init__(self, parent, last_version):
+    def __init__(self, parent, last_version: str):
         super().__init__(parent)
         self.title('New version available')
         self.configure(bg=ST_BG[th])
@@ -1625,6 +1631,9 @@ class LastVersionW(tk.Toplevel):
     def open(self):
         self.grab_set()
         self.wait_window()
+
+
+""" Графический интерфейс - основные окна """
 
 
 # Окно настроек
@@ -1913,7 +1922,7 @@ class SettingsW(tk.Toplevel):
         copyfile(SETTINGS_PATH, os.path.join(CUSTOM_SETTINGS_PATH, f'{filename}.txt'))
 
     # Выбрать файл с сохранением
-    def choose_custom_save(self, cmd_name):
+    def choose_custom_save(self, cmd_name: str):
         csf_count = 0
         csf_list = []
         for file_name in os.listdir(CUSTOM_SETTINGS_PATH):
@@ -2373,7 +2382,7 @@ class ManualW(tk.Toplevel):
 class MainW(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title(PROGRAM_NAME_SHOWED)
+        self.title(PROGRAM_NAME)
         self.eval('tk::PlaceWindow . center')
         self.resizable(width=False, height=False)
         self.configure(bg=ST_BG[th])
@@ -2382,7 +2391,7 @@ class MainW(tk.Tk):
         self.frame_head.grid(row=0, padx=6, pady=4)
 
         self.lbl_header1 = tk.Label(self.frame_head, text='Anenokil development presents', font='StdFont 15', bg=ST_BG[th], fg=ST_FG_TEXT[th])
-        self.lbl_header2 = tk.Label(self.frame_head, text=PROGRAM_NAME_SHOWED,             font='Times 21',   bg=ST_BG[th], fg=ST_FG_LOGO[th])
+        self.lbl_header2 = tk.Label(self.frame_head, text=PROGRAM_NAME,             font='Times 21',   bg=ST_BG[th], fg=ST_FG_LOGO[th])
         self.lbl_header1.grid(row=0, padx=7, pady=(7, 0))
         self.lbl_header2.grid(row=1, padx=7, pady=(0, 7))
 
@@ -2485,11 +2494,11 @@ class MainW(tk.Tk):
 
 
 # Вывод информации о программе
-print( '======================================================================================\n')
+print(f'======================================================================================\n')
 print(f'                            {Fore.RED}Anenokil development{Style.RESET_ALL}  presents')
-print( '                            ' + (30 - len(PROGRAM_NAME_SHOWED) - len(PROGRAM_VERSION) - 2) // 2 * ' ' + f'{Fore.MAGENTA}{PROGRAM_NAME_SHOWED}{Style.RESET_ALL}  {PROGRAM_VERSION}')
-print( '                            ' + (30 - len(PROGRAM_DATE)) // 2 * ' ' + PROGRAM_DATE + '\n')
-print( '======================================================================================')
+print(f'                            ' + (30 - len(PROGRAM_NAME) - len(PROGRAM_VERSION) - 2) // 2 * ' ' + f'{Fore.MAGENTA}{PROGRAM_NAME}{Style.RESET_ALL}  {PROGRAM_VERSION}')
+print(f'                            ' + (30 - len(PROGRAM_DATE)) // 2 * ' ' + PROGRAM_DATE + '\n')
+print(f'======================================================================================')
 
 upload_themes(THEMES)  # Загружаем темы
 
