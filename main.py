@@ -26,9 +26,9 @@ import zipfile  # Для распаковки обновления
 
 """ Информация о программе """
 
-PROGRAM_NAME = 'Media encrypter'
-PROGRAM_VERSION = 'v7.0.0_PRE-45'
-PROGRAM_DATE = '3.2.2023 22:06 (UTC+3)'
+PROGRAM_NAME = 'Media Encrypter'
+PROGRAM_VERSION = 'v7.0.0_PRE-46'
+PROGRAM_DATE = '6.2.2023 18:52 (UTC+3)'
 
 """ Темы """
 
@@ -73,9 +73,12 @@ ST_PROG_ABORT   = {THEMES[0]: '#FFB050', THEMES[1]: '#FFB040'}  # bg
 ST_PROG_DONE    = {THEMES[0]: '#0077FF', THEMES[1]: '#1133DD'}  # bg
 
 # Названия стилизуемых элементов
-STYLE_ELEMENTS = ['BG', 'BG_RGB', 'BG_FIELDS', 'BG_ERR', 'BORDER', 'RELIEF', 'SELECT', 'HIGHLIGHT',
-                  'BTN', 'BTN_SELECT', 'MCM', 'MCM_SELECT', 'BTNY', 'BTNY_SELECT', 'BTNN', 'BTNN_SELECT',
-                  'FG_TEXT', 'FG_LOGO', 'FG_FOOTER', 'FG_EXAMPLE', 'FG_KEY', 'ST_PROG', 'ST_PROG_ABORT', 'ST_PROG_DONE']
+STYLE_ELEMENTS = ['BG', 'BG_RGB', 'BG_FIELDS', 'BG_ERR',
+                  'BORDER', 'RELIEF',
+                  'SELECT', 'HIGHLIGHT',
+                  'BTN', 'BTN_SELECT', 'MCM', 'MCM_SELECT', 'BTN_Y', 'BTN_Y_SELECT', 'BTN_N', 'BTN_N_SELECT',
+                  'FG', 'FG_LOGO', 'FG_FOOTER', 'FG_EXAMPLE', 'FG_KEY',
+                  'ST_PROG', 'ST_PROG_ABORT', 'ST_PROG_DONE']
 
 # Стили для каждого элемента
 STYLES = {STYLE_ELEMENTS[0]:  ST_BG,
@@ -107,27 +110,28 @@ STYLES = {STYLE_ELEMENTS[0]:  ST_BG,
 
 MAIN_PATH = os.path.dirname(__file__)  # Папка с программой
 RESOURCES_DIR = 'resources'  # Главная папка с ресурсами
+RESOURCES_PATH = os.path.join(MAIN_PATH, RESOURCES_DIR)
 CUSTOM_SETTINGS_DIR = 'custom_settings'  # Папка с сохранёнными пользовательскими настройками
-CUSTOM_SETTINGS_PATH = os.path.join(RESOURCES_DIR, CUSTOM_SETTINGS_DIR)
-SETTINGS_FILENAME = 'settings.txt'  # Файл с настройками
-SETTINGS_PATH = os.path.join(RESOURCES_DIR, SETTINGS_FILENAME)
-TMP_FILENAME = 'tmp.png'  # Временный файл для обработки gif-изображений и видео
-TMP_PATH = os.path.join(RESOURCES_DIR, TMP_FILENAME)
+CUSTOM_SETTINGS_PATH = os.path.join(RESOURCES_PATH, CUSTOM_SETTINGS_DIR)
+SETTINGS_FN = 'settings.txt'  # Файл с настройками
+SETTINGS_PATH = os.path.join(RESOURCES_PATH, SETTINGS_FN)
+TMP_FN = 'tmp.png'  # Временный файл для обработки gif-изображений и видео
+TMP_PATH = os.path.join(RESOURCES_PATH, TMP_FN)
 IMAGES_DIR = 'img'  # Папка с изображениями
-IMAGES_PATH = os.path.join(RESOURCES_DIR, IMAGES_DIR)
-CUSTOM_THEMES_DIR = 'themes'  # Папка с пользовательскими темами
-CUSTOM_THEMES_PATH = os.path.join(RESOURCES_DIR, CUSTOM_THEMES_DIR)
+IMAGES_PATH = os.path.join(RESOURCES_PATH, IMAGES_DIR)
+ADDITIONAL_THEMES_DIR = 'themes'  # Папка с дополнительными темами
+ADDITIONAL_THEMES_PATH = os.path.join(RESOURCES_PATH, ADDITIONAL_THEMES_DIR)
 
-# Если нет папки с ресурсами
-if RESOURCES_DIR not in os.listdir(os.curdir):
-    os.mkdir(RESOURCES_DIR)
-if CUSTOM_SETTINGS_DIR not in os.listdir(RESOURCES_DIR):
+# Если папки отсутствуют, то они создаются
+if RESOURCES_DIR not in os.listdir(MAIN_PATH):
+    os.mkdir(RESOURCES_PATH)
+if CUSTOM_SETTINGS_DIR not in os.listdir(RESOURCES_PATH):
     os.mkdir(CUSTOM_SETTINGS_PATH)
-if CUSTOM_THEMES_DIR not in os.listdir(RESOURCES_DIR):
-    os.mkdir(CUSTOM_THEMES_PATH)
+if ADDITIONAL_THEMES_DIR not in os.listdir(RESOURCES_PATH):
+    os.mkdir(ADDITIONAL_THEMES_PATH)
 
-# Затирание временного файла при запуске программы, если он остался с прошлого сеанса
-if TMP_FILENAME in os.listdir(RESOURCES_DIR):
+# Если временный файл не удалён, то он удаляется
+if TMP_FN in os.listdir(RESOURCES_PATH):
     open(TMP_PATH, 'w')
     os.remove(TMP_PATH)
 
@@ -378,7 +382,7 @@ def extract_key_values(b: list[list[int]]):
 
 
 # Проверка наличия обновлений программы
-def check_updates(window_parent, show_updates: bool):
+def check_updates(window_parent, show_updates: bool, show_if_no_updates: bool):
     print('\nПроверка наличия обновлений...')
     window_last_version = None
     try:
@@ -386,23 +390,30 @@ def check_updates(window_parent, show_updates: bool):
         last_version = str(data.read().decode('utf-8')).strip()
         if PROGRAM_VERSION == last_version:
             print('Установлена последняя доступная версия')
+            if show_updates and show_if_no_updates:
+                window_last_version = PopupMsgW(window_parent, 'Установлена последняя доступная версия')
         else:
             print(f'Доступна новая версия: {last_version}')
             if show_updates:
                 window_last_version = LastVersionW(window_parent, last_version)
-    except:
-        print('Ошибка, возможно отсутствует соединение')
+    except Exception as exc:
+        print(f'Ошибка: невозможно проверить наличие обновлений!\n'
+              f'{exc}')
+        if show_updates:
+            PopupMsgW(window_parent, f'Ошибка: невозможно проверить наличие обновлений!\n'
+                                     f'{exc}',
+                      title='Warning').open()
     return window_last_version
 
 
 # Загрузка пользовательских тем
 def upload_themes(themes: list[str]):
-    if os.listdir(CUSTOM_THEMES_PATH):
+    if os.listdir(ADDITIONAL_THEMES_PATH):
         print('\nЗагрузка тем...')
-    for file_name in os.listdir(CUSTOM_THEMES_PATH):
+    for file_name in os.listdir(ADDITIONAL_THEMES_PATH):
         base_name, ext = os.path.splitext(file_name)
         theme = base_name
-        file_path = os.path.join(CUSTOM_THEMES_PATH, file_name)
+        file_path = os.path.join(ADDITIONAL_THEMES_PATH, file_name)
         try:
             with open(file_path, 'r', encoding='utf-8') as theme_file:
                 line = theme_file.readline().strip()
@@ -416,8 +427,9 @@ def upload_themes(themes: list[str]):
                     style = re.split(' |//', line)[0]  # После // идут комментарии
                     element = STYLES[style_elem]
                     element[theme] = style  # Добавляем новый стиль для элемента, соответствующий теме theme
-        except:
-            print(f'Не удалось загрузить тему "{theme}" из-за ошибки!')
+        except Exception as exc:
+            print(f'Не удалось загрузить тему "{theme}" из-за ошибки!\n'
+                  f'{exc}')
         else:
             print(f'Тема "{theme}" успешно загружена')
 
@@ -784,6 +796,7 @@ def converse_dir(op_mode: str, marker: str, formats: list[str], var_dir: str, ou
                 open(os.path.join(res, '_gif'), 'w')
 
                 with Image.open(pth) as im:
+                    fr = None
                     for i in range(im.n_frames):
                         print_tab(f'frame {i + 1}/{im.n_frames}', depth)
                         add_log(f'frame {i + 1}/{im.n_frames}', depth)
@@ -804,7 +817,8 @@ def converse_dir(op_mode: str, marker: str, formats: list[str], var_dir: str, ou
 
                         if process_status != 'work':
                             break
-                    imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
+                    if fr:
+                        imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
                     os.remove(TMP_PATH)
             elif isdir and '_gif' in os.listdir(pth) and op_mode == 'D':
                 res_name = filename_processing(op_mode, settings['naming_mode'], filename, '.gif', output_dir, marker, count_correct)  # Преобразование имени файла
@@ -821,6 +835,7 @@ def converse_dir(op_mode: str, marker: str, formats: list[str], var_dir: str, ou
 
                 count_frames = len(frames)
                 with io.get_writer(res, mode='I', duration=1/24) as writer:
+                    fr = None
                     for i in range(count_frames):
                         print_tab(f'frame {i + 1}/{count_frames}', depth)
                         add_log(f'frame {i + 1}/{count_frames}', depth)
@@ -840,7 +855,8 @@ def converse_dir(op_mode: str, marker: str, formats: list[str], var_dir: str, ou
 
                         if process_status != 'work':
                             break
-                    imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
+                    if fr:
+                        imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
                     os.remove(TMP_PATH)
             elif ext in ['.avi', '.mp4', '.webm', '.mov']:
                 tmp_name = filename_processing(op_mode, 'numbering', base_name, '', output_dir, marker, count_correct)  # Преобразование имени файла (cv2 не воспринимает русские буквы, поэтому приходится использовать временное имя)
@@ -1018,6 +1034,7 @@ def diagnostic_dir(op_mode: str, marker: str, formats: list[str], var_dir: str, 
                 set_progress_fr(count_all_frames, count_all_fr)
             elif ext == '.gif':
                 with Image.open(pth) as im:
+                    fr = None
                     for i in range(im.n_frames):
                         print_tab(f'frame {i + 1}/{im.n_frames}', depth)
                         add_log(f'frame {i + 1}/{im.n_frames}', depth)
@@ -1038,13 +1055,15 @@ def diagnostic_dir(op_mode: str, marker: str, formats: list[str], var_dir: str, 
 
                         if process_status != 'work':
                             break
-                    imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
+                    if fr:
+                        imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
                     os.remove(TMP_PATH)
             elif isdir and '_gif' in os.listdir(pth) and op_mode == 'D':
                 var_dir_tmp = pth
                 frames = sorted([name for name in os.listdir(var_dir_tmp) if name.endswith('.png')])
                 length = len(frames)
                 with io.get_writer(TMP_PATH, mode='I', duration=1/24) as writer:
+                    fr = None
                     for i in range(length):
                         print_tab(f'frame {i + 1}/{length}', depth)
                         add_log(f'frame {i + 1}/{length}', depth)
@@ -1063,7 +1082,8 @@ def diagnostic_dir(op_mode: str, marker: str, formats: list[str], var_dir: str, 
 
                         if process_status != 'work':
                             break
-                    imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
+                    if fr:
+                        imsave(TMP_PATH, fr[0:1, 0:1] * 0)  # Затирание временного файла
                     os.remove(TMP_PATH)
             elif ext in ['.avi', '.mp4', '.webm', '.mov']:
                 vid = VideoFileClip(pth)
@@ -1315,22 +1335,22 @@ class PopupDialogueW(tk.Toplevel):
         self.title(title)
         self.configure(bg=ST_BG[th])
 
-        self.answer = False
+        self.var_answer = False
 
         ttk.Label(self, text=msg, justify='center', style='Default.TLabel').grid(row=0, columnspan=2, padx=6, pady=4)
         ttk.Button(self, text=btn_yes, command=self.yes, takefocus=False, style='Yes.TButton').grid(row=1, column=0, padx=(6, 10), pady=4, sticky='E')
         ttk.Button(self, text=btn_no, command=self.no, takefocus=False, style='No.TButton').grid(row=1, column=1, padx=(10, 6), pady=4, sticky='W')
 
     def yes(self):
-        self.answer = True
+        self.var_answer = True
         self.destroy()
 
     def no(self):
-        self.answer = False
+        self.var_answer = False
         self.destroy()
 
     def open(self):
-        return self.answer
+        return self.var_answer
 
 
 # Всплывающее окно с полем Combobox
@@ -1341,16 +1361,16 @@ class PopupChooseW(tk.Toplevel):
         self.title(title)
         self.configure(bg=ST_BG[th])
 
-        self.answer = tk.StringVar(value=default_value)
+        self.var_answer = tk.StringVar(value=default_value)
 
         ttk.Label(self, text=msg, justify='center', style='Default.TLabel').grid(row=0, padx=6, pady=(4, 1))
-        ttk.Combobox(self, textvariable=self.answer, values=values, state='readonly', style='Default.TCombobox').grid(row=1, padx=6, pady=1)
+        ttk.Combobox(self, textvariable=self.var_answer, values=values, state='readonly', style='Default.TCombobox').grid(row=1, padx=6, pady=1)
         ttk.Button(self, text=btn_text, command=self.destroy, takefocus=False, style='Default.TButton').grid(row=2, padx=6, pady=4)
 
     def open(self):
         self.grab_set()
         self.wait_window()
-        return self.answer.get()
+        return self.var_answer.get()
 
 
 """ Графический интерфейс - вспомогательные окна """
@@ -1365,22 +1385,23 @@ class EnterSaveNameW(tk.Toplevel):
 
         self.name_is_correct = False
 
-        self.name = tk.StringVar()
+        self.var_name = tk.StringVar()
 
         self.vcmd = (self.register(lambda value: validate_symbols(value, FN_SYMBOLS_WITH_RU)), '%P')
 
         ttk.Label(self, text='Enter a name for save your custom settings', justify='center', style='Default.TLabel').grid(row=0, padx=6, pady=(4, 1))
-        ttk.Entry(self, textvariable=self.name, validate='key', validatecommand=self.vcmd, style='Default.TEntry').grid(row=1, padx=6, pady=1)
+        ttk.Entry(self, textvariable=self.var_name, validate='key', validatecommand=self.vcmd, style='Default.TEntry').grid(row=1, padx=6, pady=1)
         ttk.Button(self, text='Confirm', command=self.check_and_return, takefocus=False, style='Default.TButton').grid(row=2, padx=6, pady=4)
 
     def check_and_return(self):
-        filename = self.name.get()
+        filename = self.var_name.get()
         if filename == '':
             PopupMsgW(self, 'Incorrect name for save', title='Warning').open()
             return
         self.name_is_correct = True
         if f'{filename}.txt' in os.listdir(CUSTOM_SETTINGS_PATH):  # Если уже есть сохранение с таким названием
-            window = PopupDialogueW(self, 'A save with that name already exists!\nDo you want to overwrite it?')
+            window = PopupDialogueW(self, 'A save with that name already exists!\n'
+                                          'Do you want to overwrite it?')
             self.wait_window(window)
             answer = window.open()
             if not answer:
@@ -1391,29 +1412,52 @@ class EnterSaveNameW(tk.Toplevel):
     def open(self):
         self.grab_set()
         self.wait_window()
-        return self.name_is_correct, self.name.get()
+        return self.name_is_correct, self.var_name.get()
 
 
 # Всплывающее окно для ввода пароля
 class EnterKeyW(tk.Toplevel):
     def __init__(self, parent, action: str):
         super().__init__(parent)
-        self.title('Media encrypter - Key')
+        self.title(f'{PROGRAM_NAME} - Key')
         self.configure(bg=ST_BG[th])
 
         self.has_key = False
         self.cmd = 0
 
-        self.key = tk.StringVar()
+        self.var_key = tk.StringVar()
 
         self.vcmd = (self.register(validate_key), '%P')
 
         self.frame_main = ttk.Frame(self, style='Default.TFrame')
-        self.frame_main.grid(row=0, columnspan=2, padx=6, pady=4)
-
+        # {
         ttk.Label(self.frame_main, text=f'Enter a key ({KEY_LEN} symbols; only latin letters, digits, - and _)', justify='center', style='Default.TLabel').grid(row=0, columnspan=3, padx=6, pady=4)
         ttk.Label(self.frame_main, text='An example of a key:', style='Default.TLabel').grid(row=1, column=0, padx=(6, 1), pady=1, sticky='E')
         ttk.Label(self.frame_main, text='Enter a key:', style='Default.TLabel').grid(row=2, column=0, padx=(6, 1), pady=(1, 4), sticky='E')
+        self.txt_example_key = tk.Text(self.frame_main, height=1, width=KEY_LEN, borderwidth=1, font='TkFixedFont',
+                                       bg=ST_BG_FIELDS[th], fg=ST_FG_EXAMPLE[th], highlightbackground=ST_BORDER[th],
+                                       selectbackground=ST_SELECT[th], highlightcolor=ST_HIGHLIGHT[th])
+        self.entry_key = ttk.Entry(self.frame_main, textvariable=self.var_key, width=KEY_LEN, validate='key',
+                                   validatecommand=self.vcmd, show='*', font='TkFixedFont', style='Key.TEntry')
+        self.btn_copy_example = ttk.Button(self.frame_main, text='Copy', command=self.copy_example_key,
+                                           takefocus=False, style='Default.TButton')
+        self.btn_show_hide_key = ttk.Button(self.frame_main, text='Show', command=self.show_hide_key,
+                                            takefocus=False, style='Default.TButton')
+        # }
+        self.btn_diagnostic = ttk.Button(self, text='Scan files', command=self.to_diagnostic, takefocus=False,
+                                         style='Default.TButton')
+        self.btn_submit = ttk.Button(self, text=action, command=self.to_process, takefocus=False,
+                                     style='Default.TButton')
+
+        self.frame_main.grid(row=0, columnspan=2, padx=6, pady=4)
+        # {
+        self.txt_example_key.grid(  row=1, column=1, padx=(0, 4), pady=1)
+        self.btn_copy_example.grid( row=1, column=2, padx=(0, 6), pady=1)
+        self.entry_key.grid(        row=2, column=1, padx=(0, 4), pady=(1, 4))
+        self.btn_show_hide_key.grid(row=2, column=2, padx=(0, 6), pady=(1, 4))
+        # }
+        self.btn_diagnostic.grid(row=1, column=0, padx=6, pady=(0, 4))
+        self.btn_submit.grid(    row=1, column=1, padx=6, pady=(0, 4))
 
         # Функция нужна, чтобы можно было скопировать ключ-пример, но нельзя было его изменить
         def focus_text(event):
@@ -1421,28 +1465,13 @@ class EnterKeyW(tk.Toplevel):
             self.txt_example_key.focus()
             self.txt_example_key.config(state='disabled')
 
-        self.txt_example_key = tk.Text(self.frame_main, height=1, width=KEY_LEN, borderwidth=1, font='TkFixedFont', bg=ST_BG_FIELDS[th], fg=ST_FG_EXAMPLE[th], highlightbackground=ST_BORDER[th], selectbackground=ST_SELECT[th], highlightcolor=ST_HIGHLIGHT[th])
         self.txt_example_key.insert(1.0, settings['example_key'])
-        self.txt_example_key.grid(row=1, column=1, padx=(0, 4), pady=1)
         self.txt_example_key.configure(state='disabled')
         self.txt_example_key.bind('<Button-1>', focus_text)
 
-        self.entry_key = ttk.Entry(self.frame_main, textvariable=self.key, width=KEY_LEN, validate='key', validatecommand=self.vcmd, show='*', font='TkFixedFont', style='Key.TEntry')
-        self.btn_copy_example  = ttk.Button(self.frame_main, text='Copy', command=self.copy_example_key, takefocus=False, style='Default.TButton')
-        self.btn_show_hide_key = ttk.Button(self.frame_main, text='Show', command=self.show_hide_key, takefocus=False,    style='Default.TButton')
-
-        self.btn_copy_example.grid( row=1, column=2, padx=(0, 6), pady=1)
-        self.entry_key.grid(        row=2, column=1, padx=(0, 4), pady=(1, 4))
-        self.btn_show_hide_key.grid(row=2, column=2, padx=(0, 6), pady=(1, 4))
-
-        self.btn_diagnostic = ttk.Button(self, text='Scan files', command=self.to_diagnostic, takefocus=False, style='Default.TButton')
-        self.btn_submit     = ttk.Button(self, text=action,       command=self.to_process, takefocus=False,    style='Default.TButton')
-        self.btn_diagnostic.grid(row=1, column=0, padx=6, pady=(0, 4))
-        self.btn_submit.grid(    row=1, column=1, padx=6, pady=(0, 4))
-
     # Подставить ключ-пример
     def copy_example_key(self):
-        self.key.set(settings['example_key'])
+        self.var_key.set(settings['example_key'])
 
     # Показать/скрыть ключ
     def show_hide_key(self):
@@ -1455,10 +1484,12 @@ class EnterKeyW(tk.Toplevel):
 
     # Проверить корректность ключа и, если корректен, сохранить
     def check_key_and_return(self):
-        key = self.key.get()
+        key = self.var_key.get()
         code, cause = check_key(key)
         if code == 'L':  # Если неверная длина ключа
-            PopupMsgW(self, f'Invalid key length: {cause}!\nMust be {KEY_LEN}', title='Warning').open()
+            PopupMsgW(self, f'Invalid key length: {cause}!\n'
+                            f'Must be {KEY_LEN}',
+                      title='Warning').open()
             return
         self.has_key = True
         self.destroy()
@@ -1476,48 +1507,56 @@ class EnterKeyW(tk.Toplevel):
     def open(self):
         self.grab_set()
         self.wait_window()
-        return self.has_key, self.key.get(), self.cmd
+        return self.has_key, self.var_key.get(), self.cmd
 
 
 # Окно журнала
 class LoggerW(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
-        self.title('Media encrypter - Progress')
+        self.title(f'{PROGRAM_NAME} - Progress')
         self.resizable(width=False, height=False)
         self.configure(bg=ST_BG[th])
 
-        self.str_progress_f_d = tk.StringVar(value='Calculation...')
-        self.str_progress_fr = tk.StringVar(value='Calculation...')
+        self.var_progress_f_d = tk.StringVar(value='Calculation...')
+        self.var_progress_fr = tk.StringVar(value='Calculation...')
 
         self.frame_progress = ttk.Frame(self, style='Default.TFrame')
-        self.frame_progress.grid(row=0, columnspan=2, padx=6, pady=(6, 4))
-
+        # {
         ttk.Label(self.frame_progress, text='Progress (files and dirs):', style='Default.TLabel').grid(row=0, column=0, padx=(6, 0), pady=4, sticky='E')
         ttk.Label(self.frame_progress, text='Progress (with frames):', style='Default.TLabel').grid(row=1, column=0, padx=(6, 0), pady=4, sticky='E')
-        self.progressbar_f_d = ttk.Progressbar(self.frame_progress, value=0, length=450, style='Default.Horizontal.TProgressbar', orient='horizontal')
-        self.progressbar_fr  = ttk.Progressbar(self.frame_progress, value=0, length=450, style='Default.Horizontal.TProgressbar', orient='horizontal')
-        self.lbl_progress_f_d = ttk.Label(self.frame_progress, textvariable=self.str_progress_f_d, justify='center', style='Default.TLabel')
-        self.lbl_progress_fr  = ttk.Label(self.frame_progress, textvariable=self.str_progress_fr, justify='center', style='Default.TLabel')
+        self.progressbar_f_d = ttk.Progressbar(self.frame_progress, value=0, length=450, orient='horizontal',
+                                               style='Default.Horizontal.TProgressbar')
+        self.progressbar_fr = ttk.Progressbar(self.frame_progress, value=0, length=450, orient='horizontal',
+                                              style='Default.Horizontal.TProgressbar')
+        self.lbl_progress_f_d = ttk.Label(self.frame_progress, textvariable=self.var_progress_f_d, justify='center',
+                                          style='Default.TLabel')
+        self.lbl_progress_fr = ttk.Label(self.frame_progress, textvariable=self.var_progress_fr, justify='center',
+                                         style='Default.TLabel')
+        # }
+        self.scrollbar = ttk.Scrollbar(self, style='Vertical.TScrollbar')
+        self.log = tk.Text(self, width=70, height=30, state='disabled', yscrollcommand=self.scrollbar.set,
+                           bg=ST_BG_FIELDS[th], fg=ST_FG[th], highlightbackground=ST_BORDER[th],
+                           selectbackground=ST_SELECT[th], relief=ST_RELIEF[th])
+        self.btn_abort = ttk.Button(self, text='Abort', command=self.abort_process, takefocus=False, style='No.TButton')
 
+        self.frame_progress.grid(row=0, columnspan=2, padx=6, pady=(6, 4))
+        # {
         self.progressbar_f_d.grid( row=0, column=1, padx=4,      pady=4)
         self.progressbar_fr.grid(  row=1, column=1, padx=4,      pady=4)
         self.lbl_progress_f_d.grid(row=0, column=2, padx=(0, 6), pady=4)
         self.lbl_progress_fr.grid( row=1, column=2, padx=(0, 6), pady=4)
-
-        self.scrollbar = ttk.Scrollbar(self, style='Vertical.TScrollbar')
-        self.log = tk.Text(self, width=70, height=30, state='disabled', yscrollcommand=self.scrollbar.set, bg=ST_BG_FIELDS[th], fg=ST_FG[th], highlightbackground=ST_BORDER[th], selectbackground=ST_SELECT[th], relief=ST_RELIEF[th])
-        self.btn_abort = ttk.Button(self, text='Abort', command=self.abort_process, takefocus=False, style='No.TButton')
-
-        self.log.grid(        row=1, column=0, sticky='NSEW', padx=(6, 0), pady=0)
-        self.scrollbar.grid(  row=1, column=1, sticky='NSW',  padx=(0, 6), pady=0)
-        self.btn_abort.grid(  row=2, columnspan=2, padx=6, pady=(4, 6))
+        # }
+        self.log.grid(      row=1, column=0, sticky='NSEW', padx=(6, 0), pady=0)
+        self.scrollbar.grid(row=1, column=1, sticky='NSW',  padx=(0, 6), pady=0)
+        self.btn_abort.grid(row=2, columnspan=2, padx=6, pady=(4, 6))
 
         self.scrollbar.config(command=self.log.yview)
 
     # Прервать обработку
     def abort_process(self):
         global process_status
+
         process_status = 'abort'
         btn_disable(self.btn_abort)
         self.progressbar_f_d['style'] = 'Aborted.Horizontal.TProgressbar'
@@ -1526,6 +1565,7 @@ class LoggerW(tk.Toplevel):
     # Завершение обработки
     def done(self):
         global process_status
+
         process_status = 'done'
         btn_disable(self.btn_abort)
         self.progressbar_f_d['style'] = 'Done.Horizontal.TProgressbar'
@@ -1544,12 +1584,12 @@ class LoggerW(tk.Toplevel):
     # Установить прогресс (файлы и папки)
     def set_progress_f_d(self, num: int, den: int):
         self.progressbar_f_d['value'] = 100 * num / den
-        self.str_progress_f_d.set(f'{num}/{den}')
+        self.var_progress_f_d.set(f'{num}/{den}')
 
     # Установить прогресс (кадры)
     def set_progress_fr(self, num: int, den: int):
         self.progressbar_fr['value'] = 100 * num / den
-        self.str_progress_fr.set(f'{num}/{den}')
+        self.var_progress_fr.set(f'{num}/{den}')
 
     def open(self):
         self.grab_set()
@@ -1575,43 +1615,44 @@ class LastVersionW(tk.Toplevel):
         self.btn_close = ttk.Button(self, text='Закрыть', command=self.destroy, takefocus=False,
                                     style='Default.TButton')
 
-        self.lbl_msg.grid(   row=1, columnspan=2, padx=6, pady=(4, 0))
-        self.entry_url.grid( row=2, columnspan=2, padx=6, pady=(0, 4))
-        self.btn_update.grid(row=3, column=0,     padx=6, pady=4)
-        self.btn_close.grid( row=3, column=1,     padx=6, pady=4)
+        self.lbl_msg.grid(   row=0, columnspan=2, padx=6, pady=(4, 0))
+        self.entry_url.grid( row=1, columnspan=2, padx=6, pady=(0, 4))
+        self.btn_update.grid(row=2, column=0,     padx=6, pady=4)
+        self.btn_close.grid( row=2, column=1,     padx=6, pady=4)
 
     # Скачать и установить обновление
     def download_and_install(self):
         try:  # Загрузка
-            print('\ndownload zip')
-            wget.download(URL_DOWNLOAD_ZIP, out=os.path.dirname(__file__))  # Скачиваем архив с обновлением
+            print('\nDownload zip')
+            wget.download(URL_DOWNLOAD_ZIP, out=MAIN_PATH)  # Скачиваем архив с обновлением
         except:
             PopupMsgW(self, 'Не удалось загрузить обновление!', title='Warning').open()
             self.destroy()
         try:  # Установка
             # Распаковываем архив во временную папку
-            print('extracting')
+            print('Extracting zip')
             with zipfile.ZipFile(NEW_VERSION_ZIP, 'r') as zip_file:
-                zip_file.extractall(os.path.dirname(__file__))
+                zip_file.extractall(MAIN_PATH)
             # Удаляем архив
-            print('delete zip')
+            print('Delete zip')
             os.remove(NEW_VERSION_ZIP)
             # Удаляем файлы текущей версии
-            print('delete old files')
+            print('Delete old files')
             os.remove('ver')
             os.remove('README.md')
             os.remove('README_ru.txt')
             os.remove('main.py')
             # Из временной папки достаём файлы новой версии
-            print('set new files')
+            print('Set new files')
             os.replace(os.path.join(NEW_VERSION_DIR, 'ver'), 'ver')
             os.replace(os.path.join(NEW_VERSION_DIR, 'README.md'), 'README.md')
             os.replace(os.path.join(NEW_VERSION_DIR, 'README_ru.txt'), 'README_ru.txt')
             os.replace(os.path.join(NEW_VERSION_DIR, 'main.py'), 'main.py')
             # Удаляем временную папку
-            print('delete tmp dir')
+            print('Delete tmp dir')
             rmtree(NEW_VERSION_DIR)
-            PopupMsgW(self, 'Обновление успешно установлено\nПрограмма закроется').open()
+            PopupMsgW(self, 'Обновление успешно установлено\n'
+                            'Программа закроется').open()
         except:
             PopupMsgW(self, 'Не удалось установить обновление!', title='Warning').open()
             self.destroy()
@@ -1630,12 +1671,16 @@ class LastVersionW(tk.Toplevel):
 class SettingsW(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
-        self.title('Media encrypter - Settings')
+        self.title(f'{PROGRAM_NAME} - Settings')
         self.resizable(width=False, height=False)
         self.configure(bg=ST_BG[th])
         self.parent = parent
 
-        self.key = tk.StringVar()
+        # Содержимое настроек с фреймами
+        min_len_marker = 10
+        max_len_marker = 70
+        min_len_dir = 50
+        max_len_dir = 120
 
         # Переменные, к которым привязаны настройки
         self.var_style         = tk.StringVar(value=settings['theme'])
@@ -1654,10 +1699,10 @@ class SettingsW(tk.Toplevel):
         self.var_example_key   = tk.StringVar(value=settings['example_key'])
         self.var_print_info    = tk.StringVar(value=settings['print_info'])
 
-        # Функции для валидации
+        # Функции валидации
         self.vcmd_natural = (self.register(lambda value: validate_natural_and_len(value, 3)), '%P')
-        self.vcmd_num     = (self.register(validate_num), '%P')
-        self.vcmd_key     = (self.register(validate_key), '%P')
+        self.vcmd_num = (self.register(validate_num), '%P')
+        self.vcmd_key = (self.register(validate_key), '%P')
 
         """
         *---TOPLEVEL-------------------------------------------------*
@@ -1675,96 +1720,165 @@ class SettingsW(tk.Toplevel):
         """
 
         # Внешние фреймы
-        self.frame_all    = ttk.Frame(self,           style='Default.TFrame')
+        self.frame_all = ttk.Frame(self, style='Default.TFrame')
+        # {
         self.frame_fields = ttk.Frame(self.frame_all, style='Default.TFrame')
-
+        # { {
         # Названия настроек
-        self.lbl_style         = ttk.Label(self.frame_fields, text='Style',                                        style='Default.TLabel')
-        self.lbl_show_updates  = ttk.Label(self.frame_fields, text='Show update notifications',                    style='Default.TLabel')
-        self.lbl_support_ru    = ttk.Label(self.frame_fields, text='Russian letters in filenames support',         style='Default.TLabel')
-        self.lbl_processing_ru = ttk.Label(self.frame_fields, text='Russian letters in filenames processing mode', style='Default.TLabel')
-        self.lbl_naming_mode   = ttk.Label(self.frame_fields, text='File names conversion mode',                   style='Default.TLabel')
-        self.lbl_count_from    = ttk.Label(self.frame_fields, text='Start numbering files from',                   style='Default.TLabel')
-        self.lbl_format        = ttk.Label(self.frame_fields, text='Minimal number of characters in number',       style='Default.TLabel')
-        self.lbl_marker_enc    = ttk.Label(self.frame_fields, text='Marker for encoded files',                     style='Default.TLabel')
-        self.lbl_marker_dec    = ttk.Label(self.frame_fields, text='Marker for decoded files',                     style='Default.TLabel')
-        self.lbl_src_dir_enc   = ttk.Label(self.frame_fields, text='Source folder when encoding',                  style='Default.TLabel')
-        self.lbl_dst_dir_enc   = ttk.Label(self.frame_fields, text='Destination folder when encoding',             style='Default.TLabel')
-        self.lbl_src_dir_dec   = ttk.Label(self.frame_fields, text='Source folder when decoding',                  style='Default.TLabel')
-        self.lbl_dst_dir_dec   = ttk.Label(self.frame_fields, text='Destination folder when decoding',             style='Default.TLabel')
-        self.lbl_example_key   = ttk.Label(self.frame_fields, text='Example of a key',                             style='Default.TLabel')
-        self.lbl_print_info    = ttk.Label(self.frame_fields, text='Whether to print info',                        style='Default.TLabel')
-
+        self.lbl_style = ttk.Label(self.frame_fields, text='Style', style='Default.TLabel')
+        self.lbl_show_updates = ttk.Label(self.frame_fields, text='Show update notifications', style='Default.TLabel')
+        self.lbl_support_ru = ttk.Label(self.frame_fields, text='Russian letters in filenames support',
+                                        style='Default.TLabel')
+        self.lbl_processing_ru = ttk.Label(self.frame_fields, text='Russian letters in filenames processing mode',
+                                           style='Default.TLabel')
+        self.lbl_naming_mode = ttk.Label(self.frame_fields, text='File names conversion mode', style='Default.TLabel')
+        self.lbl_count_from = ttk.Label(self.frame_fields, text='Start numbering files from', style='Default.TLabel')
+        self.lbl_format = ttk.Label(self.frame_fields, text='Minimal number of characters in number',
+                                    style='Default.TLabel')
+        self.lbl_marker_enc = ttk.Label(self.frame_fields, text='Marker for encoded files', style='Default.TLabel')
+        self.lbl_marker_dec = ttk.Label(self.frame_fields, text='Marker for decoded files', style='Default.TLabel')
+        self.lbl_src_dir_enc = ttk.Label(self.frame_fields, text='Source folder when encoding', style='Default.TLabel')
+        self.lbl_dst_dir_enc = ttk.Label(self.frame_fields, text='Destination folder when encoding',
+                                         style='Default.TLabel')
+        self.lbl_src_dir_dec = ttk.Label(self.frame_fields, text='Source folder when decoding', style='Default.TLabel')
+        self.lbl_dst_dir_dec = ttk.Label(self.frame_fields, text='Destination folder when decoding',
+                                         style='Default.TLabel')
+        self.lbl_example_key = ttk.Label(self.frame_fields, text='Example of a key', style='Default.TLabel')
+        self.lbl_print_info = ttk.Label(self.frame_fields, text='Whether to print info', style='Default.TLabel')
         # Сами настройки
-        self.combo_style         = ttk.Combobox(   self.frame_fields, textvariable=self.var_style,         values=THEME_MODES,               state='readonly', style='Default.TCombobox')
-        self.check_show_updates  = ttk.Checkbutton(self.frame_fields,     variable=self.var_show_updates,                                                      style='Default.TCheckbutton')
-        self.check_support_ru    = ttk.Checkbutton(self.frame_fields,     variable=self.var_support_ru,    command=self.processing_ru_state,                   style='Default.TCheckbutton')
-        self.combo_processing_ru = ttk.Combobox(   self.frame_fields, textvariable=self.var_processing_ru, values=PROCESSING_RU_MODES,       state='readonly', style='Default.TCombobox')
-        self.combo_naming_mode   = ttk.Combobox(   self.frame_fields, textvariable=self.var_naming_mode,   values=NAMING_MODES,              state='readonly', style='Default.TCombobox')
-        self.frame_count_from    = ttk.Frame(self.frame_fields, style='Invis.TFrame')
-        self.frame_format        = ttk.Frame(self.frame_fields, style='Invis.TFrame')
-        self.frame_marker_enc    = ttk.Frame(self.frame_fields, style='Invis.TFrame')
-        self.frame_marker_dec    = ttk.Frame(self.frame_fields, style='Invis.TFrame')
-        self.frame_src_dir_enc   = ttk.Frame(self.frame_fields, style='Invis.TFrame')
-        self.frame_dst_dir_enc   = ttk.Frame(self.frame_fields, style='Invis.TFrame')
-        self.frame_src_dir_dec   = ttk.Frame(self.frame_fields, style='Invis.TFrame')
-        self.frame_dst_dir_dec   = ttk.Frame(self.frame_fields, style='Invis.TFrame')
-        self.entry_example_key   = ttk.Entry(   self.frame_fields, textvariable=self.var_example_key, width=KEY_LEN, validate='key', validatecommand=self.vcmd_key, font='TkFixedFont', style='Default.TEntry')
-        self.combo_print_info    = ttk.Combobox(self.frame_fields, textvariable=self.var_print_info, values=PRINT_INFO_MODES, state='readonly', style='Default.TCombobox')
-
-        if not self.var_support_ru.get():
-            self.combo_processing_ru['state'] = 'disabled'
-
-        # Содержимое настроек с фреймами
-        min_len_marker = 10
-        max_len_marker = 70
-        min_len_dir = 50
-        max_len_dir = 120
-        self.entry_count_from  = ttk.Entry(self.frame_count_from,  textvariable=self.var_count_from,  width=10, validate='key', validatecommand=self.vcmd_num, style='Default.TEntry')
-        self.entry_format      = ttk.Entry(self.frame_format,      textvariable=self.var_format,      width=5,  validate='key', validatecommand=self.vcmd_natural, style='Default.TEntry')
-        self.entry_marker_enc  = ttk.Entry(self.frame_marker_enc,  textvariable=self.var_marker_enc,  width=min(max_len_marker,  max(min_len_marker, len(self.var_marker_enc.get()))),  font='TkFixedFont', validate='key', style='Default.TEntry')
-        self.entry_marker_dec  = ttk.Entry(self.frame_marker_dec,  textvariable=self.var_marker_dec,  width=min(max_len_marker,  max(min_len_marker, len(self.var_marker_dec.get()))),  font='TkFixedFont', validate='key', style='Default.TEntry')
-        self.entry_src_dir_enc = ttk.Entry(self.frame_src_dir_enc, textvariable=self.var_src_dir_enc, width=min(max_len_dir,     max(min_len_dir,    len(self.var_src_dir_enc.get()))), font='TkFixedFont', validate='key', style='Default.TEntry')
-        self.entry_dst_dir_enc = ttk.Entry(self.frame_dst_dir_enc, textvariable=self.var_dst_dir_enc, width=min(max_len_dir,     max(min_len_dir,    len(self.var_dst_dir_enc.get()))), font='TkFixedFont', validate='key', style='Default.TEntry')
-        self.entry_src_dir_dec = ttk.Entry(self.frame_src_dir_dec, textvariable=self.var_src_dir_dec, width=min(max_len_dir,     max(min_len_dir,    len(self.var_src_dir_dec.get()))), font='TkFixedFont', validate='key', style='Default.TEntry')
-        self.entry_dst_dir_dec = ttk.Entry(self.frame_dst_dir_dec, textvariable=self.var_dst_dir_dec, width=min(max_len_dir,     max(min_len_dir,    len(self.var_dst_dir_dec.get()))), font='TkFixedFont', validate='key', style='Default.TEntry')
-        self.entry_marker_enc ['validatecommand'] = (self.register(lambda value: validate_expand(value, self.entry_marker_enc,  min_len_marker, max_len_marker)), '%P')
-        self.entry_marker_dec ['validatecommand'] = (self.register(lambda value: validate_expand(value, self.entry_marker_dec,  min_len_marker, max_len_marker)), '%P')
-        self.entry_src_dir_enc['validatecommand'] = (self.register(lambda value: validate_expand(value, self.entry_src_dir_enc, min_len_dir,    max_len_dir)),    '%P')
-        self.entry_dst_dir_enc['validatecommand'] = (self.register(lambda value: validate_expand(value, self.entry_dst_dir_enc, min_len_dir,    max_len_dir)),    '%P')
-        self.entry_src_dir_dec['validatecommand'] = (self.register(lambda value: validate_expand(value, self.entry_src_dir_dec, min_len_dir,    max_len_dir)),    '%P')
-        self.entry_dst_dir_dec['validatecommand'] = (self.register(lambda value: validate_expand(value, self.entry_dst_dir_dec, min_len_dir,    max_len_dir)),    '%P')
-
-        self.lbl_note_count_from = ttk.Label(self.frame_count_from, text='(if the numbering name processing mode is selected)',      style='Default.TLabel')
-        self.lbl_note_format     = ttk.Label(self.frame_format,     text='(if the numbering name processing mode is selected)',      style='Default.TLabel')
-        self.lbl_note_marker_enc = ttk.Label(self.frame_marker_enc, text='(if the prefix/postfix name processing mode is selected)', style='Default.TLabel')
-        self.lbl_note_marker_dec = ttk.Label(self.frame_marker_dec, text='(if the prefix/postfix name processing mode is selected)', style='Default.TLabel')
+        self.combo_style = ttk.Combobox(self.frame_fields, textvariable=self.var_style, values=THEME_MODES,
+                                        state='readonly', style='Default.TCombobox')
+        self.check_show_updates = ttk.Checkbutton(self.frame_fields, variable=self.var_show_updates,
+                                                  style='Default.TCheckbutton')
+        self.check_support_ru = ttk.Checkbutton(self.frame_fields, variable=self.var_support_ru,
+                                                command=self.processing_ru_state, style='Default.TCheckbutton')
+        self.combo_processing_ru = ttk.Combobox(self.frame_fields, textvariable=self.var_processing_ru,
+                                                values=PROCESSING_RU_MODES, state='readonly', style='Default.TCombobox')
+        self.combo_naming_mode = ttk.Combobox(self.frame_fields, textvariable=self.var_naming_mode, values=NAMING_MODES,
+                                              state='readonly', style='Default.TCombobox')
+        self.frame_count_from = ttk.Frame(self.frame_fields, style='Invis.TFrame')
+        # { { {
+        self.entry_count_from = ttk.Entry(self.frame_count_from, textvariable=self.var_count_from, width=10,
+                                          validate='key', validatecommand=self.vcmd_num, style='Default.TEntry')
+        self.lbl_note_count_from = ttk.Label(self.frame_count_from,
+                                             text='(if the numbering name processing mode is selected)',
+                                             style='Default.TLabel')
+        # } } }
+        self.frame_format = ttk.Frame(self.frame_fields, style='Invis.TFrame')
+        # { { {
+        self.entry_format = ttk.Entry(self.frame_format, textvariable=self.var_format, width=5, validate='key',
+                                      validatecommand=self.vcmd_natural, style='Default.TEntry')
+        self.lbl_note_format = ttk.Label(self.frame_format,
+                                         text='(if the numbering name processing mode is selected)',
+                                         style='Default.TLabel')
+        # } } }
+        self.frame_marker_enc = ttk.Frame(self.frame_fields, style='Invis.TFrame')
+        # { { {
+        self.entry_marker_enc = ttk.Entry(self.frame_marker_enc, textvariable=self.var_marker_enc,
+                                          width=min(max_len_marker,
+                                                    max(min_len_marker, len(self.var_marker_enc.get()))),
+                                          validate='key', font='TkFixedFont', style='Default.TEntry')
+        self.entry_marker_enc['validatecommand'] = (self.register(lambda value:
+                                                                  validate_expand(value, self.entry_marker_enc,
+                                                                                  min_len_marker, max_len_marker)),
+                                                    '%P')
+        self.lbl_note_marker_enc = ttk.Label(self.frame_marker_enc,
+                                             text='(if the prefix/postfix name processing mode is selected)',
+                                             style='Default.TLabel')
+        # } } }
+        self.frame_marker_dec = ttk.Frame(self.frame_fields, style='Invis.TFrame')
+        # { { {
+        self.entry_marker_dec = ttk.Entry(self.frame_marker_dec, textvariable=self.var_marker_dec,
+                                          width=min(max_len_marker,
+                                                    max(min_len_marker, len(self.var_marker_dec.get()))),
+                                          validate='key', font='TkFixedFont', style='Default.TEntry')
+        self.entry_marker_dec['validatecommand'] = (self.register(lambda value:
+                                                                  validate_expand(value, self.entry_marker_dec,
+                                                                                  min_len_marker, max_len_marker)),
+                                                    '%P')
+        self.lbl_note_marker_dec = ttk.Label(self.frame_marker_dec,
+                                             text='(if the prefix/postfix name processing mode is selected)',
+                                             style='Default.TLabel')
+        # } } }
+        self.frame_src_dir_enc = ttk.Frame(self.frame_fields, style='Invis.TFrame')
+        # { { {
+        self.entry_src_dir_enc = ttk.Entry(self.frame_src_dir_enc, textvariable=self.var_src_dir_enc,
+                                           width=min(max_len_dir, max(min_len_dir, len(self.var_src_dir_enc.get()))),
+                                           validate='key', font='TkFixedFont', style='Default.TEntry')
+        self.entry_src_dir_enc['validatecommand'] = (self.register(lambda value:
+                                                                   validate_expand(value, self.entry_src_dir_enc,
+                                                                                   min_len_dir, max_len_dir)), '%P')
+        # } } }
+        self.frame_dst_dir_enc = ttk.Frame(self.frame_fields, style='Invis.TFrame')
+        # { { {
+        self.entry_dst_dir_enc = ttk.Entry(self.frame_dst_dir_enc, textvariable=self.var_dst_dir_enc,
+                                           width=min(max_len_dir, max(min_len_dir, len(self.var_dst_dir_enc.get()))),
+                                           validate='key', font='TkFixedFont', style='Default.TEntry')
+        self.entry_dst_dir_enc['validatecommand'] = (self.register(lambda value:
+                                                                   validate_expand(value, self.entry_dst_dir_enc,
+                                                                                   min_len_dir, max_len_dir)), '%P')
+        # } } }
+        self.frame_src_dir_dec = ttk.Frame(self.frame_fields, style='Invis.TFrame')
+        # { { {
+        self.entry_src_dir_dec = ttk.Entry(self.frame_src_dir_dec, textvariable=self.var_src_dir_dec,
+                                           width=min(max_len_dir, max(min_len_dir, len(self.var_src_dir_dec.get()))),
+                                           validate='key', font='TkFixedFont', style='Default.TEntry')
+        self.entry_src_dir_dec['validatecommand'] = (self.register(lambda value:
+                                                                   validate_expand(value, self.entry_src_dir_dec,
+                                                                                   min_len_dir, max_len_dir)), '%P')
+        # } } }
+        self.frame_dst_dir_dec = ttk.Frame(self.frame_fields, style='Invis.TFrame')
+        # { { {
+        self.entry_dst_dir_dec = ttk.Entry(self.frame_dst_dir_dec, textvariable=self.var_dst_dir_dec,
+                                           width=min(max_len_dir, max(min_len_dir, len(self.var_dst_dir_dec.get()))),
+                                           validate='key', font='TkFixedFont', style='Default.TEntry')
+        self.entry_dst_dir_dec['validatecommand'] = (self.register(lambda value:
+                                                                   validate_expand(value, self.entry_dst_dir_dec,
+                                                                                   min_len_dir, max_len_dir)), '%P')
+        # } } }
+        self.entry_example_key = ttk.Entry(self.frame_fields, textvariable=self.var_example_key, width=KEY_LEN,
+                                           validate='key', validatecommand=self.vcmd_key, font='TkFixedFont',
+                                           style='Default.TEntry')
+        self.combo_print_info = ttk.Combobox(self.frame_fields, textvariable=self.var_print_info,
+                                             values=PRINT_INFO_MODES, state='readonly', style='Default.TCombobox')
+        #
         try:
             self.img_search = tk.PhotoImage(file=os.path.join(IMAGES_PATH, 'search.png'))
-            self.btn_src_enc = ttk.Button(self.frame_src_dir_enc, image=self.img_search, command=self.choose_source_enc, takefocus=False, style='Image.TButton')
-            self.btn_dst_enc = ttk.Button(self.frame_dst_dir_enc, image=self.img_search, command=self.choose_dest_enc, takefocus=False,   style='Image.TButton')
-            self.btn_src_dec = ttk.Button(self.frame_src_dir_dec, image=self.img_search, command=self.choose_source_dec, takefocus=False, style='Image.TButton')
-            self.btn_dst_dec = ttk.Button(self.frame_dst_dir_dec, image=self.img_search, command=self.choose_dest_dec, takefocus=False,   style='Image.TButton')
+            self.btn_src_enc = ttk.Button(self.frame_src_dir_enc, image=self.img_search, command=self.choose_source_enc,
+                                          takefocus=False, style='Image.TButton')
+            self.btn_dst_enc = ttk.Button(self.frame_dst_dir_enc, image=self.img_search, command=self.choose_dest_enc,
+                                          takefocus=False, style='Image.TButton')
+            self.btn_src_dec = ttk.Button(self.frame_src_dir_dec, image=self.img_search, command=self.choose_source_dec,
+                                          takefocus=False, style='Image.TButton')
+            self.btn_dst_dec = ttk.Button(self.frame_dst_dir_dec, image=self.img_search, command=self.choose_dest_dec,
+                                          takefocus=False, style='Image.TButton')
         except:
-            self.btn_src_enc = ttk.Button(self.frame_src_dir_enc, text='Search', command=self.choose_source_enc, style='Default.TButton')
-            self.btn_dst_enc = ttk.Button(self.frame_dst_dir_enc, text='Search', command=self.choose_dest_enc,   style='Default.TButton')
-            self.btn_src_dec = ttk.Button(self.frame_src_dir_dec, text='Search', command=self.choose_source_dec, style='Default.TButton')
-            self.btn_dst_dec = ttk.Button(self.frame_dst_dir_dec, text='Search', command=self.choose_dest_dec,   style='Default.TButton')
+            self.btn_src_enc = ttk.Button(self.frame_src_dir_enc, text='Search', command=self.choose_source_enc,
+                                          style='Default.TButton')
+            self.btn_dst_enc = ttk.Button(self.frame_dst_dir_enc, text='Search', command=self.choose_dest_enc,
+                                          style='Default.TButton')
+            self.btn_src_dec = ttk.Button(self.frame_src_dir_dec, text='Search', command=self.choose_source_dec,
+                                          style='Default.TButton')
+            self.btn_dst_dec = ttk.Button(self.frame_dst_dir_dec, text='Search', command=self.choose_dest_dec,
+                                          style='Default.TButton')
+        # } }
+        self.btn_def = ttk.Button(self.frame_all, text='Set default settings', command=self.set_default_settings,
+                                  takefocus=False, style='Default.TButton')
+        self.btn_save_custom = ttk.Button(self.frame_all, text='Save current settings as your custom settings',
+                                          command=self.save_custom_settings, takefocus=False, style='Default.TButton')
+        self.btn_load_custom = ttk.Button(self.frame_all, text='Load your custom settings',
+                                          command=self.load_custom_settings, takefocus=False, style='Default.TButton')
+        self.btn_remove_custom = ttk.Button(self.frame_all, text='Remove your custom settings',
+                                            command=self.remove_custom_settings, takefocus=False,
+                                            style='Default.TButton')
+        # }
+        self.btn_save = ttk.Button(self, text='Accept', command=self.save, takefocus=False, style='Yes.TButton')
+        self.btn_close = ttk.Button(self, text='Close', command=self.close, takefocus=False, style='No.TButton')
 
-        # Кнопки общего фрейма
-        self.btn_def           = ttk.Button(self.frame_all, text='Set default settings',                          command=self.set_default_settings, takefocus=False,   style='Default.TButton')
-        self.btn_save_custom   = ttk.Button(self.frame_all, text='Save current settings as your custom settings', command=self.save_custom_settings, takefocus=False,   style='Default.TButton')
-        self.btn_load_custom   = ttk.Button(self.frame_all, text='Load your custom settings',                     command=self.load_custom_settings, takefocus=False,   style='Default.TButton')
-        self.btn_remove_custom = ttk.Button(self.frame_all, text='Remove your custom settings',                   command=self.remove_custom_settings, takefocus=False, style='Default.TButton')
-
-        # Кнопки окна
-        self.btn_save  = ttk.Button(self, text='Accept', command=self.save, takefocus=False, style='Yes.TButton')
-        self.btn_close = ttk.Button(self, text='Close',  command=self.close, takefocus=False, style='No.TButton')
-
-        # Расположение настроек
-        self.frame_all.grid(   row=0, column=0, columnspan=2, padx=4, pady=4)
+        self.frame_all.grid(row=0, column=0, columnspan=2, padx=4, pady=4)
+        # {
         self.frame_fields.grid(row=0, column=0, columnspan=2, padx=4, pady=4)
-
+        # { {
         self.lbl_style.grid(        row=0,  column=0, padx=(6, 1), pady=(4, 1), sticky='E')
         self.lbl_show_updates.grid( row=1,  column=0, padx=(6, 1), pady=1,      sticky='E')
         self.lbl_support_ru.grid(   row=2,  column=0, padx=(6, 1), pady=1,      sticky='E')
@@ -1780,57 +1894,73 @@ class SettingsW(tk.Toplevel):
         self.lbl_dst_dir_dec.grid(  row=12, column=0, padx=(6, 1), pady=1,      sticky='E')
         self.lbl_example_key.grid(  row=13, column=0, padx=(6, 1), pady=1,      sticky='E')
         self.lbl_print_info.grid(   row=14, column=0, padx=(6, 1), pady=(1, 4), sticky='E')
-
-        self.combo_style.grid(        row=0,  column=1, padx=(0, 6), pady=(4, 1), sticky='W')
-        self.check_show_updates.grid( row=1,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.check_support_ru.grid(   row=2,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.combo_processing_ru.grid(row=3,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.combo_naming_mode.grid(  row=4,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frame_count_from.grid(   row=5,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frame_format.grid(       row=6,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frame_marker_enc.grid(   row=7,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frame_marker_dec.grid(   row=8,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frame_src_dir_enc.grid(  row=9,  column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frame_dst_dir_enc.grid(  row=10, column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frame_src_dir_dec.grid(  row=11, column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.frame_dst_dir_dec.grid(  row=12, column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.entry_example_key.grid(  row=13, column=1, padx=(0, 6), pady=1,      sticky='W')
-        self.combo_print_info.grid(   row=14, column=1, padx=(0, 6), pady=(1, 4), sticky='W')
-
-        self.entry_count_from.grid( row=0, column=0, padx=(0, 1))
-        self.entry_format.grid(     row=0, column=0, padx=(0, 1))
-        self.entry_marker_enc.grid( row=0, column=0, padx=(0, 1))
-        self.entry_marker_dec.grid( row=0, column=0, padx=(0, 1))
-        self.entry_src_dir_enc.grid(row=0, column=0, padx=(0, 1))
-        self.entry_dst_dir_enc.grid(row=0, column=0, padx=(0, 1))
-        self.entry_src_dir_dec.grid(row=0, column=0, padx=(0, 1))
-        self.entry_dst_dir_dec.grid(row=0, column=0, padx=(0, 1))
-
+        #
+        self.combo_style.grid(        row=0, column=1, padx=(0, 6), pady=(4, 1), sticky='W')
+        self.check_show_updates.grid( row=1, column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.check_support_ru.grid(   row=2, column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.combo_processing_ru.grid(row=3, column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.combo_naming_mode.grid(  row=4, column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.frame_count_from.grid(   row=5, column=1, padx=(0, 6), pady=1,      sticky='W')
+        # { { {
+        self.entry_count_from.grid(   row=0, column=0, padx=(0, 1))
         self.lbl_note_count_from.grid(row=0, column=1)
-        self.lbl_note_format.grid(    row=0, column=1)
+        # } } }
+        self.frame_format.grid(row=6, column=1, padx=(0, 6), pady=1, sticky='W')
+        # { { {
+        self.entry_format.grid(   row=0, column=0, padx=(0, 1))
+        self.lbl_note_format.grid(row=0, column=1)
+        # } } }
+        self.frame_marker_enc.grid(row=7, column=1, padx=(0, 6), pady=1, sticky='W')
+        # { { {
+        self.entry_marker_enc.grid(   row=0, column=0, padx=(0, 1))
         self.lbl_note_marker_enc.grid(row=0, column=1)
+        # } } }
+        self.frame_marker_dec.grid(row=8, column=1, padx=(0, 6), pady=1, sticky='W')
+        # { { {
+        self.entry_marker_dec.grid(   row=0, column=0, padx=(0, 1))
         self.lbl_note_marker_dec.grid(row=0, column=1)
-
-        self.btn_src_enc.grid(row=0, column=1)
-        self.btn_dst_enc.grid(row=0, column=1)
-        self.btn_src_dec.grid(row=0, column=1)
-        self.btn_dst_dec.grid(row=0, column=1)
-
-        self.btn_def.grid(          row=1, column=0, padx=4,      pady=(0, 4), sticky='E')
-        self.btn_save_custom.grid(  row=1, column=1, padx=(0, 4), pady=(0, 4), sticky='W')
-        self.btn_load_custom.grid(  row=2, column=0, padx=4,      pady=(0, 4), sticky='E')
-        self.btn_remove_custom.grid(row=2, column=1, padx=(0, 4), pady=(0, 4), sticky='W')
-
+        # } } }
+        self.frame_src_dir_enc.grid(row=9, column=1, padx=(0, 6), pady=1, sticky='W')
+        # { { {
+        self.entry_src_dir_enc.grid(row=0, column=0, padx=(0, 1))
+        self.btn_src_enc.grid(      row=0, column=1)
+        # } } }
+        self.frame_dst_dir_enc.grid(row=10, column=1, padx=(0, 6), pady=1, sticky='W')
+        # { { {
+        self.entry_dst_dir_enc.grid(row=0, column=0, padx=(0, 1))
+        self.btn_dst_enc.grid(      row=0, column=1)
+        # } } }
+        self.frame_src_dir_dec.grid(row=11, column=1, padx=(0, 6), pady=1, sticky='W')
+        # { { {
+        self.entry_src_dir_dec.grid(row=0, column=0, padx=(0, 1))
+        self.btn_src_dec.grid(      row=0, column=1)
+        # } } }
+        self.frame_dst_dir_dec.grid(row=12, column=1, padx=(0, 6), pady=1, sticky='W')
+        # { { {
+        self.entry_dst_dir_dec.grid(row=0, column=0, padx=(0, 1))
+        self.btn_dst_dec.grid(      row=0, column=1)
+        # } } }
+        self.entry_example_key.grid(row=13, column=1, padx=(0, 6), pady=1,      sticky='W')
+        self.combo_print_info.grid( row=14, column=1, padx=(0, 6), pady=(1, 4), sticky='W')
+        # } }
+        self.btn_def.grid(          row=1, column=0, padx=4,      pady=(0, 4), sticky='EW')
+        self.btn_save_custom.grid(  row=1, column=1, padx=(0, 4), pady=(0, 4), sticky='EW')
+        self.btn_load_custom.grid(  row=2, column=0, padx=4,      pady=(0, 4), sticky='EW')
+        self.btn_remove_custom.grid(row=2, column=1, padx=(0, 4), pady=(0, 4), sticky='EW')
+        # }
         self.btn_save.grid( row=2, column=0, pady=(0, 4))
         self.btn_close.grid(row=2, column=1, pady=(0, 4))
 
-    # Заблокировать/разблокировать изменение настройки обработки кириллицы
-    def processing_ru_state(self):
         if not self.var_support_ru.get():
             self.combo_processing_ru['state'] = 'disabled'
-            self.var_processing_ru.set(DEFAULT_SETTINGS['processing_ru'])
-        else:
+
+    # Заблокировать/разблокировать изменение настройки обработки кириллицы
+    def processing_ru_state(self):
+        if self.var_support_ru.get():
             self.combo_processing_ru['state'] = 'readonly'
+        else:
+            self.combo_processing_ru['state'] = 'disabled'
+            self.var_processing_ru.set(DEFAULT_SETTINGS['processing_ru'])
 
     # Были ли изменены настройки
     def has_changes(self):
@@ -1852,22 +1982,22 @@ class SettingsW(tk.Toplevel):
 
     # Выбор папки источника при шифровке
     def choose_source_enc(self):
-        directory = askdirectory(initialdir=os.path.dirname(__file__))
+        directory = askdirectory(initialdir=MAIN_PATH)
         self.var_src_dir_enc.set(directory)
 
     # Выбор папки назначения при шифровке
     def choose_dest_enc(self):
-        directory = askdirectory(initialdir=os.path.dirname(__file__))
+        directory = askdirectory(initialdir=MAIN_PATH)
         self.var_dst_dir_enc.set(directory)
 
     # Выбор папки источника при дешифровке
     def choose_source_dec(self):
-        directory = askdirectory(initialdir=os.path.dirname(__file__))
+        directory = askdirectory(initialdir=MAIN_PATH)
         self.var_src_dir_dec.set(directory)
 
     # Выбор папки назначения при дешифровке
     def choose_dest_dec(self):
-        directory = askdirectory(initialdir=os.path.dirname(__file__))
+        directory = askdirectory(initialdir=MAIN_PATH)
         self.var_dst_dir_dec.set(directory)
 
     # Установить настройки по умолчанию
@@ -1891,7 +2021,9 @@ class SettingsW(tk.Toplevel):
     # Сохранить пользовательские настройки
     def save_custom_settings(self):
         if self.has_changes():  # Если были изменения, то предлагается сохранить их
-            window = PopupDialogueW(self, f'There are unsaved changes!\n Do you want to continue?', title='Warning')
+            window = PopupDialogueW(self, f'There are unsaved changes!\n'
+                                          f'Do you want to continue?',
+                                    title='Warning')
             self.wait_window(window)
             answer = window.open()
             if not answer:
@@ -2051,7 +2183,9 @@ class SettingsW(tk.Toplevel):
     # Закрыть окно без сохранения
     def close(self):
         if self.has_changes():  # Если были изменения, то предлагается сохранить их
-            window = PopupDialogueW(self, f'If you close the window, the changes will not be saved!\n Close settings?', title='Warning')
+            window = PopupDialogueW(self, f'If you close the window, the changes will not be saved!\n'
+                                          f'Close settings?',
+                                    title='Warning')
             self.wait_window(window)
             answer = window.open()
             if answer:
@@ -2068,7 +2202,7 @@ class SettingsW(tk.Toplevel):
 class ManualW(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
-        self.title('Media encrypter - MCM')
+        self.title(f'{PROGRAM_NAME} - MCM')
         self.resizable(width=False, height=False)
         self.configure(bg=ST_BG[th])
 
@@ -2098,17 +2232,18 @@ class ManualW(tk.Toplevel):
         self.var_order = tk.StringVar(value='3')  # Порядок следования каналов после перемешивания
         self.var_mult_name = tk.StringVar()  # Сдвиг букв в имени файла
 
+        self.var_cmd = tk.BooleanVar(value=False)  # Сканирование или обработка
+
         self.vcmd = (self.register(validate_natural), '%P')
 
-        self.frame_all = ttk.Frame(self,           style='Default.TFrame')
+        self.frame_all = ttk.Frame(self, style='Default.TFrame')
+        # {
         self.frame_rgb = ttk.Frame(self.frame_all, style='RGB.TFrame')
-        self.frame_all.grid(row=0, column=0, columnspan=3, padx=4, pady=4)
-        self.frame_rgb.grid(row=0, column=0, columnspan=4, padx=4, pady=4)
-
+        # { {
         ttk.Label(self.frame_rgb, text='RED', style='Red.TLabel').grid(    row=0, column=1, pady=(4, 1))
         ttk.Label(self.frame_rgb, text='GREEN', style='Green.TLabel').grid(row=0, column=2, pady=(4, 1))
         ttk.Label(self.frame_rgb, text='BLUE', style='Blue.TLabel').grid(  row=0, column=3, pady=(4, 1))
-
+        #
         ttk.Label(self.frame_rgb, text='H multiplier',          style='RGB.TLabel').grid(row=1, column=0, padx=(6, 1), pady=1,      sticky='E')
         ttk.Label(self.frame_rgb, text='W multiplier',          style='RGB.TLabel').grid(row=2, column=0, padx=(6, 1), pady=1,      sticky='E')
         ttk.Label(self.frame_rgb, text='H shift',               style='RGB.TLabel').grid(row=3, column=0, padx=(6, 1), pady=1,      sticky='E')
@@ -2116,7 +2251,7 @@ class ManualW(tk.Toplevel):
         ttk.Label(self.frame_rgb, text='Primary color shift',   style='RGB.TLabel').grid(row=6, column=0, padx=(6, 1), pady=1,      sticky='E')
         ttk.Label(self.frame_rgb, text='Color multiplier',      style='RGB.TLabel').grid(row=7, column=0, padx=(6, 1), pady=1,      sticky='E')
         ttk.Label(self.frame_rgb, text='Secondary color shift', style='RGB.TLabel').grid(row=8, column=0, padx=(6, 1), pady=(1, 4), sticky='E')
-
+        #
         self.entry_mult_blocks_h_r = ttk.Entry(self.frame_rgb, width=10, textvariable=self.var_mult_blocks_h_r, validate='key', validatecommand=self.vcmd, style='Default.TEntry')
         self.entry_mult_blocks_h_g = ttk.Entry(self.frame_rgb, width=10, textvariable=self.var_mult_blocks_h_g, validate='key', validatecommand=self.vcmd, style='Default.TEntry')
         self.entry_mult_blocks_h_b = ttk.Entry(self.frame_rgb, width=10, textvariable=self.var_mult_blocks_h_b, validate='key', validatecommand=self.vcmd, style='Default.TEntry')
@@ -2138,7 +2273,30 @@ class ManualW(tk.Toplevel):
         self.entry_shift2_r =        ttk.Entry(self.frame_rgb, width=10, textvariable=self.var_shift2_r,        validate='key', validatecommand=self.vcmd, style='Default.TEntry')
         self.entry_shift2_g =        ttk.Entry(self.frame_rgb, width=10, textvariable=self.var_shift2_g,        validate='key', validatecommand=self.vcmd, style='Default.TEntry')
         self.entry_shift2_b =        ttk.Entry(self.frame_rgb, width=10, textvariable=self.var_shift2_b,        validate='key', validatecommand=self.vcmd, style='Default.TEntry')
+        # } }
+        ttk.Label(self.frame_all, text='Multiplier for filenames', style='Default.TLabel').grid(row=1, column=0, padx=(6, 1), pady=(0, 4), sticky='E')
+        ttk.Label(self.frame_all, text='Channels order', style='Default.TLabel').grid(row=1, column=2, padx=(6, 1), pady=(0, 4), sticky='E')
+        #
+        self.entry_mult_name = ttk.Entry(self.frame_all, width=10, textvariable=self.var_mult_name,
+                                         validate='key', validatecommand=self.vcmd, style='Default.TEntry')
+        self.spin_order = ttk.Spinbox(self.frame_all, width=3, textvariable=self.var_order,
+                                      values=[str(i) for i in range(6)], state='readonly',
+                                      validate='key', validatecommand=self.vcmd, style='Default.TSpinbox')
+        # }
+        self.btn_encode = ttk.Button(self, text='Encode', command=self.pre_encode, takefocus=False,
+                                     style='Default.TButton')
+        self.btn_decode = ttk.Button(self, text='Decode', command=self.pre_decode, takefocus=False,
+                                     style='Default.TButton')
+        self.frame_scan = ttk.Frame(self, style='RGB.TFrame')
+        # {
+        ttk.Label(self.frame_scan, text='Scanning', style='Default.TLabel').grid(row=1, column=2, padx=(4, 1), pady=4)
+        self.check_mode = ttk.Checkbutton(self.frame_scan, variable=self.var_cmd, style='Default.TCheckbutton')
+        # }
 
+        self.frame_all.grid(row=0, column=0, columnspan=3, padx=4, pady=4)
+        # {
+        self.frame_rgb.grid(row=0, column=0, columnspan=4, padx=4, pady=4)
+        # { {
         self.entry_mult_blocks_h_r.grid(row=1, column=1, padx=(0, 6), pady=1)
         self.entry_mult_blocks_h_g.grid(row=1, column=2, padx=(0, 6), pady=1)
         self.entry_mult_blocks_h_b.grid(row=1, column=3, padx=(0, 6), pady=1)
@@ -2160,28 +2318,16 @@ class ManualW(tk.Toplevel):
         self.entry_shift2_r.grid(       row=8, column=1, padx=(0, 6), pady=(1, 4))
         self.entry_shift2_g.grid(       row=8, column=2, padx=(0, 6), pady=(1, 4))
         self.entry_shift2_b.grid(       row=8, column=3, padx=(0, 6), pady=(1, 4))
-
-        ttk.Label(self.frame_all, text='Multiplier for filenames', style='Default.TLabel').grid(row=1, column=0, padx=(6, 1), pady=(0, 4), sticky='E')
-        ttk.Label(self.frame_all, text='Channels order',           style='Default.TLabel').grid(row=1, column=2, padx=(6, 1), pady=(0, 4), sticky='E')
-
-        self.entry_mult_name = ttk.Entry(self.frame_all, width=10, textvariable=self.var_mult_name, validate='key', validatecommand=self.vcmd, style='Default.TEntry')
-        self.spin_order = ttk.Spinbox(self.frame_all, width=3, textvariable=self.var_order, values=[str(i) for i in range(6)], state='readonly', validate='key', validatecommand=self.vcmd, style='Default.TSpinbox')
-
+        # } }
         self.entry_mult_name.grid(row=1, column=1, padx=(0, 6), pady=4, sticky='W')
         self.spin_order.grid(     row=1, column=3, padx=(0, 6), pady=4, sticky='W')
-
-        self.cmd = tk.BooleanVar(value=False)
-
-        self.btn_encode = ttk.Button(self, text='Encode', command=self.pre_encode, takefocus=False, style='Default.TButton')
-        self.btn_decode = ttk.Button(self, text='Decode', command=self.pre_decode, takefocus=False, style='Default.TButton')
-        self.frame_scan = ttk.Frame(self, style='RGB.TFrame')
+        # }
         self.btn_encode.grid(row=1, column=0, pady=(0, 4))
         self.btn_decode.grid(row=1, column=1, pady=(0, 4))
         self.frame_scan.grid(row=1, column=2, pady=(0, 4))
-
-        ttk.Label(self.frame_scan, text='Scanning', style='Default.TLabel').grid(row=1, column=2, padx=(4, 1), pady=4)
-        self.check_mode = ttk.Checkbutton(self.frame_scan, variable=self.cmd, style='Default.TCheckbutton')
+        # {
         self.check_mode.grid(row=1, column=3, padx=(0, 4), pady=4)
+        # }
 
     # Заполнить ключевые значения
     def set_key_vales(self):
@@ -2258,7 +2404,7 @@ class ManualW(tk.Toplevel):
     def open(self):
         self.grab_set()
         self.wait_window()
-        if self.cmd:
+        if self.var_cmd:
             return self.mode, 1
         else:
             return self.mode, 2
@@ -2276,28 +2422,37 @@ class MainW(tk.Tk):
         self.set_ttk_styles()
 
         self.frame_head = ttk.Frame(self, style='Default.TFrame')
-        self.frame_head.grid(row=0, padx=6, pady=4)
-
+        # {
         self.lbl_header1 = ttk.Label(self.frame_head, text='Anenokil development presents', style='Header.TLabel')
         self.lbl_header2 = ttk.Label(self.frame_head, text=PROGRAM_NAME, style='Logo.TLabel')
-        self.lbl_header1.grid(row=0, padx=7, pady=(7, 0))
-        self.lbl_header2.grid(row=1, padx=7, pady=(0, 7))
-
-        self.btn_settings = ttk.Button(self, text='Settings',       command=self.settings, takefocus=False, style='Default.TButton')
-        self.btn_encode   = ttk.Button(self, text='Encode',         command=self.encode, takefocus=False,   style='Default.TButton')
-        self.btn_decode   = ttk.Button(self, text='Decode',         command=self.decode, takefocus=False,   style='Default.TButton')
-        self.btn_mcm      = ttk.Button(self, text='Manual Control', command=self.mcm, takefocus=False,      style='Default.TButton')
-        self.btn_close    = ttk.Button(self, text='Close',          command=self.quit, takefocus=False,     style='Default.TButton')
-        self.btn_settings.grid(row=2, pady=5)
-        self.btn_encode.grid(  row=3, pady=5)
-        self.btn_decode.grid(  row=4, pady=5)
-        self.btn_mcm.grid(     row=5, pady=5)
-        self.btn_close.grid(   row=6, pady=5)
-
+        # }
+        self.btn_settings = ttk.Button(self, text='Settings', command=self.settings, takefocus=False,
+                                       style='Default.TButton')
+        self.btn_encode = ttk.Button(self, text='Encode', command=self.encode, takefocus=False,
+                                     style='Default.TButton')
+        self.btn_decode = ttk.Button(self, text='Decode', command=self.decode, takefocus=False,
+                                     style='Default.TButton')
+        self.btn_mcm = ttk.Button(self, text='Manual Control', command=self.mcm, takefocus=False,
+                                  style='Default.TButton')
+        self.btn_check_updates = ttk.Button(self, text='Check updates', command=self.check_updates, takefocus=False,
+                                            style='Default.TButton')
+        self.btn_close = ttk.Button(self, text='Close', command=self.quit, takefocus=False, style='No.TButton')
         self.lbl_footer = ttk.Label(self, text=f'{PROGRAM_VERSION}\n'
                                                f'{PROGRAM_DATE}',
                                     justify='center', style='Footer.TLabel')
-        self.lbl_footer.grid(row=7, padx=7, pady=(0, 3), sticky='S')
+
+        self.frame_head.grid(row=0, padx=5, pady=5)
+        # {
+        self.lbl_header1.grid(row=0, padx=7, pady=(7, 0))
+        self.lbl_header2.grid(row=1, padx=7, pady=(0, 7))
+        # }
+        self.btn_settings.grid(     row=1,         pady=5)
+        self.btn_encode.grid(       row=2,         pady=5)
+        self.btn_decode.grid(       row=3,         pady=5)
+        self.btn_mcm.grid(          row=4,         pady=5)
+        self.btn_check_updates.grid(row=5,         pady=5)
+        self.btn_close.grid(        row=6,         pady=5)
+        self.lbl_footer.grid(       row=7, padx=7, pady=(0, 3), sticky='S')
 
     # Перейти в настройки
     def settings(self):
@@ -2305,12 +2460,13 @@ class MainW(tk.Tk):
 
     # Отправить на шифровку
     def encode(self):
+        global fn_symbols, fn_symbols_num, process_status
+
         window = EnterKeyW(self, 'Encode')
         has_key, key, cmd = window.open()
         if not has_key:
             return
 
-        global fn_symbols, fn_symbols_num
         if settings['support_ru'] == 'no':
             fn_symbols = FN_SYMBOLS_WITHOUT_RU
             fn_symbols_num = FN_SYMBOLS_WITHOUT_RU_NUM
@@ -2318,7 +2474,6 @@ class MainW(tk.Tk):
             fn_symbols = FN_SYMBOLS_WITH_RU
             fn_symbols_num = FN_SYMBOLS_WITH_RU_NUM
 
-        global process_status
         process_status = 'work'
 
         self.logger = LoggerW(self)
@@ -2331,12 +2486,13 @@ class MainW(tk.Tk):
 
     # Отправить на дешифровку
     def decode(self):
+        global fn_symbols, fn_symbols_num, process_status
+
         window = EnterKeyW(self, 'Decode')
         has_key, key, cmd = window.open()
         if not has_key:
             return
 
-        global fn_symbols, fn_symbols_num
         if settings['support_ru'] == 'no':
             fn_symbols = FN_SYMBOLS_WITHOUT_RU
             fn_symbols_num = FN_SYMBOLS_WITHOUT_RU_NUM
@@ -2344,7 +2500,6 @@ class MainW(tk.Tk):
             fn_symbols = FN_SYMBOLS_WITH_RU
             fn_symbols_num = FN_SYMBOLS_WITH_RU_NUM
 
-        global process_status
         process_status = 'work'
 
         self.logger = LoggerW(self)
@@ -2357,10 +2512,11 @@ class MainW(tk.Tk):
 
     # Перейти в режим ручного управления
     def mcm(self):
+        global fn_symbols, fn_symbols_num, process_status
+
         window = ManualW(self)
         action, cmd = window.open()
 
-        global fn_symbols, fn_symbols_num
         if settings['support_ru'] == 'no':
             fn_symbols = FN_SYMBOLS_WITHOUT_RU
             fn_symbols_num = FN_SYMBOLS_WITHOUT_RU_NUM
@@ -2369,7 +2525,6 @@ class MainW(tk.Tk):
             fn_symbols_num = FN_SYMBOLS_WITH_RU_NUM
 
         if action in ['E', 'D']:
-            global process_status
             process_status = 'work'
             self.logger = LoggerW(self)
             t1 = Thread(target=self.logger.open)
@@ -2379,6 +2534,18 @@ class MainW(tk.Tk):
             else:
                 t2 = Thread(target=decode, args=[cmd])
             t2.start()
+
+    # Проверить обновления
+    def check_updates(self):
+        global window_last_version
+
+        # Если уведомление об обновлении уже открыто, то закрываем его
+        try:
+            window_last_version.destroy()
+        except:
+            pass
+        # Открываем новое уведомление об обновлении
+        window_last_version = check_updates(self, str_to_bool(settings['show_updates']), True)
 
     # Установить ttk-стили
     def set_ttk_styles(self):
@@ -2701,7 +2868,7 @@ except FileNotFoundError:  # Если файл с настройками отс�
 th = settings['theme']
 
 gui = MainW()
-window_last_version = check_updates(gui, str_to_bool(settings['show_updates']))  # Проверка наличия обновлений
+window_last_version = check_updates(gui, str_to_bool(settings['show_updates']), False)  # Проверка наличия обновлений
 gui.mainloop()
 
 # v1.0.0
@@ -2720,3 +2887,5 @@ gui.mainloop()
 # цвета в журнале
 # показывать общее время выполнения
 # is closed
+
+# MCM - цикл
