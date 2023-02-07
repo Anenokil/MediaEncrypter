@@ -25,4 +25,4 @@ Supported file extensions:
 | | The default `source` folder | The default `destination` folder |
 |:---:|:---:|:---:|
 | **When encrypting** | f_src | f_enc |
-| **When decrypting** | f_enc | d_dec |
+| **When decrypting** | f_enc | f_dec |
