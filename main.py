@@ -14,21 +14,22 @@ import cv2  # Составление видео из кадров
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter.filedialog import askdirectory
+import re  # Несколько разделителей в split
+import webbrowser  # Для открытия веб-страницы
+import urllib.request as urllib2  # Для проверки наличия обновлений
+import wget  # Для загрузки обновления
+import zipfile  # Для распаковки обновления
 from colorama import Fore, Style  # Цвета в консоли
 if sys.platform == 'win32':  # Для цветного текста в консоли Windows
     import ctypes
     kernel32 = ctypes.windll.kernel32
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
-import re  # Несколько разделителей в split
-import urllib.request as urllib2  # Для проверки наличия обновлений
-import wget  # Для загрузки обновления
-import zipfile  # Для распаковки обновления
 
 """ Информация о программе """
 
 PROGRAM_NAME = 'Media Encrypter'
-PROGRAM_VERSION = 'v7.0.0_PRE-46'
-PROGRAM_DATE = '6.2.2023 18:52 (UTC+3)'
+PROGRAM_VERSION = 'v7.0.0_PRE-47'
+PROGRAM_DATE = '7.2.2023 13:37 (UTC+3)'
 
 """ Темы """
 
@@ -383,33 +384,32 @@ def extract_key_values(b: list[list[int]]):
 
 # Проверка наличия обновлений программы
 def check_updates(window_parent, show_updates: bool, show_if_no_updates: bool):
-    print('\nПроверка наличия обновлений...')
+    print('\nChecking updates...')
     window_last_version = None
     try:
         data = urllib2.urlopen(URL_LAST_VERSION)
         last_version = str(data.read().decode('utf-8')).strip()
         if PROGRAM_VERSION == last_version:
-            print('Установлена последняя доступная версия')
+            print('The last version downloaded')
             if show_updates and show_if_no_updates:
-                window_last_version = PopupMsgW(window_parent, 'Установлена последняя доступная версия')
+                window_last_version = PopupMsgW(window_parent, 'The last version downloaded')
         else:
-            print(f'Доступна новая версия: {last_version}')
+            print(f'New version is available: {last_version}')
             if show_updates:
                 window_last_version = LastVersionW(window_parent, last_version)
     except Exception as exc:
-        print(f'Ошибка: невозможно проверить наличие обновлений!\n'
+        print(f'Error: cannot check updates!\n'
               f'{exc}')
         if show_updates:
-            PopupMsgW(window_parent, f'Ошибка: невозможно проверить наличие обновлений!\n'
-                                     f'{exc}',
-                      title='Warning').open()
+            warning(window_parent, f'Error: cannot check updates!\n'
+                                   f'{exc}')
     return window_last_version
 
 
 # Загрузка пользовательских тем
 def upload_themes(themes: list[str]):
     if os.listdir(ADDITIONAL_THEMES_PATH):
-        print('\nЗагрузка тем...')
+        print('\nUploading themes...')
     for file_name in os.listdir(ADDITIONAL_THEMES_PATH):
         base_name, ext = os.path.splitext(file_name)
         theme = base_name
@@ -419,7 +419,8 @@ def upload_themes(themes: list[str]):
                 line = theme_file.readline().strip()
                 theme_version = int(re.split(' |//', line)[0])  # После // идут комментарии
                 if theme_version != REQUIRED_THEME_VERSION:  # Проверка версии темы
-                    print(f'Не удалось загрузить тему "{theme}", т. к. она устарела!')
+                    print(f'The "{theme}" theme could not be uploaded because\n'
+                          f'its version does not match the required one (required is {REQUIRED_THEME_VERSION})!')
                     continue
                 themes += [theme]  # Добавляем название новой темы
                 for style_elem in STYLE_ELEMENTS:  # Проходимся по стилизуемым элементам
@@ -428,10 +429,10 @@ def upload_themes(themes: list[str]):
                     element = STYLES[style_elem]
                     element[theme] = style  # Добавляем новый стиль для элемента, соответствующий теме theme
         except Exception as exc:
-            print(f'Не удалось загрузить тему "{theme}" из-за ошибки!\n'
+            print(f'Failed to upload the "{theme}" theme due to error!\n'
                   f'{exc}')
         else:
-            print(f'Тема "{theme}" успешно загружена')
+            print(f'The "{theme}" theme successfully uploaded')
 
 
 """ Алгоритм шифровки/дешифровки """
@@ -1190,11 +1191,11 @@ def encode(cmd: int):
     input_dir = settings['src_dir_enc']
     output_dir = settings['dst_dir_enc']
     if not os.path.exists(input_dir):
-        PopupMsgW(gui, f'Исходная папка "{input_dir}" не найдена!', title='Warning').open()
+        warning(gui, f'Source folder "{input_dir}" not found!')
         gui.logger.destroy()
         return
     if not os.path.exists(output_dir):
-        PopupMsgW(gui, f'Папка назначения "{output_dir}" не найдена!', title='Warning').open()
+        warning(gui, f'Destination folder "{output_dir}" not found!')
         gui.logger.destroy()
         return
     marker = settings['marker_enc']
@@ -1227,11 +1228,11 @@ def decode(cmd: int):
     input_dir = settings['src_dir_dec']
     output_dir = settings['dst_dir_dec']
     if not os.path.exists(input_dir):
-        PopupMsgW(gui, f'Исходная папка "{input_dir}" не найдена!', title='Warning').open()
+        warning(gui, f'Source folder "{input_dir}" not found!')
         gui.logger.destroy()
         return
     if not os.path.exists(output_dir):
-        PopupMsgW(gui, f'Папка назначения "{output_dir}" не найдена!', title='Warning').open()
+        warning(gui, f'Destination folder "{output_dir}" not found!')
         gui.logger.destroy()
         return
     marker = settings['marker_dec']
@@ -1305,6 +1306,11 @@ def validate_expand(value: str, entry: tk.Entry | ttk.Entry, min_len: int, max_l
 """ Графический интерфейс - вспомогательные функции """
 
 
+# Вывести сообщение с предупреждением
+def warning(window_parent, msg: str):
+    PopupMsgW(window_parent, msg, title='Warning').open()
+
+
 # Выключить кнопку (т. к. в ttk нельзя убрать уродливую тень текста на выключенных кнопках, пришлось делать по-своему)
 def btn_disable(btn: ttk.Button):
     btn.configure(command='', style='Disabled.TButton')
@@ -1320,57 +1326,115 @@ class PopupMsgW(tk.Toplevel):
         self.title(title)
         self.configure(bg=ST_BG[th])
 
-        ttk.Label(self, text=msg, justify='center', style='Default.TLabel').grid(row=0, column=0, padx=6, pady=4)
-        ttk.Button(self, text=btn_text, command=self.destroy, takefocus=False, style='Default.TButton').grid(row=1, column=0, padx=6, pady=4)
+        self.closed = True  # Закрыто ли окно крестиком
+
+        self.lbl_msg = ttk.Label(self, text=msg, justify='center', style='Default.TLabel')
+        self.btn_ok = ttk.Button(self, text=btn_text, command=self.ok, takefocus=False, style='Default.TButton')
+
+        self.lbl_msg.grid(row=0, column=0, padx=6, pady=4)
+        self.btn_ok.grid( row=1, column=0, padx=6, pady=4)
+
+    # Нажатие на кнопку
+    def ok(self):
+        self.closed = False
+        self.destroy()
+
+    # Установить фокус
+    def set_focus(self):
+        self.focus_set()
+        self.bind('<Return>', lambda event=None: self.btn_ok.invoke())
+        self.bind('<Escape>', lambda event=None: self.destroy())
 
     def open(self):
+        self.set_focus()
+
         self.grab_set()
         self.wait_window()
+
+        return self.closed
 
 
 # Всплывающее окно с сообщением и двумя кнопками
 class PopupDialogueW(tk.Toplevel):
-    def __init__(self, parent, msg='Are you sure?', btn_yes='Yes', btn_no='Cancel', title=PROGRAM_NAME):
+    def __init__(self, parent, msg='Are you sure?', btn_yes_text='Yes', btn_no_text='Cancel', title=PROGRAM_NAME):
         super().__init__(parent)
         self.title(title)
         self.configure(bg=ST_BG[th])
 
-        self.var_answer = False
+        self.answer = False
 
-        ttk.Label(self, text=msg, justify='center', style='Default.TLabel').grid(row=0, columnspan=2, padx=6, pady=4)
-        ttk.Button(self, text=btn_yes, command=self.yes, takefocus=False, style='Yes.TButton').grid(row=1, column=0, padx=(6, 10), pady=4, sticky='E')
-        ttk.Button(self, text=btn_no, command=self.no, takefocus=False, style='No.TButton').grid(row=1, column=1, padx=(10, 6), pady=4, sticky='W')
+        self.lbl_msg = ttk.Label(self, text=msg, justify='center', style='Default.TLabel')
+        self.btn_yes = ttk.Button(self, text=btn_yes_text, command=self.yes, takefocus=False, style='Yes.TButton')
+        self.btn_no = ttk.Button(self, text=btn_no_text, command=self.no, takefocus=False, style='No.TButton')
+
+        self.lbl_msg.grid(row=0, columnspan=2, padx=6,       pady=4)
+        self.btn_yes.grid(row=1, column=0,     padx=(6, 10), pady=4, sticky='E')
+        self.btn_no.grid( row=1, column=1,     padx=(10, 6), pady=4, sticky='W')
 
     def yes(self):
-        self.var_answer = True
+        self.answer = True
         self.destroy()
 
     def no(self):
-        self.var_answer = False
+        self.answer = False
         self.destroy()
 
+    # Установить фокус
+    def set_focus(self):
+        self.focus_set()
+        self.bind('<Return>', lambda event=None: self.btn_yes.invoke())
+        self.bind('<Escape>', lambda event=None: self.btn_no.invoke())
+
     def open(self):
-        return self.var_answer
+        self.set_focus()
+
+        self.grab_set()
+        self.wait_window()
+
+        return self.answer
 
 
 # Всплывающее окно с полем Combobox
 class PopupChooseW(tk.Toplevel):
-    def __init__(self, parent, values: list | tuple, msg='Choose the one of these', btn_text='Confirm',
-                 default_value=None, title=PROGRAM_NAME):
+    def __init__(self, parent, values: list[str] | tuple[str, ...], msg='Choose the one of these', btn_text='Confirm',
+                 combo_width=20, default_value=None, title=PROGRAM_NAME):
         super().__init__(parent)
         self.title(title)
         self.configure(bg=ST_BG[th])
 
+        self.closed = True  # Закрыто ли окно крестиком
+
         self.var_answer = tk.StringVar(value=default_value)
 
-        ttk.Label(self, text=msg, justify='center', style='Default.TLabel').grid(row=0, padx=6, pady=(4, 1))
-        ttk.Combobox(self, textvariable=self.var_answer, values=values, state='readonly', style='Default.TCombobox').grid(row=1, padx=6, pady=1)
-        ttk.Button(self, text=btn_text, command=self.destroy, takefocus=False, style='Default.TButton').grid(row=2, padx=6, pady=4)
+        self.lbl_msg = ttk.Label(self, text=msg, justify='center', style='Default.TLabel')
+        self.combo_vals = ttk.Combobox(self, textvariable=self.var_answer, values=values, width=combo_width,
+                                       state='readonly', font='TkFixedFont', style='Default.TCombobox')
+        self.btn_ok = ttk.Button(self, text=btn_text, command=self.ok, takefocus=False, style='Yes.TButton')
+
+        self.lbl_msg.grid(   row=0, padx=6, pady=(4, 1))
+        self.combo_vals.grid(row=1, padx=6, pady=1)
+        self.btn_ok.grid(    row=2, padx=6, pady=4)
+
+        self.option_add('*TCombobox*Listbox*Font', 'TkFixedFont')  # Моноширинный шрифт в списке combobox
+
+    # Нажатие на кнопку
+    def ok(self):
+        self.closed = False
+        self.destroy()
+
+    # Установить фокус
+    def set_focus(self):
+        self.focus_set()
+        self.bind('<Return>', lambda event=None: self.btn_ok.invoke())
+        self.bind('<Escape>', lambda event=None: self.destroy())
 
     def open(self):
+        self.set_focus()
+
         self.grab_set()
         self.wait_window()
-        return self.var_answer.get()
+
+        return self.closed, self.var_answer.get()
 
 
 """ Графический интерфейс - вспомогательные окна """
@@ -1396,13 +1460,12 @@ class EnterSaveNameW(tk.Toplevel):
     def check_and_return(self):
         filename = self.var_name.get()
         if filename == '':
-            PopupMsgW(self, 'Incorrect name for save', title='Warning').open()
+            warning(self, 'Incorrect name for save!')
             return
         self.name_is_correct = True
         if f'{filename}.txt' in os.listdir(CUSTOM_SETTINGS_PATH):  # Если уже есть сохранение с таким названием
             window = PopupDialogueW(self, 'A save with that name already exists!\n'
                                           'Do you want to overwrite it?')
-            self.wait_window(window)
             answer = window.open()
             if not answer:
                 self.name_is_correct = False
@@ -1487,9 +1550,8 @@ class EnterKeyW(tk.Toplevel):
         key = self.var_key.get()
         code, cause = check_key(key)
         if code == 'L':  # Если неверная длина ключа
-            PopupMsgW(self, f'Invalid key length: {cause}!\n'
-                            f'Must be {KEY_LEN}',
-                      title='Warning').open()
+            warning(self, f'Invalid key length: {cause}!\n'
+                          f'Must be {KEY_LEN}')
             return
         self.has_key = True
         self.destroy()
@@ -1601,6 +1663,7 @@ class LastVersionW(tk.Toplevel):
     def __init__(self, parent, last_version: str):
         super().__init__(parent)
         self.title('New version available')
+        self.resizable(width=False, height=False)
         self.configure(bg=ST_BG[th])
 
         self.var_url = tk.StringVar(value=URL_GITHUB)  # Ссылка, для загрузки новой версии
@@ -1608,60 +1671,76 @@ class LastVersionW(tk.Toplevel):
         self.lbl_msg = ttk.Label(self, text=f'Доступна новая версия программы\n'
                                             f'{last_version}',
                                  justify='center', style='Default.TLabel')
-        self.entry_url = ttk.Entry(self, textvariable=self.var_url, state='readonly', width=45, justify='center',
-                                   style='Default.TEntry')
-        self.btn_update = ttk.Button(self, text='Обновить', command=self.download_and_install, takefocus=False,
-                                     style='Default.TButton')
-        self.btn_close = ttk.Button(self, text='Закрыть', command=self.destroy, takefocus=False,
-                                    style='Default.TButton')
+        self.frame_url = ttk.Frame(self, style='Invis.TFrame')
+        # {
+        self.entry_url = ttk.Entry(self.frame_url, textvariable=self.var_url, state='readonly', width=45,
+                                   justify='center', style='Default.TEntry')
+        self.btn_open = ttk.Button(self.frame_url, text='Открыть ссылку', command=self.open_github,
+                                   takefocus=False, style='Default.TButton')
+        # }
+        self.btn_update = ttk.Button(self, text='Обновить', command=self.download_and_install,
+                                     takefocus=False, style='Yes.TButton')
+        self.btn_close = ttk.Button(self, text='Закрыть', command=self.destroy, takefocus=False, style='No.TButton')
 
-        self.lbl_msg.grid(   row=0, columnspan=2, padx=6, pady=(4, 0))
-        self.entry_url.grid( row=1, columnspan=2, padx=6, pady=(0, 4))
-        self.btn_update.grid(row=2, column=0,     padx=6, pady=4)
-        self.btn_close.grid( row=2, column=1,     padx=6, pady=4)
+        self.lbl_msg.grid(  row=1, columnspan=2, padx=6, pady=(4, 0))
+        self.frame_url.grid(row=2, columnspan=2, padx=6, pady=(0, 4))
+        # {
+        self.entry_url.grid(row=0, column=0, padx=(0, 3), pady=0)
+        self.btn_open.grid( row=0, column=1, padx=0,      pady=0)
+        # }
+        self.btn_update.grid(row=3, column=0, padx=6, pady=4)
+        self.btn_close.grid( row=3, column=1, padx=6, pady=4)
+
+    # Открыть репозиторий проекта на GitHub
+    def open_github(self):
+        try:
+            webbrowser.open(URL_GITHUB)
+        except Exception as exc:
+            print(f'Failed to open URL!\n'
+                  f'{exc}')
+            warning(self, f'Failed to open URL!\n'
+                          f'{exc}')
 
     # Скачать и установить обновление
     def download_and_install(self):
-        try:  # Загрузка
-            print('\nDownload zip')
-            wget.download(URL_DOWNLOAD_ZIP, out=MAIN_PATH)  # Скачиваем архив с обновлением
-        except:
-            PopupMsgW(self, 'Не удалось загрузить обновление!', title='Warning').open()
+        # Загрузка
+        try:
+            # Скачиваем архив с обновлением
+            print('\nDownload zip...')
+            wget.download(URL_DOWNLOAD_ZIP, out=MAIN_PATH)
+        except Exception as exc:
+            warning(self, f'Failed to download the update!\n'
+                          f'{exc}')
             self.destroy()
-        try:  # Установка
+        # Установка
+        try:
             # Распаковываем архив во временную папку
-            print('Extracting zip')
+            print('Extracting zip...')
             with zipfile.ZipFile(NEW_VERSION_ZIP, 'r') as zip_file:
                 zip_file.extractall(MAIN_PATH)
             # Удаляем архив
-            print('Delete zip')
+            print('Delete zip...')
             os.remove(NEW_VERSION_ZIP)
             # Удаляем файлы текущей версии
-            print('Delete old files')
-            os.remove('ver')
-            os.remove('README.md')
-            os.remove('README_ru.txt')
-            os.remove('main.py')
+            print('Delete old files...')
+            for filename in ['ver', 'README.md', 'README_ru.txt', 'main.py']:
+                os.remove(filename)
             # Из временной папки достаём файлы новой версии
-            print('Set new files')
-            os.replace(os.path.join(NEW_VERSION_DIR, 'ver'), 'ver')
-            os.replace(os.path.join(NEW_VERSION_DIR, 'README.md'), 'README.md')
-            os.replace(os.path.join(NEW_VERSION_DIR, 'README_ru.txt'), 'README_ru.txt')
-            os.replace(os.path.join(NEW_VERSION_DIR, 'main.py'), 'main.py')
+            print('Set new files...')
+            for filename in ['ver', 'README.md', 'README_ru.txt', 'main.py']:
+                os.replace(os.path.join(NEW_VERSION_DIR, filename), filename)
             # Удаляем временную папку
-            print('Delete tmp dir')
+            print('Delete tmp dir...')
             rmtree(NEW_VERSION_DIR)
-            PopupMsgW(self, 'Обновление успешно установлено\n'
-                            'Программа закроется').open()
-        except:
-            PopupMsgW(self, 'Не удалось установить обновление!', title='Warning').open()
+            PopupMsgW(self, 'New version successfully downloaded!\n'
+                            'Close the program').open()
+        except Exception as exc:
+            warning(self, f'Failed to install the update!\n'
+                          f'{exc}')
             self.destroy()
         else:
+            print('Done!')
             exit(777)
-
-    def open(self):
-        self.grab_set()
-        self.wait_window()
 
 
 """ Графический интерфейс - основные окна """
@@ -2024,7 +2103,6 @@ class SettingsW(tk.Toplevel):
             window = PopupDialogueW(self, f'There are unsaved changes!\n'
                                           f'Do you want to continue?',
                                     title='Warning')
-            self.wait_window(window)
             answer = window.open()
             if not answer:
                 return
@@ -2044,11 +2122,13 @@ class SettingsW(tk.Toplevel):
                 csf_list += [base_name]
                 csf_count += 1
         if csf_count == 0:  # Если нет сохранённых настроек
-            PopupMsgW(self, 'There are no saves!', title='Warning').open()
+            warning(self, 'There are no saves!')
             return False, ''
         else:
             window = PopupChooseW(self, csf_list, f'Choose a save you want to {cmd_name}', default_value=csf_list[0])
-            filename = window.open()
+            closed, filename = window.open()
+            if closed:
+                return False, ''
             return True, f'{filename}.txt'
 
     # Загрузить пользовательские настройки
@@ -2186,7 +2266,6 @@ class SettingsW(tk.Toplevel):
             window = PopupDialogueW(self, f'If you close the window, the changes will not be saved!\n'
                                           f'Close settings?',
                                     title='Warning')
-            self.wait_window(window)
             answer = window.open()
             if answer:
                 self.destroy()
@@ -2357,7 +2436,7 @@ class ManualW(tk.Toplevel):
             self.var_shift2_g.get() == '' or\
             self.var_shift2_b.get() == '' or\
             self.var_mult_name.get() == '':
-            PopupMsgW(self, 'All fields must be filled', title='Warning').open()
+            warning(self, 'All fields must be filled!')
             return False
 
         mult_blocks_h_r = int(self.var_mult_blocks_h_r.get())
@@ -2887,5 +2966,4 @@ gui.mainloop()
 # цвета в журнале
 # показывать общее время выполнения
 # is closed
-
 # MCM - цикл
