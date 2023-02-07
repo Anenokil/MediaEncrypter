@@ -28,8 +28,8 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
 """ Информация о программе """
 
 PROGRAM_NAME = 'Media Encrypter'
-PROGRAM_VERSION = 'v7.0.0_PRE-47'
-PROGRAM_DATE = '7.2.2023 13:37 (UTC+3)'
+PROGRAM_VERSION = 'v7.0.0_PRE-48'
+PROGRAM_DATE = '7.2.2023 14:00 (UTC+3)'
 
 """ Темы """
 
@@ -200,12 +200,12 @@ KEY_LEN = 40  # Длина ключа
 """ Общие функции """
 
 
-# Перевод 'yes'/'no' в bool
+# Преобразование 'yes'/'no' в bool
 def str_to_bool(line: str):
     return line == 'yes'
 
 
-# Перевод bool в 'yes'/'no'
+# Преобразование bool в 'yes'/'no'
 def bool_to_str(boolean: bool):
     if boolean:
         return 'yes'
@@ -218,7 +218,7 @@ def print_tab(msg='', tab=0, end='\n'):
     print('~ ' * tab + str(msg), end=end)
 
 
-# Добавить запись в журнал обработки
+# Добавление записи в журнал обработки
 def add_log(msg='', tab=0, end='\n'):
     try:
         gui.logger.add_log(msg, tab, end)
@@ -227,7 +227,7 @@ def add_log(msg='', tab=0, end='\n'):
         process_status = 'error'
 
 
-# Обновить прогресс обработки (файлы и папки)
+# Обновление прогресса обработки (файлы и папки)
 def set_progress_f_d(num: int, den: int):
     try:
         gui.logger.set_progress_f_d(num, den)
@@ -236,7 +236,7 @@ def set_progress_f_d(num: int, den: int):
         process_status = 'error'
 
 
-# Обновить прогресс обработки (кадры)
+# Обновление прогресса обработки (кадры)
 def set_progress_fr(num: int, den: int):
     try:
         gui.logger.set_progress_fr(num, den)
@@ -309,7 +309,7 @@ def load_settings(filename: str):
             settings[SETTINGS_NAMES[i]] = int(settings[SETTINGS_NAMES[i]])
 
 
-# Сохранить настройки в файл
+# Сохранение настроек в файл
 def save_settings_to_file(filename=SETTINGS_PATH):
     with open(filename, 'w') as file:
         for name in SETTINGS_NAMES:
@@ -390,13 +390,13 @@ def check_updates(window_parent, show_updates: bool, show_if_no_updates: bool):
         data = urllib2.urlopen(URL_LAST_VERSION)
         last_version = str(data.read().decode('utf-8')).strip()
         if PROGRAM_VERSION == last_version:
-            print('The last version downloaded')
+            print('The latest version installed')
             if show_updates and show_if_no_updates:
-                window_last_version = PopupMsgW(window_parent, 'The last version downloaded')
+                window_last_version = PopupMsgW(window_parent, 'The latest version installed')
         else:
             print(f'New version is available: {last_version}')
             if show_updates:
-                window_last_version = LastVersionW(window_parent, last_version)
+                window_last_version = NewVersionAvailableW(window_parent, last_version)
     except Exception as exc:
         print(f'Error: cannot check updates!\n'
               f'{exc}')
@@ -1659,28 +1659,28 @@ class LoggerW(tk.Toplevel):
 
 
 # Окно уведомления о выходе новой версии
-class LastVersionW(tk.Toplevel):
+class NewVersionAvailableW(tk.Toplevel):
     def __init__(self, parent, last_version: str):
         super().__init__(parent)
-        self.title('New version available')
+        self.title('New version is available')
         self.resizable(width=False, height=False)
         self.configure(bg=ST_BG[th])
 
         self.var_url = tk.StringVar(value=URL_GITHUB)  # Ссылка, для загрузки новой версии
 
-        self.lbl_msg = ttk.Label(self, text=f'Доступна новая версия программы\n'
+        self.lbl_msg = ttk.Label(self, text=f'New version is available\n'
                                             f'{last_version}',
                                  justify='center', style='Default.TLabel')
         self.frame_url = ttk.Frame(self, style='Invis.TFrame')
         # {
         self.entry_url = ttk.Entry(self.frame_url, textvariable=self.var_url, state='readonly', width=45,
                                    justify='center', style='Default.TEntry')
-        self.btn_open = ttk.Button(self.frame_url, text='Открыть ссылку', command=self.open_github,
+        self.btn_open = ttk.Button(self.frame_url, text='Open URL', command=self.open_github,
                                    takefocus=False, style='Default.TButton')
         # }
-        self.btn_update = ttk.Button(self, text='Обновить', command=self.download_and_install,
+        self.btn_update = ttk.Button(self, text='Update', command=self.download_and_install,
                                      takefocus=False, style='Yes.TButton')
-        self.btn_close = ttk.Button(self, text='Закрыть', command=self.destroy, takefocus=False, style='No.TButton')
+        self.btn_close = ttk.Button(self, text='Close', command=self.destroy, takefocus=False, style='No.TButton')
 
         self.lbl_msg.grid(  row=1, columnspan=2, padx=6, pady=(4, 0))
         self.frame_url.grid(row=2, columnspan=2, padx=6, pady=(0, 4))
@@ -1706,7 +1706,7 @@ class LastVersionW(tk.Toplevel):
         # Загрузка
         try:
             # Скачиваем архив с обновлением
-            print('\nDownload zip...')
+            print('\nDownloading an archive...')
             wget.download(URL_DOWNLOAD_ZIP, out=MAIN_PATH)
         except Exception as exc:
             warning(self, f'Failed to download the update!\n'
@@ -1715,31 +1715,31 @@ class LastVersionW(tk.Toplevel):
         # Установка
         try:
             # Распаковываем архив во временную папку
-            print('Extracting zip...')
+            print('Extracting an archive...')
             with zipfile.ZipFile(NEW_VERSION_ZIP, 'r') as zip_file:
                 zip_file.extractall(MAIN_PATH)
             # Удаляем архив
-            print('Delete zip...')
+            print('Deleting an archive...')
             os.remove(NEW_VERSION_ZIP)
             # Удаляем файлы текущей версии
-            print('Delete old files...')
+            print('Deleting old files...')
             for filename in ['ver', 'README.md', 'README_ru.txt', 'main.py']:
                 os.remove(filename)
             # Из временной папки достаём файлы новой версии
-            print('Set new files...')
+            print('Installing new files...')
             for filename in ['ver', 'README.md', 'README_ru.txt', 'main.py']:
                 os.replace(os.path.join(NEW_VERSION_DIR, filename), filename)
             # Удаляем временную папку
-            print('Delete tmp dir...')
+            print('Deleting a temporary folder...')
             rmtree(NEW_VERSION_DIR)
-            PopupMsgW(self, 'New version successfully downloaded!\n'
-                            'Close the program').open()
         except Exception as exc:
             warning(self, f'Failed to install the update!\n'
                           f'{exc}')
             self.destroy()
         else:
-            print('Done!')
+            print('The update successfully installed!')
+            PopupMsgW(self, 'The update successfully installed!\n'
+                            'Close the program').open()
             exit(777)
 
 
@@ -2500,7 +2500,7 @@ class MainW(tk.Tk):
 
         self.set_ttk_styles()
 
-        self.frame_head = ttk.Frame(self, style='Default.TFrame')
+        self.frame_head = ttk.Frame(self, style='Invis.TFrame')
         # {
         self.lbl_header1 = ttk.Label(self.frame_head, text='Anenokil development presents', style='Header.TLabel')
         self.lbl_header2 = ttk.Label(self.frame_head, text=PROGRAM_NAME, style='Logo.TLabel')
