@@ -28,8 +28,9 @@ if sys.platform == 'win32':  # Для цветного текста в конс�
 """ Информация о программе """
 
 PROGRAM_NAME = 'Media Encrypter'
-PROGRAM_VERSION = 'v7.0.0_PRE-48'
-PROGRAM_DATE = '7.2.2023 14:00 (UTC+3)'
+PROGRAM_VERSION = 'v7.0.0_PRE-49'
+PROGRAM_DATE = '4.3.2023'
+PROGRAM_TIME = '9:46 (UTC+3)'
 
 """ Темы """
 
@@ -379,7 +380,7 @@ def extract_key_values(b: list[list[int]]):
         print(f'  SH2 C: {shift2_r}, {shift2_g}, {shift2_b}')
         print(f'  ML  N: {mult_name}')
         print(f'  ORDER: {order}')
-        print('======================================================================================')
+        print('=====================================================================================')
 
 
 # Проверка наличия обновлений программы
@@ -2931,11 +2932,20 @@ class MainW(tk.Tk):
 
 
 # Вывод информации о программе
-print(f'======================================================================================\n')
-print(f'                            {Fore.RED}Anenokil development{Style.RESET_ALL}  presents')
-print(f'                            ' + (30 - len(PROGRAM_NAME) - len(PROGRAM_VERSION) - 2) // 2 * ' ' + f'{Fore.MAGENTA}{PROGRAM_NAME}{Style.RESET_ALL}  {PROGRAM_VERSION}')
-print(f'                            ' + (30 - len(PROGRAM_DATE)) // 2 * ' ' + PROGRAM_DATE + '\n')
-print(f'======================================================================================')
+CONSOLE_LOGO_FRAME_WIDTH = 85
+CONSOLE_LOGO_1_LINE = 'Anenokil development presents'
+CONSOLE_LOGO_2_LINE = PROGRAM_NAME + ' ' * (1 + (len(PROGRAM_NAME) + len(PROGRAM_VERSION)) % 2) + PROGRAM_VERSION
+CONSOLE_LOGO_3_LINE = PROGRAM_DATE + ' ' * (1 + (len(PROGRAM_DATE) + len(PROGRAM_TIME)) % 2) + PROGRAM_TIME
+CONSOLE_LOGO_1_LINE_TAB = (CONSOLE_LOGO_FRAME_WIDTH - len(CONSOLE_LOGO_1_LINE)) // 2
+CONSOLE_LOGO_2_LINE_TAB = (CONSOLE_LOGO_FRAME_WIDTH - len(CONSOLE_LOGO_2_LINE)) // 2
+CONSOLE_LOGO_3_LINE_TAB = (CONSOLE_LOGO_FRAME_WIDTH - len(CONSOLE_LOGO_3_LINE)) // 2
+print('=' * CONSOLE_LOGO_FRAME_WIDTH)
+print()
+print(' ' * CONSOLE_LOGO_1_LINE_TAB + CONSOLE_LOGO_1_LINE)
+print(' ' * CONSOLE_LOGO_2_LINE_TAB + CONSOLE_LOGO_2_LINE)
+print(' ' * CONSOLE_LOGO_3_LINE_TAB + CONSOLE_LOGO_3_LINE)
+print()
+print('=' * CONSOLE_LOGO_FRAME_WIDTH)
 
 upload_themes(THEMES)  # Загружаем темы
 
